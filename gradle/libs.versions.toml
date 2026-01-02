@@ -1,0 +1,10 @@
+[versions]
+paper = '1.21.11-R0.1-SNAPSHOT'
+paperweight = "2.0.0-beta.19"
+jedis = "5.1.0"
+
+[libraries]
+jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
+
+[plugins]
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
