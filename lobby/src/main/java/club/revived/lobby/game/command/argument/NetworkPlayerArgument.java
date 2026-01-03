@@ -15,6 +15,15 @@ import dev.jorel.commandapi.arguments.StringArgument;
  */
 public final class NetworkPlayerArgument {
 
+    /**
+     * Creates an argument that resolves an input username to the corresponding online NetworkPlayer and supplies completion suggestions.
+     *
+     * The argument validates the provided username against the current online players and suggests usernames of all online network players for tab-completion.
+     *
+     * @param nodeName the command node name for this argument
+     * @return an Argument that parses an input username into a NetworkPlayer
+     * @throws CustomArgument.CustomArgumentException if no online player matches the provided username (message: "Player not online: <name>")
+     */
     public static Argument<NetworkPlayer> networkPlayer(final String nodeName) {
         return new CustomArgument<>(
                 new StringArgument(nodeName),

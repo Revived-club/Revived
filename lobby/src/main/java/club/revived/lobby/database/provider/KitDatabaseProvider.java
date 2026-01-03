@@ -30,16 +30,35 @@ public final class KitDatabaseProvider implements DatabaseProvider<KitHolder> {
             .registerTypeAdapter(ItemStack.class, new ItemStackTypeAdapter())
             .create();
 
+    /**
+     * Creates a KitDatabaseProvider and ensures the MongoDB collection named "kits" exists.
+     *
+     * @param database the MongoDatabase used to create and access the "kits" collection
+     */
     public KitDatabaseProvider(final MongoDatabase database) {
         database.createCollection("kits");
         this.collection = database.getCollection("kits");
     }
 
+    /**
+     * Ensure the collection has an ascending index on the "uuid" field.
+     *
+     * This creates an index to improve lookup performance for operations that query kits by UUID.
+     */
     @Override
     public void start() {
         collection.createIndex(new Document("uuid", 1));
     }
 
+    /**
+     * Persists the given KitHolder into the MongoDB "kits" collection.
+     *
+     * The KitHolder is serialized to JSON and stored in a document with fields
+     * "uuid" (the holder's UUID as a string) and "data" (the serialized JSON).
+     *
+     * @param kitHolder the KitHolder to persist
+     * @throws RuntimeException if an error occurs while serializing or writing to the database
+     */
     @Override
     public void save(final KitHolder kitHolder) {
         try {
@@ -59,6 +78,13 @@ public final class KitDatabaseProvider implements DatabaseProvider<KitHolder> {
         }
     }
 
+    /**
+     * Retrieve a KitHolder by its UUID string from the kits collection.
+     *
+     * @param key the UUID of the KitHolder to fetch, as a string
+     * @return an Optional containing the deserialized KitHolder if found, otherwise Optional.empty()
+     * @throws RuntimeException if a database or deserialization error occurs
+     */
     @Override
     public @NotNull Optional<KitHolder> get(final @NotNull String key) {
         try {

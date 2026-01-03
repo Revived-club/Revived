@@ -21,10 +21,22 @@ public final class DuelManager {
 
     private static DuelManager instance;
 
+    /**
+     * Initializes a DuelManager and registers it as the singleton instance returned by getInstance().
+     */
     public DuelManager() {
         instance = this;
     }
 
+    /**
+     * Attempts to accept a pending duel request for the given player and, if a duel service is available, initiates the duel.
+     *
+     * If no pending request exists the player is notified. If the resolved duel service reports a non-available status,
+     * the player is notified and a {@link ServiceUnavailableException} is thrown.
+     *
+     * @param networkPlayer the player attempting to accept a duel request
+     * @throws ServiceUnavailableException if the selected duel service is not available
+     */
     public void acceptDuelRequest(final NetworkPlayer networkPlayer) {
         final var request = Cluster.getInstance().getGlobalCache().get(
                 DuelRequest.class,
@@ -57,6 +69,14 @@ public final class DuelManager {
 
     }
 
+    /**
+     * Creates and stores a duel request for the given receiver and notifies them with a clickable, hoverable message.
+     *
+     * @param sender   the player who initiated the duel request
+     * @param receiver the player who will receive the duel request
+     * @param rounds   the number of rounds configured for the duel
+     * @param kitType  the kit to be used for the duel
+     */
     public void requestDuel(
             final NetworkPlayer sender,
             final NetworkPlayer receiver,
@@ -79,6 +99,12 @@ public final class DuelManager {
         );
     }
 
+    /**
+     * Retrieve the singleton DuelManager instance.
+     *
+     * @return the initialized DuelManager instance
+     * @throws UnsupportedOperationException if the manager has not been initialized
+     */
     public static DuelManager getInstance() {
         if (instance == null) {
             throw new UnsupportedOperationException("DuelManager is not initiated");

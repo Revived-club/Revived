@@ -35,6 +35,17 @@ public final class KitRoomMenu {
 
     private KitRoomPageType pageType;
 
+    /**
+     * Creates a Kit Room menu for the player and initializes it with the specified page type.
+     *
+     * Initializes the inventory UI, populates it with saved content for the given page type,
+     * adds a cycling control to switch among KitRoomPageType values, and — if the player has
+     * permission "club.revived.edit-kitroom" — provides an edit control that saves the current
+     * 45-slot content to the global cache and persistent storage.
+     *
+     * @param player the player who will view and interact with the menu
+     * @param pageType the initial KitRoomPageType to display
+     */
     public KitRoomMenu(final Player player, final KitRoomPageType pageType) {
         this.menu = AbstractMenu.of(6, "Kit Room");
         this.pageType = pageType;
@@ -75,6 +86,15 @@ public final class KitRoomMenu {
 
     }
 
+    /**
+     * Creates selector ItemStacks for each KitRoomPageType to be used in the page-cycle control.
+     *
+     * Each returned item uses a creeper banner pattern, includes a lore listing all page types,
+     * and highlights the item’s corresponding page type. Each generated ItemStack is also registered
+     * in the instance typeMap mapped to its KitRoomPageType.
+     *
+     * @return a list of ItemStacks, one per KitRoomPageType, ready to be used as cycle buttons
+     */
     @NotNull
     private List<ItemStack> cycleItems() {
         final var itemBuilders = new ArrayList<ItemStack>();
@@ -112,6 +132,12 @@ public final class KitRoomMenu {
         return itemBuilders;
     }
 
+    /**
+     * Populate the menu's inventory slots with the stored items for the current page type.
+     *
+     * Retrieves the KitRoomPage from the global cache using the menu's current page type
+     * and sets each slot referenced by the page's content map to the corresponding item.
+     */
     private void stockItems() {
         Cluster.getInstance()
                 .getGlobalCache()
