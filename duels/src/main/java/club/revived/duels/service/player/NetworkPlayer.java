@@ -1,4 +1,4 @@
-package club.revived.lobby.service.player;
+package club.revived.duels.service.player;
 
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;

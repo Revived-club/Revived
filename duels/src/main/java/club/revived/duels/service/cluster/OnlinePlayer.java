@@ -1,0 +1,17 @@
+package club.revived.duels.service.cluster;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
+
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
+public record OnlinePlayer(
+        @NotNull UUID uuid,
+        @NotNull String username,
+        @NotNull String currentServer
+) {}
