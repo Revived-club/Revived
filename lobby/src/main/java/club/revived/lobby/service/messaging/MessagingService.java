@@ -34,7 +34,7 @@ public final class MessagingService {
         this.broker = broker;
         this.serviceId = serviceId;
 
-        this.broker.subscribe("service-messages-" + serviceId, Envelope.class, this::handleEnvelope);
+        this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
     }
 
     @NotNull
@@ -53,7 +53,7 @@ public final class MessagingService {
             }
         });
 
-        final Envelope envelope = new Envelope(
+        final MessageEnvelope envelope = new MessageEnvelope(
                 correlationId,
                 serviceId,
                 targetServiceId,
@@ -70,7 +70,7 @@ public final class MessagingService {
             final String targetServiceId,
             final Message message
     ) {
-        final Envelope envelope = new Envelope(
+        final MessageEnvelope envelope = new MessageEnvelope(
                 UUID.randomUUID(),
                 serviceId,
                 targetServiceId,
@@ -97,7 +97,7 @@ public final class MessagingService {
         messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
     }
 
-    private void handleEnvelope(final Envelope envelope) {
+    private void handleEnvelope(final MessageEnvelope envelope) {
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
@@ -107,7 +107,7 @@ public final class MessagingService {
         }
     }
 
-    private void handleResponse(final Envelope envelope) {
+    private void handleResponse(final MessageEnvelope envelope) {
         final CompletableFuture<Response> future = pendingRequests.remove(envelope.correlationId());
         if (future != null) {
             try {
@@ -121,7 +121,7 @@ public final class MessagingService {
         }
     }
 
-    private void handleIncoming(final Envelope envelope) {
+    private void handleIncoming(final MessageEnvelope envelope) {
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
         if (requestHandler != null) {
             handleRequest(envelope, requestHandler);
@@ -134,7 +134,7 @@ public final class MessagingService {
         }
     }
 
-    private void handleRequest(final Envelope envelope, final Function<Request, Response> handler) {
+    private void handleRequest(final MessageEnvelope envelope, final Function<Request, Response> handler) {
         try {
             final Class<?> requestType = Class.forName(envelope.payloadType());
             final Request request = (Request) gson.fromJson(envelope.payloadJson(), requestType);
@@ -144,7 +144,7 @@ public final class MessagingService {
                 return;
             }
 
-            final Envelope responseEnvelope = new Envelope(
+            final MessageEnvelope responseEnvelope = new MessageEnvelope(
                     envelope.correlationId(),
                     serviceId,
                     envelope.senderId(),
@@ -158,7 +158,7 @@ public final class MessagingService {
         }
     }
 
-    private void handleMessage(final Envelope envelope, final Consumer<Message> handler) {
+    private void handleMessage(final MessageEnvelope envelope, final Consumer<Message> handler) {
         try {
             final Class<?> messageType = Class.forName(envelope.payloadType());
             final Message message = (Message) gson.fromJson(envelope.payloadJson(), messageType);
