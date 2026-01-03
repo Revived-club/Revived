@@ -40,36 +40,34 @@ public final class DuelArena implements IArena {
         this.id = id;
     }
 
+    @Override
+    public void generate() {
+
+    }
 
     @Override
     public @NotNull Location getCorner1() {
-        return null;
+        return this.corner1;
     }
 
     @Override
     public @NotNull Location getSpawn1() {
-        return null;
+        return this.spawn1;
     }
 
     @Override
     public @NotNull Location getCorner2() {
-        return null;
+        return this.corner2;
     }
 
     @Override
     public @NotNull Location getSpawn2() {
-        return null;
+        return this.spawn2;
     }
 
     @Override
-    public @NotNull String getName() {
-        return "";
-    }
-
-    @NotNull
-    @Override
-    public void generate() {
-
+    public @NotNull String getId() {
+        return this.id;
     }
 
     @Override

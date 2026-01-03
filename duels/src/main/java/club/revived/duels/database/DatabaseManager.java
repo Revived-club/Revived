@@ -1,10 +1,8 @@
 package club.revived.duels.database;
 
+import club.revived.duels.database.provider.ArenaSchematicProvider;
+import club.revived.duels.game.arena.schematic.WorldEditSchematic;
 import club.revived.lobby.Lobby;
-import club.revived.lobby.database.provider.KitDatabaseProvider;
-import club.revived.lobby.database.provider.KitRoomDatabaseProvider;
-import club.revived.lobby.game.kit.KitHolder;
-import club.revived.lobby.game.kit.KitRoomPage;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -108,8 +106,7 @@ public final class DatabaseManager {
      * backed by the current MongoDB database, then invokes start() on each registered provider.
      */
     private void register() {
-        this.providers.put(KitHolder.class, new KitDatabaseProvider(this.database));
-        this.providers.put(KitRoomPage.class, new KitRoomDatabaseProvider(this.database));
+        this.providers.put(WorldEditSchematic.class, new ArenaSchematicProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

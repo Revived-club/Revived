@@ -33,7 +33,7 @@ public final class DuelBiome implements IArena {
     }
 
     @Override
-    public @NotNull String getName() {
+    public @NotNull String getId() {
         return "";
     }
 

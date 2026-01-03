@@ -24,9 +24,8 @@ public interface IArena {
     Location getSpawn2();
 
     @NotNull
-    String getName();
+    String getId();
 
-    @NotNull
     void generate();
 
     @NotNull
