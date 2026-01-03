@@ -25,11 +25,24 @@ public final class AbstractMenu extends InventoryBuilder {
         this.rows = rows;
     }
 
+    /**
+     * Create a new AbstractMenu with the specified number of rows and title.
+     *
+     * @param rows  the number of rows in the inventory grid
+     * @param title the title displayed for the inventory
+     * @return      a new AbstractMenu configured with the given rows and title
+     */
     @NotNull
     public static AbstractMenu of(final int rows, final String title) {
         return new AbstractMenu(rows, title);
     }
 
+    /**
+     * Adds a Button to this menu.
+     *
+     * @param button the Button to add to the menu
+     * @return this AbstractMenu instance for method chaining
+     */
     @NotNull
     public AbstractMenu button(final Button button) {
         button.build(this);

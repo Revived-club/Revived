@@ -92,6 +92,13 @@ public enum KitType {
     private final boolean isRanked;
     private final Material material;
 
+    /**
+     * Creates a KitType with the specified display name, ranked flag, and associated material.
+     *
+     * @param beautifiedName the human-friendly name shown for the kit
+     * @param ranked         whether the kit is considered ranked
+     * @param material       the Bukkit Material associated with the kit
+     */
     KitType(
             final String beautifiedName,
             final boolean ranked,
@@ -102,14 +109,29 @@ public enum KitType {
         this.material = material;
     }
 
+    /**
+     * Retrieve the Material associated with this kit type.
+     *
+     * @return the Bukkit Material that visually represents the kit in-game.
+     */
     public Material getMaterial() {
         return material;
     }
 
+    /**
+     * Gets the human-friendly display name for this kit.
+     *
+     * @return the display name for the kit
+     */
     public String getBeautifiedName() {
         return this.bName;
     }
 
+    /**
+     * Indicates whether this kit type is ranked.
+     *
+     * @return `true` if the kit is ranked, `false` otherwise.
+     */
     public boolean isRanked() {
         return this.isRanked;
     }

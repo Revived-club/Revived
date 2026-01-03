@@ -40,6 +40,12 @@ public final class DuelRequestMenu {
     private int rounds = 1;
     private KitType kitType = KitType.SWORD;
 
+    /**
+     * Initializes a duel request UI for the given player and opens the kit selection menu.
+     *
+     * @param player the player initiating the duel
+     * @param target the UUID of the player who will receive the duel request
+     */
     public DuelRequestMenu(final Player player, final UUID target) {
         this.target = target;
         this.player = player;
@@ -67,6 +73,14 @@ public final class DuelRequestMenu {
         menu.open(player);
     }
 
+    /**
+     * Create the "Pick Rounds" inventory which lets the player choose a preset number of rounds or enter a custom amount.
+     *
+     * Selecting a preset or a valid custom amount updates this.rounds and reopens the settings menu for the initiating player.
+     * Custom input is validated: it must be an integer and no greater than 20; invalid input results in an action-bar message.
+     *
+     * @return the InventoryBuilder for the rounds picker menu
+     */
     @NotNull
     private InventoryBuilder roundPicker() {
         final var menu = AbstractMenu.of(4, "Pick Rounds");
@@ -122,6 +136,14 @@ public final class DuelRequestMenu {
         return menu;
     }
 
+    /**
+     * Builds the "Edit Duel" inventory UI allowing the player to review the selected kit and rounds, pick rounds, cancel, or send the duel request.
+     *
+     * The returned menu contains controls to send the configured duel to the target, cancel the request, open the rounds picker, and display current request information.
+     *
+     * @return an InventoryBuilder configured as the "Edit Duel" menu
+     * @throws UnregisteredPlayerException if the target player is not present in the network player map when attempting to send the request
+     */
     @NotNull
     private InventoryBuilder settings() {
         return AbstractMenu.of(4, "Edit Duel")

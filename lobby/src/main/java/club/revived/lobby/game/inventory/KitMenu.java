@@ -25,6 +25,16 @@ public final class KitMenu {
             19, 20, 21, 22, 23, 24, 25
     };
 
+    /**
+     * Constructs and opens the "Kits" selection menu for the given player populated from the provided KitHolder.
+     *
+     * The menu displays each kit from the holder (left-click loads the kit; right-click opens the kit editor),
+     * and includes actions for the Virtual Kit Room, Preset Kits, and Public Kits. Remaining slots are filled
+     * with gray glass panes.
+     *
+     * @param player the player who will see and interact with the menu
+     * @param kitHolder source of kits to display in the menu
+     */
     public KitMenu(
             final Player player,
             final KitHolder kitHolder
@@ -95,6 +105,12 @@ public final class KitMenu {
         menu.open(player);
     }
 
+    /**
+     * Create an ItemBuilder representing the given kit for display in the kit menu.
+     *
+     * @param kit the kit to represent; its id, name, and selected state are reflected in the resulting item
+     * @return an ItemBuilder configured to display the kit's material, name, amount, and lore for the menu
+     */
     @NotNull
     private ItemBuilder kitItem(final Kit kit) {
         return ItemBuilder.item(kit.selected() ? Material.KNOWLEDGE_BOOK : Material.BOOK)

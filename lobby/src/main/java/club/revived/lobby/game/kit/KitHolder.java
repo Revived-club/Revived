@@ -14,6 +14,12 @@ import java.util.UUID;
  */
 public record KitHolder(UUID uuid, Map<Integer, Kit> kits) {
 
+    /**
+     * Create a KitHolder populated with a full set of 14 default Kit instances.
+     *
+     * @param uuid the UUID to assign to the KitHolder and to each created Kit
+     * @return a KitHolder containing a Map of 14 Kit objects keyed 1 through 14; each Kit is constructed with the provided UUID, an index matching its key, a name equal to the index string, an empty internal map, and a false flag
+     */
     @NotNull
     public static KitHolder newEmpty(final UUID uuid) {
         final Map<Integer, Kit> kits = new HashMap<>();

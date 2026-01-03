@@ -21,6 +21,15 @@ import java.util.Map;
  */
 public final class KitEditorMenu {
 
+    /**
+     * Constructs a 6-row inventory menu for editing the given player's kit and populates it with the kit's contents.
+     *
+     * The menu is filled with items from the provided kit and includes an Exit button that cancels the interaction
+     * and opens the main Kit menu for the player's KitHolder when clicked.
+     *
+     * @param player the player for whom the kit editor menu is created
+     * @param kit    the kit whose contents populate the menu
+     */
     public KitEditorMenu(final Player player, final Kit kit) {
         final var menu = AbstractMenu.of(6, player.getName() + "'s Kit");
         final var networkPlayer = PlayerManager.getInstance()

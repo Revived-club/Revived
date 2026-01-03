@@ -16,6 +16,13 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
  */
 public final class DuelCommand {
 
+    /**
+     * Registers the "duel" command and its subcommands.
+     *
+     * The command provides:
+     * - "duel accept": accepts a pending duel request for the executing player.
+     * - "duel <target>": opens a duel request menu targeting the specified player.
+     */
     public DuelCommand() {
         new CommandTree("duel")
                 .then(new LiteralArgument("accept")

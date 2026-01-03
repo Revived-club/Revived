@@ -30,16 +30,30 @@ public final class KitRoomDatabaseProvider implements DatabaseProvider<KitRoomPa
             .registerTypeAdapter(ItemStack.class, new ItemStackTypeAdapter())
             .create();
 
+    /**
+     * Creates a KitRoomDatabaseProvider backed by the given MongoDatabase and ensures the "kitroom" collection exists.
+     *
+     * @param database the MongoDatabase to use for storing KitRoomPage documents
+     */
     public KitRoomDatabaseProvider(final MongoDatabase database) {
         database.createCollection("kitroom");
         this.collection = database.getCollection("kitroom");
     }
 
+    /**
+     * Ensures an ascending index on the "id" field in the MongoDB collection to optimize lookups.
+     */
     @Override
     public void start() {
         collection.createIndex(new Document("id", 1));
     }
 
+    /**
+     * Persists the given KitRoomPage in the MongoDB collection, upserting the document keyed by the page's type.
+     *
+     * @param kitRoomPage the KitRoomPage to persist
+     * @throws RuntimeException if serialization or the database operation fails
+     */
     @Override
     public void save(final KitRoomPage kitRoomPage) {
         try {
@@ -59,6 +73,13 @@ public final class KitRoomDatabaseProvider implements DatabaseProvider<KitRoomPa
         }
     }
 
+    /**
+     * Retrieves a KitRoomPage by its id key from the database.
+     *
+     * @param key the identifier used in the document's "id" field
+     * @return an Optional containing the KitRoomPage if found, empty otherwise
+     * @throws RuntimeException if an error occurs while accessing the collection or deserializing the stored data
+     */
     @Override
     public @NotNull Optional<KitRoomPage> get(final String key) {
         try {

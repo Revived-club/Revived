@@ -49,20 +49,45 @@ public final class ItemBuilder {
         return new ItemBuilder(material);
     }
 
+    /**
+     * Create an ItemBuilder for the specified material and amount.
+     *
+     * @return an ItemBuilder initialized with an ItemStack of the given material and amount
+     */
     public static ItemBuilder item(Material material, int amount) {
         return new ItemBuilder(material, amount);
     }
 
+    /**
+     * Create an ItemBuilder for an empty (AIR) item.
+     *
+     * @return an ItemBuilder containing an ItemStack of Material.AIR
+     */
     public static ItemBuilder empty() {
         return ItemBuilder.item(Material.AIR);
     }
 
+    /**
+     * Creates a preconfigured placeholder ItemBuilder for GUI slots.
+     *
+     * <p>The builder is initialized as a gray stained glass pane with its tooltip hidden and an empty display name.</p>
+     *
+     * @return an ItemBuilder configured as a placeholder item
+     */
     public static ItemBuilder placeholder() {
         return ItemBuilder.item(Material.GRAY_STAINED_GLASS_PANE)
                 .tooltip(false)
                 .name("");
     }
 
+    /**
+     * Create a shallow copy of this ItemBuilder.
+     *
+     * The returned builder references the same underlying ItemStack instance as the original.
+     *
+     * @return a new ItemBuilder that wraps the same ItemStack as this instance
+     * @throws RuntimeException if the object's clone operation is not supported
+     */
     public ItemBuilder clone() {
         try {
             ItemBuilder clone = (ItemBuilder) super.clone();
