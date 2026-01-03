@@ -1,6 +1,5 @@
 package club.revived.lobby.service.player;
 
-import club.revived.lobby.game.stats.Stats;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
 import club.revived.lobby.service.exception.ServiceUnavailableException;

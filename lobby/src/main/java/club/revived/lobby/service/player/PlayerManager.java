@@ -6,6 +6,7 @@ import club.revived.lobby.service.player.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,20 @@ public final class PlayerManager {
         }
 
         return this.networkPlayers.get(uuid);
+    }
+
+    @Nullable
+    public NetworkPlayer withName(final String name) {
+        final var players = this.networkPlayers.values()
+                .stream()
+                .filter(networkPlayer -> networkPlayer.getUsername().equalsIgnoreCase(name))
+                .toList();
+
+        if (players.isEmpty()) {
+            return null;
+        }
+
+        return players.getFirst();
     }
 
     public Map<UUID, NetworkPlayer> getNetworkPlayers() {

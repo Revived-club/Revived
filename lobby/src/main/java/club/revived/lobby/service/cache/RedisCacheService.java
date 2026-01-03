@@ -78,4 +78,18 @@ public final class RedisCacheService implements GlobalCache {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public <T> void setEx(
+            final String key,
+            final T t,
+            final long seconds
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.setex(key, seconds, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

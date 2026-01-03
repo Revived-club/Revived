@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    alias(libs.plugins.shadow)
     alias(libs.plugins.paperweight)
 }
 
@@ -12,10 +13,12 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle(libs.versions.paper)
+    paperweight.paperDevBundle(libs.versions.minecraft)
     implementation(libs.jedis)
     implementation(libs.mongo)
+    compileOnly(libs.commandapi)
     implementation(project(":commons"))
+    compileOnly(libs.anvilgui)
 }
 
 tasks.test {

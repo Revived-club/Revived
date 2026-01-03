@@ -11,7 +11,18 @@ import java.util.concurrent.CompletableFuture;
 public interface GlobalCache {
 
     <T> CompletableFuture<T> get(Class<T> clazz, String key);
-    <T> void set(String key, T t);
+
+    <T> void set(
+            final String key,
+            final T t
+    );
+
+    <T> void setEx(
+            final String key,
+            final T t,
+            final long seconds
+    );
+
     <P> P connect(
             final String host,
             final int port,

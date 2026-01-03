@@ -57,6 +57,12 @@ public final class ItemBuilder {
         return ItemBuilder.item(Material.AIR);
     }
 
+    public static ItemBuilder placeholder() {
+        return ItemBuilder.item(Material.GRAY_STAINED_GLASS_PANE)
+                .tooltip(false)
+                .name("");
+    }
+
     public ItemBuilder clone() {
         try {
             ItemBuilder clone = (ItemBuilder) super.clone();
