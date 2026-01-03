@@ -1,5 +1,7 @@
 package club.revived.lobby.database;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,5 +15,5 @@ public interface DatabaseProvider<T> {
 
     void start();
     void save(T t);
-    Optional<T> get(UUID uuid);
+    @NotNull Optional<T> get(String key);
 }

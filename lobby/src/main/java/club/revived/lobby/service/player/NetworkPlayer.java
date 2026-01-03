@@ -1,5 +1,6 @@
 package club.revived.lobby.service.player;
 
+import club.revived.lobby.game.stats.Stats;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
@@ -48,6 +49,18 @@ public final class NetworkPlayer {
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
+    }
+
+    public <T> void cacheValue(final Class<T> clazz, final T obj) {
+        Cluster.getInstance().getGlobalCache()
+                .
+    }
+
+    @NotNull
+    public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
+        return Cluster.getInstance()
+                .getGlobalCache()
+                .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
     }
 
     public void sendMessage(

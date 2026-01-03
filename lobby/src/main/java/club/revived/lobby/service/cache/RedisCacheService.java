@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,17 +51,19 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     @Override
-    public <T> T get(
+    public <T> CompletableFuture<T> get(
             final Class<T> clazz,
             final String key
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-             final var string = jedis.get(key);
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var string = jedis.get(key);
 
-            return this.gson.fromJson(string, clazz);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+                return this.gson.fromJson(string, clazz);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override

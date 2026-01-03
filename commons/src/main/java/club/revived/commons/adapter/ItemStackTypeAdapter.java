@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
  * @author yyuh
  * @since 03.01.26
  */
-public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
+public final class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
     @Override
     public ItemStack deserialize(

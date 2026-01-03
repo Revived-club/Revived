@@ -53,6 +53,10 @@ public final class ItemBuilder {
         return new ItemBuilder(material, amount);
     }
 
+    public static ItemBuilder empty() {
+        return ItemBuilder.item(Material.AIR);
+    }
+
     public ItemBuilder clone() {
         try {
             ItemBuilder clone = (ItemBuilder) super.clone();

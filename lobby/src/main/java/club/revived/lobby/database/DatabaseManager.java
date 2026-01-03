@@ -1,6 +1,10 @@
 package club.revived.lobby.database;
 
 import club.revived.lobby.Lobby;
+import club.revived.lobby.database.provider.KitDatabaseProvider;
+import club.revived.lobby.database.provider.KitRoomDatabaseProvider;
+import club.revived.lobby.game.kit.KitHolder;
+import club.revived.lobby.game.kit.KitRoomPage;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -62,11 +66,11 @@ public final class DatabaseManager {
         }
     }
 
-    public <T> CompletableFuture<Optional<T>> get(Class<T> clazz, UUID uuid) {
+    public <T> CompletableFuture<Optional<T>> get(Class<T> clazz, String key) {
         if (!isConnected) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return CompletableFuture.supplyAsync(() -> (Optional<T>) providers.get(clazz).get(uuid));
+        return CompletableFuture.supplyAsync(() -> (Optional<T>) providers.get(clazz).get(key));
     }
 
     public <T> CompletableFuture<Void> save(Class<T> clazz, T t) {
@@ -80,6 +84,8 @@ public final class DatabaseManager {
     }
 
     private void register() {
+        this.providers.put(KitHolder.class, new KitDatabaseProvider(this.database));
+        this.providers.put(KitRoomPage.class, new KitRoomDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

@@ -1,5 +1,7 @@
 package club.revived.lobby.service.cache;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * This is an interesting Class
  *
@@ -8,7 +10,7 @@ package club.revived.lobby.service.cache;
  */
 public interface GlobalCache {
 
-    <T> T get(Class<T> clazz, String key);
+    <T> CompletableFuture<T> get(Class<T> clazz, String key);
     <T> void set(String key, T t);
     <P> P connect(
             final String host,

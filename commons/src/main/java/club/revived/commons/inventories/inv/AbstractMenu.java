@@ -31,7 +31,7 @@ public final class AbstractMenu extends InventoryBuilder {
     }
 
     @NotNull
-    public AbstractMenu button(final int slot, final Button button) {
+    public AbstractMenu button(final Button button) {
         button.build(this);
         return this;
     }
