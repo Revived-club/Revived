@@ -51,7 +51,10 @@ public final class NetworkPlayer {
         return Cluster.getInstance().whereIs(this.uuid);
     }
 
-    public <T> void cacheValue(final Class<T> clazz, final T obj) {
+    public <T> void cacheValue(
+            final Class<T> clazz,
+            final T obj
+    ) {
         Cluster.getInstance()
                 .getGlobalCache()
                 .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);

@@ -6,6 +6,8 @@ import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.game.kit.Kit;
 import club.revived.lobby.game.kit.KitHolder;
+import club.revived.lobby.game.kit.KitRoomPage;
+import club.revived.lobby.game.kit.KitRoomPageType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +39,7 @@ public final class KitMenu {
                 event.setCancelled(true);
 
                 if (event.isRightClick()) {
-                    // TODO: Open Editor
+                    new KitEditorMenu(player, kit);
                     return;
                 }
 
@@ -56,7 +58,7 @@ public final class KitMenu {
                         ColorUtils.parse("<#3B82F6>\uD83D\uDF8D● Click to open")
                 ), event -> {
             event.setCancelled(true);
-            // TODO: Implement opening KitRoom
+            new KitRoomMenu(player, KitRoomPageType.NETHERITE_CRYSTAL);
         }));
 
         menu.button(new AbstractButton(40, ItemBuilder.item(Material.NETHERITE_CHESTPLATE)
