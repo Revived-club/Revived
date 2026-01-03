@@ -17,6 +17,12 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 @SuppressWarnings("unused")
 public final class ItemBuilder {
     private final ItemStack itemStack;

@@ -15,9 +15,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Object representing a player in the network
+ * This is an interesting Class
  *
  * @author yyuh
+ * @since 03.01.26
  */
 public final class NetworkPlayer {
 

@@ -5,9 +5,10 @@ import club.revived.lobby.service.messaging.Message;
 import java.util.UUID;
 
 /**
- * Sends a message to the player
+ * This is an interesting Class
  *
  * @author yyuh
+ * @since 03.01.26
  */
 public record SendMessage(UUID uuid, String message) implements Message {
 }

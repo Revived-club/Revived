@@ -16,6 +16,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     private static final long INTERVAL = 5_000;

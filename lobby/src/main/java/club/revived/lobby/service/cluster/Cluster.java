@@ -20,6 +20,13 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class Cluster {
 
     private static Cluster instance;

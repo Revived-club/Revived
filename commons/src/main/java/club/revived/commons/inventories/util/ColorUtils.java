@@ -9,6 +9,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class ColorUtils {
 
     public static final Pattern HEX_PATTERN = Pattern.compile("&#(\\w{5}[0-9a-f])");

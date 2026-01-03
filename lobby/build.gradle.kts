@@ -14,6 +14,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
     implementation(libs.jedis)
+    implementation(libs.mongo)
     implementation(project(":commons"))
 }
 

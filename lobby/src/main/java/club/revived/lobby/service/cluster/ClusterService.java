@@ -10,6 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class ClusterService {
 
     private static final Logger log = LoggerFactory.getLogger(ClusterService.class);

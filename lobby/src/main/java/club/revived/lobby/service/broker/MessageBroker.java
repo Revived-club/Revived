@@ -1,5 +1,11 @@
 package club.revived.lobby.service.broker;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public interface MessageBroker {
     <T> void publish(String topic, T message);
 

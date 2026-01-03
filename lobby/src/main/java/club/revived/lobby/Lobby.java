@@ -3,11 +3,14 @@ package club.revived.lobby;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Entrypoint of the Lobby Plugin
+ * This is an interesting Class
  *
  * @author yyuh
+ * @since 03.01.26
  */
 public final class Lobby extends JavaPlugin {
+
+    private static Lobby instance;
 
     @Override
     public void onLoad() {
@@ -16,11 +19,15 @@ public final class Lobby extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        super.onDisable();
+        instance = this;
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
+    }
+
+    public static Lobby getInstance() {
+        return instance;
     }
 }

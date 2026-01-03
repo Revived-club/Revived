@@ -13,6 +13,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class MessagingService {
     private final MessageBroker broker;
     private final String serviceId;

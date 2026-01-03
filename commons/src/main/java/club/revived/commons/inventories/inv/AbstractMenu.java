@@ -10,6 +10,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class AbstractMenu extends InventoryBuilder {
 
     private final int rows;

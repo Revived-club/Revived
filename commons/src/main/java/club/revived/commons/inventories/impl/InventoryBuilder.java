@@ -22,6 +22,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 @SuppressWarnings("unused")
 public class InventoryBuilder implements InventoryHolder {
 

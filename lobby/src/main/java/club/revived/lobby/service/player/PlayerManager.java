@@ -17,6 +17,7 @@ import java.util.UUID;
  * This is an interesting Class
  *
  * @author yyuh
+ * @since 03.01.26
  */
 public final class PlayerManager {
 

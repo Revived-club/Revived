@@ -7,6 +7,12 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public final class RedisCacheService implements GlobalCache {
 
     private final JedisPool jedisPool;

@@ -5,6 +5,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Consumer;
 
+/**
+ * This is an interesting Class
+ *
+ * @author yyuh
+ * @since 03.01.26
+ */
 public class AbstractButton {
 
     private final ItemBuilder itemBuilder;
