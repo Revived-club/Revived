@@ -27,6 +27,15 @@ public final class MessagingService {
     private final Map<String, Function<Request, Response>> requestHandlers = new ConcurrentHashMap<>();
     private final Map<String, Consumer<Message>> messageHandlers = new ConcurrentHashMap<>();
 
+    /**
+     * Create a MessagingService backed by the given MessageBroker and identified by serviceId.
+     *
+     * Subscribes the broker to the "service-messages-{serviceId}" topic so incoming MessageEnvelope
+     * instances for this service are delivered to the internal envelope handler.
+     *
+     * @param broker    the MessageBroker used to publish and receive service messages
+     * @param serviceId unique identifier for this service instance; used as the topic suffix for subscriptions
+     */
     public MessagingService(
             final MessageBroker broker,
             final String serviceId
@@ -34,9 +43,17 @@ public final class MessagingService {
         this.broker = broker;
         this.serviceId = serviceId;
 
-        this.broker.subscribe("service-messages-" + serviceId, Envelope.class, this::handleEnvelope);
+        this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
     }
 
+    /**
+     * Send a request message to another service and await a correlated response.
+     *
+     * @param targetServiceId the identifier of the destination service
+     * @param request the request payload to send
+     * @param responseType the expected response class used to cast the received payload
+     * @return a CompletableFuture that completes with a response of the requested type when a matching response arrives; completes exceptionally (for example, with TimeoutException) if no response is received within 5 seconds
+     */
     @NotNull
     public <T extends Response> CompletableFuture<T> sendRequest(
             final String targetServiceId,
@@ -53,7 +70,7 @@ public final class MessagingService {
             }
         });
 
-        final Envelope envelope = new Envelope(
+        final MessageEnvelope envelope = new MessageEnvelope(
                 correlationId,
                 serviceId,
                 targetServiceId,
@@ -66,11 +83,20 @@ public final class MessagingService {
         return future.thenApply(responseType::cast);
     }
 
+    /**
+     * Sends a fire-and-forget message to another service via the message broker.
+     *
+     * Publishes a MessageEnvelope containing the message (serialized to JSON) and its type
+     * to the recipient's topic ("service-messages-{targetServiceId}").
+     *
+     * @param targetServiceId the identifier of the destination service
+     * @param message the message payload to send
+     */
     public void sendMessage(
             final String targetServiceId,
             final Message message
     ) {
-        final Envelope envelope = new Envelope(
+        final MessageEnvelope envelope = new MessageEnvelope(
                 UUID.randomUUID(),
                 serviceId,
                 targetServiceId,
@@ -89,6 +115,12 @@ public final class MessagingService {
         requestHandlers.put(requestType.getName(), (Function<Request, Response>) handler);
     }
 
+    /**
+     * Registers a handler to process incoming messages of the specified type.
+     *
+     * @param messageType the Class object for messages the handler should receive
+     * @param handler     a consumer invoked with the deserialized message when one arrives
+     */
     public <T extends Message> void registerMessageHandler(
             final Class<T> messageType,
             final Consumer<T> handler
@@ -97,7 +129,12 @@ public final class MessagingService {
         messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
     }
 
-    private void handleEnvelope(final Envelope envelope) {
+    /**
+     * Routes a received MessageEnvelope to the response handler or to incoming request/message handlers when it is addressed to this service.
+     *
+     * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
+     */
+    private void handleEnvelope(final MessageEnvelope envelope) {
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
@@ -107,7 +144,17 @@ public final class MessagingService {
         }
     }
 
-    private void handleResponse(final Envelope envelope) {
+    /**
+     * Completes a pending request future (if any) using the envelope's payload as the response.
+     *
+     * If a pending request with the envelope's correlationId exists, deserializes the payloadJson
+     * into the payloadType and completes the corresponding CompletableFuture with the resulting
+     * Response; if the payload type class cannot be found, completes the future exceptionally
+     * with a ClassNotFoundException.
+     *
+     * @param envelope the incoming message envelope containing correlationId, payloadType and payloadJson
+     */
+    private void handleResponse(final MessageEnvelope envelope) {
         final CompletableFuture<Response> future = pendingRequests.remove(envelope.correlationId());
         if (future != null) {
             try {
@@ -121,7 +168,14 @@ public final class MessagingService {
         }
     }
 
-    private void handleIncoming(final Envelope envelope) {
+    /**
+     * Dispatches an incoming MessageEnvelope to a registered request or message handler based on the envelope's payload type.
+     *
+     * If a request handler is registered for the payload type, the envelope is handled as a request; otherwise, if a message handler is registered, it is handled as a message. If no handler is registered for the payload type, the envelope is ignored.
+     *
+     * @param envelope the incoming MessageEnvelope whose payloadType determines which handler should process it
+     */
+    private void handleIncoming(final MessageEnvelope envelope) {
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
         if (requestHandler != null) {
             handleRequest(envelope, requestHandler);
@@ -134,7 +188,15 @@ public final class MessagingService {
         }
     }
 
-    private void handleRequest(final Envelope envelope, final Function<Request, Response> handler) {
+    /**
+     * Processes an incoming request envelope, invokes the provided handler, and sends a response envelope
+     * back to the original sender if the handler returns a non-null Response.
+     *
+     * @param envelope the incoming MessageEnvelope containing correlation id, sender id, payload type, and JSON payload
+     * @param handler  function that accepts a deserialized Request and returns a Response (or null to send no reply)
+     * @throws RuntimeException if request deserialization, handler execution, or response serialization/publishing fails
+     */
+    private void handleRequest(final MessageEnvelope envelope, final Function<Request, Response> handler) {
         try {
             final Class<?> requestType = Class.forName(envelope.payloadType());
             final Request request = (Request) gson.fromJson(envelope.payloadJson(), requestType);
@@ -144,7 +206,7 @@ public final class MessagingService {
                 return;
             }
 
-            final Envelope responseEnvelope = new Envelope(
+            final MessageEnvelope responseEnvelope = new MessageEnvelope(
                     envelope.correlationId(),
                     serviceId,
                     envelope.senderId(),
@@ -158,7 +220,14 @@ public final class MessagingService {
         }
     }
 
-    private void handleMessage(final Envelope envelope, final Consumer<Message> handler) {
+    /**
+     * Deserializes the envelope's payload into a Message and invokes the given handler with it.
+     *
+     * @param envelope the incoming message envelope containing payloadType and payloadJson
+     * @param handler  consumer to process the deserialized Message
+     * @throws RuntimeException if the payload type cannot be loaded, deserialization fails, or the handler throws
+     */
+    private void handleMessage(final MessageEnvelope envelope, final Consumer<Message> handler) {
         try {
             final Class<?> messageType = Class.forName(envelope.payloadType());
             final Message message = (Message) gson.fromJson(envelope.payloadJson(), messageType);

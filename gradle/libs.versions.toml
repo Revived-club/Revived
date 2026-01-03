@@ -1,12 +1,19 @@
 [versions]
-paper = '1.21.11-R0.1-SNAPSHOT'
+minecraft = '1.21.11-R0.1-SNAPSHOT'
 paperweight = "2.0.0-beta.19"
 jedis = "5.1.0"
 mongoDriver = "5.7.0-alpha0"
+commandapi = "11.0.0"
+shadow = "9.2.2"
+anvilgui = "1.10.11-SNAPSHOT"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongoDriver" }
+commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "commandapi" }
+paper =  { module = "io.papermc.paper:paper-api", version.ref = "minecraft"}
+anvilgui = { module = "net.wesjd:anvilgui", version.ref = "anvilgui" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+shadow = { id =  "com.gradleup.shadow", version.ref = "shadow" }

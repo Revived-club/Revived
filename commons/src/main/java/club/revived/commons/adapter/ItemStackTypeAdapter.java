@@ -12,8 +12,17 @@ import java.lang.reflect.Type;
  * @author yyuh
  * @since 03.01.26
  */
-public class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
+public final class ItemStackTypeAdapter implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
+    /**
+     * Converts a JSON primitive string (as produced by ItemSerializer) into an ItemStack.
+     *
+     * @param json the JSON element containing the serialized ItemStack as a primitive string
+     * @param typeOfT ignored (Gson serialization type)
+     * @param context ignored (Gson deserialization context)
+     * @return the ItemStack represented by the JSON string
+     * @throws JsonParseException if the JSON is not a primitive string or deserialization fails
+     */
     @Override
     public ItemStack deserialize(
             final JsonElement json,

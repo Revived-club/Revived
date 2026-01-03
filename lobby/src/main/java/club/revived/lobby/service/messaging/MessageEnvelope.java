@@ -8,7 +8,7 @@ import java.util.UUID;
  * @author yyuh
  * @since 03.01.26
  */
-public record Envelope(
+public record MessageEnvelope(
         UUID correlationId, 
         String senderId, 
         String targetId, 

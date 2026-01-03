@@ -45,11 +45,52 @@ public final class NetworkPlayer {
         this.currentProxy = Cluster.getInstance().whereIsProxy(this.uuid);
     }
 
+    /**
+     * Locate the cluster proxy service responsible for this player.
+     *
+     * @return the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
+     */
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
     }
 
+    /**
+     * Cache an object for this player in the cluster-wide global cache.
+     *
+     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     *
+     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
+     * @param obj   the object to store in the global cache for this player
+     */
+    public <T> void cacheValue(
+            final Class<T> clazz,
+            final T obj
+    ) {
+        Cluster.getInstance()
+                .getGlobalCache()
+                .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
+    }
+
+    /**
+     * Retrieve a cached value for this player identified by the given class.
+     *
+     * @param clazz the class used as part of the cache key and to type the returned value
+     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
+     */
+    @NotNull
+    public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
+        return Cluster.getInstance()
+                .getGlobalCache()
+                .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
+    }
+
+    /**
+     * Sends a chat message to this player's current proxy service.
+     *
+     * @param message the text to send to the player
+     * @throws UnregisteredPlayerException if the player's proxy service cannot be located
+     */
     public void sendMessage(
             final String message
     ) {

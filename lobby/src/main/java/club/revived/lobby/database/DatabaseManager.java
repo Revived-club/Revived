@@ -1,6 +1,10 @@
 package club.revived.lobby.database;
 
 import club.revived.lobby.Lobby;
+import club.revived.lobby.database.provider.KitDatabaseProvider;
+import club.revived.lobby.database.provider.KitRoomDatabaseProvider;
+import club.revived.lobby.game.kit.KitHolder;
+import club.revived.lobby.game.kit.KitRoomPage;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -56,19 +60,38 @@ public final class DatabaseManager {
         register();
     }
 
+    /**
+     * Closes the MongoDB client and releases associated resources.
+     *
+     * If no client is initialized, this method has no effect.
+     */
     public void destroy() {
         if (this.mongoClient != null) {
             this.mongoClient.close();
         }
     }
 
-    public <T> CompletableFuture<Optional<T>> get(Class<T> clazz, UUID uuid) {
+    /**
+     * Retrieve an entity of the specified class using the provided string key.
+     *
+     * @param clazz the entity class to fetch
+     * @param key   the string key identifying the entity (e.g., document id)
+     * @return      an Optional containing the entity if found, or empty otherwise
+     */
+    public <T> CompletableFuture<Optional<T>> get(Class<T> clazz, String key) {
         if (!isConnected) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return CompletableFuture.supplyAsync(() -> (Optional<T>) providers.get(clazz).get(uuid));
+        return CompletableFuture.supplyAsync(() -> (Optional<T>) providers.get(clazz).get(key));
     }
 
+    /**
+     * Saves the given entity instance for the specified entity class.
+     *
+     * @param clazz the entity class whose provider will handle the save
+     * @param t the entity instance to persist
+     * @return a CompletableFuture that completes with null after the save operation finishes; completes immediately with null if the database is not connected
+     */
     public <T> CompletableFuture<Void> save(Class<T> clazz, T t) {
         if (!isConnected) {
             return CompletableFuture.completedFuture(null);
@@ -79,7 +102,15 @@ public final class DatabaseManager {
         });
     }
 
+    /**
+     * Registers and starts database providers for kit-related entities.
+     *
+     * Initializes the provider registry with implementations for KitHolder and KitRoomPage
+     * backed by the current MongoDB database, then invokes start() on each registered provider.
+     */
     private void register() {
+        this.providers.put(KitHolder.class, new KitDatabaseProvider(this.database));
+        this.providers.put(KitRoomPage.class, new KitRoomDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

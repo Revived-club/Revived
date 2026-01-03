@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    alias(libs.plugins.paperweight)
 }
 
 group = "club.revived.commons"
@@ -8,10 +7,13 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    paperweight.paperDevBundle(libs.versions.paper)
+    compileOnly(libs.paper)
+    implementation(libs.anvilgui)
 }
 
 tasks.test {

@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * @author yyuh
  * @since 03.01.26
  */
-public class ToggleButton implements Button {
+public final class ToggleButton implements Button {
 
     private static final ItemStack DEFAULT_ITEM = ItemBuilder.item(Material.STONE)
             .name("<dark_purple>Epic Setting")
