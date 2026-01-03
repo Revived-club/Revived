@@ -52,8 +52,9 @@ public final class NetworkPlayer {
     }
 
     public <T> void cacheValue(final Class<T> clazz, final T obj) {
-        Cluster.getInstance().getGlobalCache()
-                .
+        Cluster.getInstance()
+                .getGlobalCache()
+                .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
     }
 
     @NotNull
