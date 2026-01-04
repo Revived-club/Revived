@@ -1,13 +1,11 @@
 package club.revived.lobby;
 
+import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 /**
  * This is an interesting Class
@@ -18,8 +16,6 @@ import java.io.File;
 public final class Lobby extends JavaPlugin {
 
     private static Lobby instance;
-
-    private String hostName;
 
     /**
      * Performs plugin load-time initialization.
@@ -48,15 +44,9 @@ public final class Lobby extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        try {
-            // Kubernetes system env variable
-            this.hostName = System.getenv("HOSTNAME");
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        setupCommands();
-        setupCluster();
+        this.connectDatabase();
+        this.setupCommands();
+        this.setupCluster();
     }
 
 
@@ -64,25 +54,38 @@ public final class Lobby extends JavaPlugin {
         new DuelCommand();
     }
 
+
+    private void connectDatabase() {
+        final String host = System.getenv("MONGODB_HOST");
+        final String password = System.getenv("MONGODB_PASSWORD");
+        final String username = System.getenv("MONGODB_USERNAME");
+        final String database = System.getenv("MONGODB_DATABASE");
+
+        DatabaseManager.getInstance().connect(
+                host,
+                27017,
+                username,
+                password,
+                database
+        );
+    }
+
     /**
      * Initializes the application's Cluster from the plugin's redis.yml configuration.
-     *
+     * <p>
      * Loads host, port, and password from redis.yml in the plugin data folder and constructs
      * a Cluster using RedisBroker and RedisCacheService configured with those values and the
      * plugin's hostName.
      */
     private void setupCluster() {
-        final var redisFile = new File(getDataFolder(), "redis.yml");
-        final var redisConfig = YamlConfiguration.loadConfiguration(redisFile);
-
-        final String password = redisConfig.getString("password");
-        final String host = redisConfig.getString("host");
-        final int port = redisConfig.getInt("port");
+        final String hostName = System.getenv("HOSTNAME");
+        final String host = System.getenv("REDIS_HOST");
+        final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
 
         new Cluster(
-                new RedisBroker(host, port, password),
-                new RedisCacheService(host, port, password),
-                this.hostName
+                new RedisBroker(host, port, ""),
+                new RedisCacheService(host, port, ""),
+                hostName
         );
     }
 
