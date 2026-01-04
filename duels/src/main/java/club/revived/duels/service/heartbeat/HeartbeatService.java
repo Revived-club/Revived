@@ -34,6 +34,14 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     private final Cluster cluster = Cluster.getInstance();
 
+    /**
+     * Creates a HeartbeatService connected to the given MessageBroker and begins heartbeat lifecycle management.
+     *
+     * Upon construction, the service subscribes to the "service:heartbeat" topic and schedules the periodic
+     * heartbeat publication and timeout-checking task.
+     *
+     * @param broker the MessageBroker used to subscribe for and publish heartbeat messages
+     */
     public HeartbeatService(final MessageBroker broker) {
         this.broker = broker;
         broker.subscribe("service:heartbeat", Heartbeat.class, this);
@@ -41,6 +49,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
         this.startTask();
     }
 
+    /**
+     * Schedules a delayed task that publishes this service's heartbeat and checks for timed-out cluster services.
+     *
+     * The scheduled task runs after INTERVAL milliseconds, publishes a Heartbeat message on "service:heartbeat"
+     * containing the current timestamp, service type and id, online player count, and cluster IP, and then
+     * iterates known services' last-seen timestamps to log an error for any service whose elapsed time exceeds TIMEOUT.
+     */
     public void startTask() {
         subServer.schedule(() -> {
             broker.publish("service:heartbeat", new Heartbeat(
@@ -63,6 +78,15 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
         }, INTERVAL, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Process an incoming Heartbeat message and reconcile cluster and player state.
+     *
+     * Updates the last-seen timestamp and the Cluster service entry for the sender, registers each player reported
+     * as online in the message with the PlayerManager, and removes any network players whose current server is not
+     * present among the message's online players.
+     *
+     * @param message the Heartbeat payload containing the sender service id, timestamp, service type, server IP and list of online players
+     */
     @Override
     public void handle(final Heartbeat message) {
         final var service = new ClusterService(

@@ -37,16 +37,30 @@ public final class DuelArenaSchematicProvider implements DatabaseProvider<DuelAr
             .registerTypeAdapter(Location.class, new LocationTypeAdapter())
             .create();
 
+    /**
+     * Initializes the provider and ensures a MongoDB collection named "schematics" exists for storing duel arena schematics.
+     *
+     * @param database the MongoDatabase to use for persistence
+     */
     public DuelArenaSchematicProvider(final MongoDatabase database) {
         database.createCollection("schematics");
         this.collection = database.getCollection("schematics");
     }
 
+    /**
+     * Ensures the schematics collection has an ascending index on the `id` field to optimize lookups.
+     */
     @Override
     public void start() {
         collection.createIndex(new Document("id", 1));
     }
 
+    /**
+     * Persists the given duel arena schematic to the MongoDB collection, inserting or replacing by id.
+     *
+     * @param worldEditSchematic the schematic to persist; its {@code id()} value is used as the document key
+     * @throws RuntimeException if serialization or the database operation fails
+     */
     @Override
     public void save(final DuelArenaSchematic worldEditSchematic) {
         try {
@@ -65,6 +79,12 @@ public final class DuelArenaSchematicProvider implements DatabaseProvider<DuelAr
         }
     }
 
+    /**
+     * Retrieve a duel arena schematic by its identifier.
+     *
+     * @param key the schematic's identifier to look up
+     * @return an Optional containing the DuelArenaSchematic if found, or {@link Optional#empty()} if not
+     */
     @Override
     public @NotNull Optional<DuelArenaSchematic> get(final String key) {
         try {
@@ -85,6 +105,12 @@ public final class DuelArenaSchematicProvider implements DatabaseProvider<DuelAr
         }
     }
 
+    /**
+     * Load all DuelArenaSchematic objects stored in the schematics collection.
+     *
+     * @return a list of all deserialized DuelArenaSchematic instances; empty if no documents are present
+     * @throws RuntimeException if a database access or deserialization error occurs
+     */
     @Override
     public @NotNull List<DuelArenaSchematic> getAll() {
         final List<DuelArenaSchematic> result = new ArrayList<>();

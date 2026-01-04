@@ -8,5 +8,10 @@ package club.revived.duels.service.broker;
  */
 @FunctionalInterface
 public interface MessageHandler<T> {
-    void handle(T message);
+    /**
+ * Handle a message of type T.
+ *
+ * @param message the message to be processed by this handler
+ */
+void handle(T message);
 }

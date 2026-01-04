@@ -30,16 +30,30 @@ public final class EditedDuelKitProvider implements DatabaseProvider<EditedDuelK
             .registerTypeAdapter(ItemStack.class, new ItemStackTypeAdapter())
             .create();
 
+    /**
+     * Creates the "editedDuelKits" collection in the provided database and stores a reference to it for persistence operations.
+     *
+     * @param database the MongoDB database used to create or access the "editedDuelKits" collection
+     */
     public EditedDuelKitProvider(final MongoDatabase database) {
         database.createCollection("editedDuelKits");
         this.collection = database.getCollection("editedDuelKits");
     }
 
+    /**
+     * Creates an ascending index on the collection's "uuid" field to ensure efficient lookups by UUID.
+     */
     @Override
     public void start() {
         collection.createIndex(new Document("uuid", 1));
     }
 
+    /**
+     * Persists the provided EditedDuelKit by serializing its content and upserting a document keyed by the kit's UUID.
+     *
+     * @param duelKit the EditedDuelKit to persist; its UUID is used as the document key and its content is serialized to the `data` field
+     * @throws RuntimeException if serialization or the database replace/upsert operation fails
+     */
     @Override
     public void save(final EditedDuelKit duelKit) {
         try {
@@ -58,6 +72,13 @@ public final class EditedDuelKitProvider implements DatabaseProvider<EditedDuelK
         }
     }
 
+    /**
+     * Retrieve an EditedDuelKit by its UUID.
+     *
+     * @param key the UUID of the duel kit to retrieve
+     * @return an Optional containing the EditedDuelKit if found, or Optional.empty() if no matching document exists
+     * @throws RuntimeException if an error occurs while querying the database or deserializing the stored data
+     */
     @Override
     public @NotNull Optional<EditedDuelKit> get(final String key) {
         try {
@@ -78,6 +99,11 @@ public final class EditedDuelKitProvider implements DatabaseProvider<EditedDuelK
         }
     }
 
+    /**
+     * Retrieving all EditedDuelKit entries is not supported.
+     *
+     * @throws UnsupportedOperationException always thrown to indicate this operation is not supported
+     */
     @Override
     public @NotNull List<EditedDuelKit> getAll() {
         throw new UnsupportedOperationException();

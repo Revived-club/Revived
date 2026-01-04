@@ -38,6 +38,16 @@ public final class LocationSerializer {
         return worldName + ":" + x + ":" + y + ":" + z + ":" + yaw + ":" + pitch;
     }
 
+    /**
+     * Parses a colon-separated location string and returns the corresponding Bukkit Location.
+     *
+     * The expected format is "worldName:x:y:z:yaw:pitch".
+     *
+     * @param encodedLocation the encoded location string in the format "worldName:x:y:z:yaw:pitch"
+     * @return the Location represented by the encoded string
+     * @throws MalformedParametersException if {@code encodedLocation} is null or empty
+     * @throws IllegalArgumentException if the string does not contain exactly six parts, if numeric parsing fails, or if the referenced world cannot be found
+     */
     @NotNull
     public static Location deserialize(final String encodedLocation) {
         if (encodedLocation == null || encodedLocation.isEmpty()) {

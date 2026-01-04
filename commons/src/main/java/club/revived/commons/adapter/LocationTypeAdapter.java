@@ -14,6 +14,13 @@ import java.lang.reflect.Type;
  */
 public final class LocationTypeAdapter implements JsonSerializer<Location>, JsonDeserializer<Location> {
 
+    /**
+     * Reconstructs a Bukkit Location from a JSON primitive string produced by LocationSerializer.
+     *
+     * @param json JSON element expected to be a primitive string produced by LocationSerializer
+     * @return the deserialized Location
+     * @throws JsonParseException if the JSON is not a valid serialized Location
+     */
     @Override
     public Location deserialize(
             final JsonElement json,
@@ -23,6 +30,12 @@ public final class LocationTypeAdapter implements JsonSerializer<Location>, Json
         return LocationSerializer.deserialize(json.getAsJsonPrimitive().getAsString());
     }
 
+    /**
+     * Converts the given Location to a JSON primitive containing its serialized string form.
+     *
+     * @param src the Location to serialize
+     * @return a JsonPrimitive holding the Location's serialized string
+     */
     @Override
     public JsonElement serialize(
             final Location src,

@@ -11,11 +11,12 @@ import java.io.*;
 public final class FileSerializer {
 
     /**
-     * Serializes a Serializable object to the specified file path.
+     * Writes the provided Serializable object to the file at the given path.
      *
-     * @param object   the object to serialize
-     * @param filePath the destination file path
-     * @throws IOException if an I/O error occurs
+     * @param object the non-null object to serialize
+     * @param filePath path to the destination file
+     * @throws IllegalArgumentException if {@code object} is null
+     * @throws IOException if an I/O error occurs while writing the file
      */
     public static void serialize(final Serializable object, final String filePath) throws IOException {
         if (object == null) {
