@@ -1,5 +1,6 @@
 package club.revived.duels.game.duels;
 
+import club.revived.duels.game.arena.ArenaType;
 import org.bukkit.Material;
 
 /**
@@ -13,84 +14,99 @@ public enum KitType {
     UHC(
             "UHC",
             false,
-            Material.LAVA_BUCKET
+            Material.LAVA_BUCKET,
+            ArenaType.INTERACTIVE
     ),
 
     SWORD(
             "Sword",
             false,
-            Material.DIAMOND_SWORD
+            Material.DIAMOND_SWORD,
+            ArenaType.RESTRICTED
     ),
 
     MACE(
             "Mace",
             false,
-            Material.MACE
+            Material.MACE,
+            ArenaType.RESTRICTED
     ),
 
     CART(
             "Cart",
             false,
-            Material.TNT_MINECART
+            Material.TNT_MINECART,
+            ArenaType.INTERACTIVE
     ),
 
     SMP(
             "SMP",
             false,
-            Material.SHIELD
+            Material.SHIELD,
+            ArenaType.RESTRICTED
     ),
 
     NETHERITE_POTION(
             "Netherite Potion",
             false,
-            Material.NETHERITE_CHESTPLATE
+            Material.NETHERITE_CHESTPLATE,
+            ArenaType.RESTRICTED
     ),
 
     DIAMOND_POTION(
             "Diamond Potion",
             false,
-            Material.DIAMOND_CHESTPLATE
+            Material.DIAMOND_CHESTPLATE,
+            ArenaType.RESTRICTED
     ),
 
     TNT(
             "TNT",
             false,
-            Material.TNT),
+            Material.TNT,
+            ArenaType.INTERACTIVE
+    ),
 
     SPLEEF(
             "Spleef",
             false,
-            Material.DIAMOND_SHOVEL
+            Material.DIAMOND_SHOVEL,
+            ArenaType.INTERACTIVE
     ),
 
     AXE(
             "Axe",
             false,
-            Material.DIAMOND_AXE
+            Material.DIAMOND_AXE,
+            ArenaType.RESTRICTED
     ),
 
     CRYSTAL(
             "Custom Kit",
             false,
-            Material.END_CRYSTAL
+            Material.END_CRYSTAL,
+            ArenaType.INTERACTIVE
 
     ),
 
     DRAIN(
             "Drain",
             false,
-            Material.END_CRYSTAL
+            Material.END_CRYSTAL,
+            ArenaType.INTERACTIVE
     ),
 
     EVAL("Evaluation",
             false,
-            Material.END_CRYSTAL
+            Material.END_CRYSTAL,
+            ArenaType.INTERACTIVE
     );
 
 
     private final String bName;
     private final boolean isRanked;
     private final Material material;
+    private final ArenaType arenaType;
 
     /**
      * Creates a KitType with the specified display name, ranked flag, and associated material.
@@ -102,11 +118,13 @@ public enum KitType {
     KitType(
             final String beautifiedName,
             final boolean ranked,
-            final Material material
+            final Material material,
+            final ArenaType arenaType
     ) {
         this.bName = beautifiedName;
         this.isRanked = ranked;
         this.material = material;
+        this.arenaType = arenaType;
     }
 
     /**
@@ -134,5 +152,9 @@ public enum KitType {
      */
     public boolean isRanked() {
         return this.isRanked;
+    }
+
+    public ArenaType getArenaType() {
+        return arenaType;
     }
 }

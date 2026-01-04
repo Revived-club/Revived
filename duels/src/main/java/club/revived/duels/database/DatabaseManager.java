@@ -1,8 +1,14 @@
 package club.revived.duels.database;
 
+import club.revived.duels.Duels;
 import club.revived.duels.database.provider.ArenaSchematicProvider;
-import club.revived.duels.game.arena.schematic.WorldEditSchematic;
-import club.revived.lobby.Lobby;
+import club.revived.duels.database.provider.DuelArenaSchematicProvider;
+import club.revived.duels.database.provider.DuelKitProvider;
+import club.revived.duels.database.provider.EditedDuelKitProvider;
+import club.revived.duels.game.arena.schematic.DuelArenaSchematic;
+import club.revived.duels.game.arena.schematic.WorldeditSchematic;
+import club.revived.duels.game.kit.DuelKit;
+import club.revived.duels.game.kit.EditedDuelKit;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -38,7 +44,7 @@ public final class DatabaseManager {
 
     public void connect() {
         try {
-            final var configFile = new File(Lobby.getInstance().getDataFolder(), "mongo.yml");
+            final var configFile = new File(Duels.getInstance().getDataFolder(), "mongo.yml");
             final var config = YamlConfiguration.loadConfiguration(configFile);
 
             final MongoClientSettings settings = MongoClientSettings.builder()
@@ -106,7 +112,10 @@ public final class DatabaseManager {
      * backed by the current MongoDB database, then invokes start() on each registered provider.
      */
     private void register() {
-        this.providers.put(WorldEditSchematic.class, new ArenaSchematicProvider(this.database));
+        this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
+        this.providers.put(DuelArenaSchematic.class, new DuelArenaSchematicProvider(this.database));
+        this.providers.put(DuelKit.class, new DuelKitProvider(this.database));
+        this.providers.put(EditedDuelKit.class, new EditedDuelKitProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

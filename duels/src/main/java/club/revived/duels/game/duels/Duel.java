@@ -1,10 +1,10 @@
 package club.revived.duels.game.duels;
 
+import club.revived.commons.generic.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Duel
@@ -14,32 +14,13 @@ import java.util.UUID;
  */
 public final class Duel {
 
-    public enum TeamType {
-        RED,
-        BLUE
-    }
-
-    public record Team(
-            List<Player> players,
-            TeamType type
-    ) {
-
-        @Override
-        public List<Player> players() {
-            return this.players;
-        }
-
-        public boolean containsPlayer(final Player player) {
-            return this.players.contains(player);
-        }
-    }
-
     private final List<UUID> blueTeam;
     private final List<UUID> redTeam;
     private final int rounds;
     private final KitType kitType;
+    private final String id;
 
-
+    private GameState gameState = GameState.PREPARING;
 
     public Duel(
             final List<UUID> blueTeam,
@@ -51,7 +32,36 @@ public final class Duel {
         this.redTeam = redTeam;
         this.rounds = rounds;
         this.kitType = kitType;
+        this.id = StringUtils.generateId("#game-");
     }
+
+    public List<Player> getBluePlayers() {
+        return this.blueTeam
+                .stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public List<Player> getRedPlayers() {
+        return this.redTeam
+                .stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public List<Player> getPlayers() {
+        // TODO: Replace, there's probably a better way to do this
+        final var uuids = new ArrayList<>(this.redTeam);
+        uuids.addAll(this.blueTeam);
+
+        return uuids.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
 
     public List<UUID> getBlueTeam() {
         return blueTeam;
@@ -67,5 +77,17 @@ public final class Duel {
 
     public KitType getKitType() {
         return kitType;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
     }
 }

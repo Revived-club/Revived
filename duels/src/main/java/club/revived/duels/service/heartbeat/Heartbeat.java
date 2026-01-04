@@ -1,7 +1,7 @@
 package club.revived.duels.service.heartbeat;
 
-import club.revived.lobby.service.cluster.OnlinePlayer;
-import club.revived.lobby.service.cluster.ServiceType;
+import club.revived.duels.service.cluster.OnlinePlayer;
+import club.revived.duels.service.cluster.ServiceType;
 
 import java.util.List;
 

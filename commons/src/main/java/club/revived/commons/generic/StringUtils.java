@@ -1,4 +1,4 @@
-package club.revived.commons;
+package club.revived.commons.generic;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -17,8 +17,10 @@ public final class StringUtils {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         final StringBuilder builder = new StringBuilder(8);
         for (int i = 0; i < 8; ++i) {
-            int randomIndex = random.nextInt("ABCDEFGHIJKLMNOPQRSTUVWXYZ".length());
-            char randomChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(randomIndex);
+            final var chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
+            int randomIndex = random.nextInt(chars.length());
+            char randomChar = chars.charAt(randomIndex);
+
             builder.append(randomChar);
         }
         return builder.append(prefix).toString();

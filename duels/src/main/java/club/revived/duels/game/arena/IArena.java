@@ -26,7 +26,7 @@ public interface IArena {
     @NotNull
     String getId();
 
-    void generate();
+    void generate(final Location location);
 
     @NotNull
     ArenaType getArenaType();

@@ -1,5 +1,6 @@
 package club.revived.duels.service.cache;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -11,14 +12,17 @@ import java.util.concurrent.CompletableFuture;
 public interface GlobalCache {
 
     /**
- * Retrieve a cached value by its key and expected type.
- *
- * @param <T>   the expected type of the cached value
- * @param clazz the Class object representing the expected type for decoding/casting
- * @param key   the cache key
- * @return      the cached value of type T, or {@code null} if no value is associated with the key
- */
-<T> CompletableFuture<T> get(Class<T> clazz, String key);
+     * Retrieve a cached value by its key and expected type.
+     *
+     * @param <T>   the expected type of the cached value
+     * @param clazz the Class object representing the expected type for decoding/casting
+     * @param key   the cache key
+     * @return the cached value of type T, or {@code null} if no value is associated with the key
+     */
+    <T> CompletableFuture<T> get(
+            final Class<T> clazz,
+            final String key
+    );
 
     /**
      * Stores a value in the global cache under the specified key.
@@ -31,6 +35,16 @@ public interface GlobalCache {
             final T t
     );
 
+    <T> void push(
+            final String key,
+            final T t
+    );
+
+    <T> List<T> getAll(
+            final String key,
+            final Class<T> clazz
+    );
+
     /**
      * Stores a value in the global cache under the specified key and sets an expiration time.
      *
@@ -38,7 +52,9 @@ public interface GlobalCache {
      * @param t       the value to store
      * @param seconds the time-to-live for the stored value, in seconds
      */
-    <T> void setEx(
+    <T>
+
+    void setEx(
             final String key,
             final T t,
             final long seconds
@@ -51,7 +67,7 @@ public interface GlobalCache {
      * @param port     the TCP port of the cache service
      * @param password the authentication password to use for the connection
      * @param <P>      the type of the returned connection or client
-     * @return         a connection or client instance of type P representing the established connection
+     * @return a connection or client instance of type P representing the established connection
      */
     <P> P connect(
             final String host,

@@ -2,9 +2,9 @@ package club.revived.duels.service.heartbeat;
 
 import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.broker.MessageHandler;
-import club.revived.lobby.service.cluster.Cluster;
-import club.revived.lobby.service.cluster.ClusterService;
-import club.revived.lobby.service.player.PlayerManager;
+import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.cluster.ClusterService;
+import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

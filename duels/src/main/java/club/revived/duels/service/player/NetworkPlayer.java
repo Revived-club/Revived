@@ -1,15 +1,16 @@
 package club.revived.duels.service.player;
 
-import club.revived.lobby.service.cluster.Cluster;
-import club.revived.lobby.service.cluster.ClusterService;
-import club.revived.lobby.service.cluster.ServiceType;
-import club.revived.lobby.service.exception.ServiceUnavailableException;
-import club.revived.lobby.service.exception.UnregisteredPlayerException;
-import club.revived.lobby.service.player.impl.Connect;
-import club.revived.lobby.service.player.impl.SendMessage;
-import club.revived.lobby.service.status.ServiceStatus;
-import club.revived.lobby.service.status.StatusRequest;
-import club.revived.lobby.service.status.StatusResponse;
+import club.revived.duels.database.DatabaseManager;
+import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.cluster.ClusterService;
+import club.revived.duels.service.cluster.ServiceType;
+import club.revived.duels.service.exception.ServiceUnavailableException;
+import club.revived.duels.service.exception.UnregisteredPlayerException;
+import club.revived.duels.service.player.impl.Connect;
+import club.revived.duels.service.player.impl.SendMessage;
+import club.revived.duels.service.status.ServiceStatus;
+import club.revived.duels.service.status.StatusRequest;
+import club.revived.duels.service.status.StatusResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -63,7 +64,7 @@ public final class NetworkPlayer {
 
     /**
      * Cache an object for this player in the cluster-wide global cache.
-     *
+     * <p>
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
      * @param clazz the class whose simple name (lowercased) is used as part of the cache key
@@ -89,6 +90,24 @@ public final class NetworkPlayer {
         return Cluster.getInstance()
                 .getGlobalCache()
                 .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
+    }
+
+    @NotNull
+    public <T> CompletableFuture<T> getCachedOrLoad(final Class<T> clazz) {
+        return this.getCachedValue(clazz).thenCompose(t -> {
+            if (t != null) {
+                return CompletableFuture.completedFuture(t);
+            }
+
+            return DatabaseManager.getInstance().get(clazz, this.uuid.toString())
+                    .thenApply(opt -> {
+                        final T val = opt.orElse(null);
+                        if (val != null) {
+                            this.cacheValue(clazz, val);
+                        }
+                        return val;
+                    });
+        });
     }
 
     /**

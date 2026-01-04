@@ -1,7 +1,7 @@
 package club.revived.duels.service.status;
 
 import club.revived.duels.service.cluster.Cluster;
-import club.revived.lobby.service.messaging.MessagingService;
+import club.revived.duels.service.messaging.MessagingService;
 
 /**
  * This is an interesting Class

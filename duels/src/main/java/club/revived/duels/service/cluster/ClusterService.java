@@ -1,13 +1,9 @@
 package club.revived.duels.service.cluster;
 
-import club.revived.lobby.service.cluster.Cluster;
-import club.revived.lobby.service.cluster.ServiceType;
-import club.revived.lobby.service.messaging.Message;
-import club.revived.lobby.service.messaging.Request;
-import club.revived.lobby.service.messaging.Response;
+import club.revived.duels.service.messaging.Message;
+import club.revived.duels.service.messaging.Request;
+import club.revived.duels.service.messaging.Response;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -19,8 +15,6 @@ import java.util.concurrent.CompletableFuture;
  * @since 03.01.26
  */
 public final class ClusterService {
-
-    private static final Logger log = LoggerFactory.getLogger(ClusterService.class);
 
     @NotNull
     private final String id;

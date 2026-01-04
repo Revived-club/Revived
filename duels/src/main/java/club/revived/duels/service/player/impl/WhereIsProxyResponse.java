@@ -1,6 +1,6 @@
 package club.revived.duels.service.player.impl;
 
-import club.revived.lobby.service.messaging.Response;
+import club.revived.duels.service.messaging.Response;
 
 /**
  * This is an interesting Class

@@ -1,6 +1,6 @@
 package club.revived.duels.service.player.impl;
 
-import club.revived.lobby.service.messaging.Request;
+import club.revived.duels.service.messaging.Request;
 
 import java.util.UUID;
 

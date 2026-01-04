@@ -1,14 +1,19 @@
 package club.revived.duels.database.provider;
 
+import club.revived.commons.adapter.LocationTypeAdapter;
 import club.revived.duels.Duels;
 import club.revived.duels.database.DatabaseProvider;
+import club.revived.duels.game.arena.schematic.DuelArenaSchematic;
 import club.revived.duels.game.arena.schematic.WorldeditSchematic;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import org.bson.types.Binary;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -23,11 +28,16 @@ import java.util.Optional;
  * @author yyuh
  * @since 04.01.26
  */
-public final class ArenaSchematicProvider implements DatabaseProvider<WorldeditSchematic> {
+public final class DuelArenaSchematicProvider implements DatabaseProvider<DuelArenaSchematic> {
 
     private final MongoCollection<Document> collection;
 
-    public ArenaSchematicProvider(final MongoDatabase database) {
+    private final Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .registerTypeAdapter(Location.class, new LocationTypeAdapter())
+            .create();
+
+    public DuelArenaSchematicProvider(final MongoDatabase database) {
         database.createCollection("schematics");
         this.collection = database.getCollection("schematics");
     }
@@ -38,12 +48,12 @@ public final class ArenaSchematicProvider implements DatabaseProvider<WorldeditS
     }
 
     @Override
-    public void save(final WorldeditSchematic worldEditSchematic) {
+    public void save(final DuelArenaSchematic worldEditSchematic) {
         try {
-            final byte[] bytes = Files.readAllBytes(worldEditSchematic.file().toPath());
+            final var json = this.gson.toJson(worldEditSchematic);
 
             final var doc = new Document("id", worldEditSchematic.id())
-                    .append("data", new Binary(bytes));
+                    .append("data", json);
 
             collection.replaceOne(
                     Filters.eq("id", worldEditSchematic.id()),
@@ -56,7 +66,7 @@ public final class ArenaSchematicProvider implements DatabaseProvider<WorldeditS
     }
 
     @Override
-    public @NotNull Optional<WorldeditSchematic> get(final String key) {
+    public @NotNull Optional<DuelArenaSchematic> get(final String key) {
         try {
             final var doc = this.collection.find(
                     Filters.eq("id", key)
@@ -66,39 +76,25 @@ public final class ArenaSchematicProvider implements DatabaseProvider<WorldeditS
                 return Optional.empty();
             }
 
-            final var binary = doc.get("data", Binary.class);
+            final var json = doc.getString("data");
+            final var schematic = this.gson.fromJson(json, DuelArenaSchematic.class);
 
-            final File file = new File(Duels.getInstance().getDataFolder(), "/schem/" + key);
-
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-
-            Files.write(file.toPath(), binary.getData());
-
-            return Optional.of(new WorldeditSchematic(key, file));
+            return Optional.of(schematic);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public @NotNull List<WorldeditSchematic> getAll() {
-        final List<WorldeditSchematic> result = new ArrayList<>();
+    public @NotNull List<DuelArenaSchematic> getAll() {
+        final List<DuelArenaSchematic> result = new ArrayList<>();
         try {
             for (final Document doc : this.collection.find()) {
-                final String id = doc.getString("id");
-                final Binary binary = doc.get("data", Binary.class);
+                final var json = doc.getString("data");
 
-                final File file = new File(Duels.getInstance().getDataFolder(), "/schem/" + id);
+                final var schematic = this.gson.fromJson(json, DuelArenaSchematic.class);
 
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-
-                Files.write(file.toPath(), binary.getData());
-
-                result.add(new WorldeditSchematic(id, file));
+                result.add(schematic);
             }
         } catch (final Exception e) {
             throw new RuntimeException(e);

@@ -8,5 +8,7 @@ import java.io.File;
  * @author yyuh
  * @since 04.01.26
  */
-public record WorldEditSchematic(String id, File file) {
-}
+public record WorldeditSchematic(
+        String id,
+        File file
+) {}

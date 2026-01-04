@@ -36,6 +36,7 @@ public final class Duels extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        setupCluster();
     }
 
     /**
@@ -76,6 +77,10 @@ public final class Duels extends JavaPlugin {
                 new RedisCacheService(host, port, password),
                 this.hostName
         );
+    }
+
+    public String getHostName() {
+        return hostName;
     }
 
     /**

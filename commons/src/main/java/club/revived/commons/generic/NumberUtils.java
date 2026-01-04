@@ -1,4 +1,4 @@
-package club.revived.commons;
+package club.revived.commons.generic;
 
 /**
  * NumberUtils

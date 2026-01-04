@@ -1,8 +1,8 @@
 package club.revived.duels.service.player;
 
-import club.revived.lobby.service.cluster.Cluster;
-import club.revived.lobby.service.exception.UnregisteredPlayerException;
-import club.revived.lobby.service.player.impl.SendMessage;
+import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.exception.UnregisteredPlayerException;
+import club.revived.duels.service.player.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public final class PlayerManager {
 
     private static final Logger log = LoggerFactory.getLogger(PlayerManager.class);
-    private final Map<UUID, NetworkPlayer> networkPlayers = new HashMap();
+    private final Map<UUID, NetworkPlayer> networkPlayers = new HashMap<>();
 
     private static PlayerManager instance;
 

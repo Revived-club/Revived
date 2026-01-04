@@ -38,8 +38,7 @@ public final class DuelBiome implements IArena {
     }
 
     @NotNull
-    @Override
-    public void generate() {
+    public void generate(final Location location) {
 
     }
 

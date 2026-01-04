@@ -37,9 +37,8 @@ public final class FFAArena implements IArena {
         return "";
     }
 
-    @NotNull
     @Override
-    public void generate() {
+    public void generate(final Location location) {
 
     }
 

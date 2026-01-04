@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,7 +66,7 @@ public final class RedisCacheService implements GlobalCache {
      * @param <T>   the expected return type
      * @param clazz the class to deserialize the stored JSON into
      * @param key   the Redis key to read the value from
-     * @return      an instance of {@code clazz} deserialized from the stored JSON, or {@code null} if the key does not exist
+     * @return an instance of {@code clazz} deserialized from the stored JSON, or {@code null} if the key does not exist
      * @throws RuntimeException if an error occurs while accessing Redis or deserializing the value
      */
     @Override
@@ -123,5 +125,40 @@ public final class RedisCacheService implements GlobalCache {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public <T> void push(
+            final String key,
+            final T t
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.rpush(key, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <T> List<T> getAll(
+            final String key,
+            final Class<T> clazz
+    ) {
+        final var list = new ArrayList<T>();
+
+        try (final var jedis = this.jedisPool.getResource()) {
+            final List<String> jsonList = jedis.lrange(key, 0, -1);
+
+            for (final var json : jsonList) {
+                final var t = this.gson.fromJson(json, clazz);
+                list.add(t);
+            }
+
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 }
