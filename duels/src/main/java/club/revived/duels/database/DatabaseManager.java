@@ -37,11 +37,32 @@ public final class DatabaseManager {
 
     private final Map<Class<?>, DatabaseProvider<?>> providers = new HashMap<>();
 
+    /**
+     * Creates the DatabaseManager singleton and initiates a connection to the configured MongoDB.
+     *
+     * The newly constructed instance is published as the class-wide singleton and immediately
+     * attempts to establish the database connection and register providers.
+     *
+     * @throws IllegalStateException if establishing the MongoDB connection fails
+     */
     public DatabaseManager() {
         manager = this;
         connect();
     }
 
+    /**
+     * Establishes a MongoDB connection and initializes database providers.
+     *
+     * Reads connection settings from "mongo.yml" in the plugin data folder (key
+     * `connectionString`, defaulting to "mongodb://localhost:27017"), creates a
+     * MongoClient with those settings, selects the "revived" database, and marks
+     * the manager as connected. After a successful connection, calls {@code register()}
+     * to initialize and start per-class providers.
+     *
+     * @throws IllegalStateException if establishing the MongoDB connection fails;
+     *         the manager's connection state will be set to false and resources
+     *         will be destroyed before the exception is thrown
+     */
     public void connect() {
         try {
             final var configFile = new File(Duels.getInstance().getDataFolder(), "mongo.yml");
@@ -89,11 +110,11 @@ public final class DatabaseManager {
     }
 
     /**
-     * Saves the given entity instance for the specified entity class.
+     * Persists the provided entity using the registered provider for the given entity class.
      *
      * @param clazz the entity class whose provider will handle the save
      * @param t the entity instance to persist
-     * @return a CompletableFuture that completes with null after the save operation finishes; completes immediately with null if the database is not connected
+     * @return `null` when the operation completes
      */
     public <T> CompletableFuture<Void> save(Class<T> clazz, T t) {
         if (!isConnected) {
@@ -106,10 +127,8 @@ public final class DatabaseManager {
     }
 
     /**
-     * Registers and starts database providers for kit-related entities.
-     *
-     * Initializes the provider registry with implementations for KitHolder and KitRoomPage
-     * backed by the current MongoDB database, then invokes start() on each registered provider.
+     * Initializes the provider registry with database-backed providers for WorldeditSchematic,
+     * DuelArenaSchematic, DuelKit, and EditedDuelKit, then starts each registered provider.
      */
     private void register() {
         this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
@@ -122,6 +141,11 @@ public final class DatabaseManager {
         }
     }
 
+    /**
+     * Get the singleton DatabaseManager instance, creating it if none exists.
+     *
+     * @return the singleton DatabaseManager instance
+     */
     public static DatabaseManager getInstance() {
         if (manager == null) {
             new DatabaseManager();

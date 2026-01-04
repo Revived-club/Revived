@@ -26,10 +26,19 @@ public final class ArenaCreator {
     private int turnCount = 0;
     private int direction = 0;
 
+    /**
+     * Creates a new ArenaCreator and registers it as the singleton instance.
+     */
     public ArenaCreator() {
         instance = this;
     }
 
+    /**
+     * Create an arena instance for the given arena type using a randomly selected schematic and place it at the next generated location.
+     *
+     * @param arenaType the type of arena to create
+     * @return a CompletableFuture that completes with the created {@link IArena}, or completes exceptionally if no schematics are available for the specified arena type
+     */
     @NotNull
     public CompletableFuture<IArena> makeOf(final ArenaType arenaType) {
         final var schematics = SchematicProvider.getInstance()
@@ -85,6 +94,16 @@ public final class ArenaCreator {
 
     }
 
+    /**
+     * Compute the next arena placement location on the arena grid.
+     *
+     * Produces a Location in the "duels" world at coordinates (currentX * 1000, 100, currentZ * 1000)
+     * corresponding to the current grid position before advancing. Advances the internal grid cursor
+     * along an outward spiral pattern and updates currentX, currentZ, direction, stepCount, stepLimit,
+     * and turnCount to prepare for the following call.
+     *
+     * @return the computed Location for the next arena placement
+     */
     @NotNull
     public Location getNextLocation() {
         final Location loc = new Location(
@@ -115,6 +134,11 @@ public final class ArenaCreator {
         return loc;
     }
 
+    /**
+     * Retrieves the singleton ArenaCreator, creating and registering a new instance if none exists.
+     *
+     * @return the singleton ArenaCreator instance
+     */
     public static ArenaCreator getInstance() {
         if (instance == null) {
             return new ArenaCreator();

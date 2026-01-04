@@ -19,6 +19,11 @@ public enum ArenaType {
 
     ;
 
+    /**
+     * Provides the kit types usable for this arena type.
+     *
+     * @return a `List<KitType>` containing the kit types usable in this arena; may be empty
+     */
     @NotNull
     public List<KitType> getUsableKits() {
         return Arrays.stream(KitType.values())

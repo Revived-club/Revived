@@ -54,6 +54,14 @@ public final class Cluster {
 
     public static ServiceStatus STATUS = ServiceStatus.STARTING;
 
+    /**
+     * Creates a Cluster configured with the provided messaging broker and global cache and registers it
+     * under the given service id with a service type of {@code ServiceType.UNASSIGNED}.
+     *
+     * @param broker the message broker used for inter-service communication
+     * @param cache  the shared global cache instance
+     * @param id     the unique identifier for this service instance
+     */
     public Cluster(
             final @NotNull MessageBroker broker,
             final @NotNull GlobalCache cache,
@@ -62,6 +70,19 @@ public final class Cluster {
         this(broker, cache, ServiceType.UNASSIGNED, id);
     }
 
+    /**
+     * Creates and initializes a Cluster for the given service identity, wiring messaging,
+     * heartbeat/status subsystems and registering request handlers.
+     *
+     * This constructor sets the singleton instance for the process, computes the service IP,
+     * instantiates the MessagingService, starts background services, and registers request handlers.
+     *
+     * @param broker the MessageBroker used for inter-service publish/subscribe
+     * @param cache  the shared GlobalCache instance
+     * @param serviceType the type of this service
+     * @param id     the unique identifier for this service instance
+     * @throws IllegalStateException if the local service IP cannot be determined
+     */
     public Cluster(
             final @NotNull MessageBroker broker,
             final @NotNull GlobalCache cache,
@@ -81,11 +102,23 @@ public final class Cluster {
         registerRequestHandlers();
     }
 
+    /**
+     * Initializes and starts the cluster background services required for operation.
+     *
+     * Starts the heartbeat service and the status service so the cluster can broadcast liveness
+     * and report status to other components.
+     */
     private void startServices() {
         new HeartbeatService(this.broker);
         new StatusService(this.messagingService);
     }
 
+    /**
+     * Registers messaging handlers for cluster requests.
+     *
+     * <p>Registers a handler for WhereIsRequest that returns a WhereIsResponse containing this
+     * service's ID when the requested player is currently online, or `null` when the player is not found.
+     */
     private void registerRequestHandlers() {
         this.messagingService.registerHandler(WhereIsRequest.class, whereIsRequest -> {
             final var player = Bukkit.getPlayer(whereIsRequest.uuid());
@@ -98,6 +131,12 @@ public final class Cluster {
         });
     }
 
+    /**
+     * Publishes the given message to the cluster message broker using the specified destination id.
+     *
+     * @param id      the destination id or routing key to publish the message to
+     * @param message the message payload to be published
+     */
     public <T> void send(
             final String id,
             final T message
@@ -105,6 +144,13 @@ public final class Cluster {
         this.broker.publish(id, message);
     }
 
+    /**
+     * Selects the least-loaded ClusterService for the given service type.
+     *
+     * @param serviceType the type of service to search for
+     * @return the ClusterService of the specified type with the fewest online players
+     * @throws java.util.NoSuchElementException if no service of the specified type is registered
+     */
     @NotNull
     public ClusterService getLeastLoadedService(final ServiceType serviceType) {
         final var services = this.services.values()
@@ -116,6 +162,12 @@ public final class Cluster {
         return services.getFirst();
     }
 
+    /**
+     * Resolve which ClusterService is acting as the proxy for the given player UUID.
+     *
+     * @param uuid the player's unique identifier to locate
+     * @return the ClusterService hosting the player's proxy, or `null` if no proxy is known for the UUID
+     */
     @NotNull
     public CompletableFuture<ClusterService> whereIsProxy(final UUID uuid) {
         return this.messagingService.sendRequest("global", new WhereIsProxyRequest(uuid), WhereIsProxyResponse.class)
@@ -126,6 +178,12 @@ public final class Cluster {
                 });
     }
 
+    /**
+     * Locate the cluster service currently hosting the player with the given UUID.
+     *
+     * @param uuid the player's UUID to locate
+     * @return the ClusterService hosting the player with the given UUID, or `null` if unknown
+     */
     @NotNull
     public CompletableFuture<ClusterService> whereIs(final UUID uuid) {
         return this.messagingService.sendRequest("global", new WhereIsRequest(uuid), WhereIsResponse.class)
@@ -136,6 +194,12 @@ public final class Cluster {
                 });
     }
 
+    /**
+     * Constructs the local service address string in the form "ip:port".
+     *
+     * @return the local IP address concatenated with the Bukkit port, e.g. "192.168.1.2:25565"
+     * @throws IllegalStateException if the local host address or Bukkit port cannot be determined
+     */
     @NotNull
     private String serviceIp() {
         try {
@@ -148,34 +212,75 @@ public final class Cluster {
         }
     }
 
+    /**
+     * Gets the computed IP and port string for this service.
+     *
+     * @return the service's IP and port in the form "address:port"
+     */
     public @NotNull String getIp() {
         return ip;
     }
 
+    /**
+     * Provides the message broker used for cluster inter-service messaging.
+     *
+     * @return the MessageBroker instance used for publish/subscribe communication within the cluster
+     */
     public @NotNull MessageBroker getBroker() {
         return broker;
     }
 
+    /**
+     * Provides access to the shared global cache used by the cluster.
+     *
+     * @return the cluster's GlobalCache instance
+     */
     public @NotNull GlobalCache getGlobalCache() {
         return globalCache;
     }
 
+    /**
+     * Provides access to the cluster's messaging service.
+     *
+     * @return the MessagingService used for inter-service messaging (never {@code null})
+     */
     public @NotNull MessagingService getMessagingService() {
         return messagingService;
     }
 
+    /**
+     * Accesses the map of known cluster services keyed by service ID.
+     *
+     * @return the map of known `ClusterService` instances keyed by service ID
+     */
     public @NotNull Map<String, ClusterService> getServices() {
         return services;
     }
 
+    /**
+     * Obtains the service type for this Cluster.
+     *
+     * @return the ServiceType identifying this service instance
+     */
     public @NotNull ServiceType getServiceType() {
         return serviceType;
     }
 
+    /**
+     * Returns the unique identifier for this service instance.
+     *
+     * @return the service instance's unique identifier
+     */
     public @NotNull String getServiceId() {
         return serviceId;
     }
 
+    /**
+     * Get the registered Cluster singleton instance.
+     *
+     * @return the registered Cluster instance
+     * @throws UnsupportedOperationException if no Cluster instance has been registered
+     */
     public static Cluster getInstance() {
         if (instance == null) {
             throw new UnsupportedOperationException("There is no cluster registered!");

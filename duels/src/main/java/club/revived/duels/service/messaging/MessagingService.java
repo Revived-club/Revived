@@ -28,10 +28,10 @@ public final class MessagingService {
     private final Map<String, Consumer<Message>> messageHandlers = new ConcurrentHashMap<>();
 
     /**
-     * Create a MessagingService backed by the given MessageBroker and identified by serviceId.
+     * Construct a MessagingService that uses the given MessageBroker and service identifier.
      *
-     * Subscribes the broker to the "service-messages-{serviceId}" topic so incoming MessageEnvelope
-     * instances for this service are delivered to the internal envelope handler.
+     * Subscribes the provided broker to the topic "service-messages-{serviceId}" so incoming
+     * MessageEnvelope instances addressed to this service are delivered to the service's envelope handler.
      *
      * @param broker    the MessageBroker used to publish and receive service messages
      * @param serviceId unique identifier for this service instance; used as the topic suffix for subscriptions
@@ -107,6 +107,15 @@ public final class MessagingService {
         broker.publish("service-messages-" + targetServiceId, envelope);
     }
 
+    /**
+     * Registers a handler to process incoming requests of the specified type.
+     *
+     * If the handler returns a non-null Response, that response will be sent back to the original requester.
+     * If the handler returns null, no response will be sent.
+     *
+     * @param requestType the concrete Request class to handle
+     * @param handler     a function that accepts a deserialized request instance and produces a Response (or null)
+     */
     public <T extends Request> void registerHandler(
             final Class<T> requestType,
             final Function<T, Response> handler
@@ -130,9 +139,11 @@ public final class MessagingService {
     }
 
     /**
-     * Routes a received MessageEnvelope to the response handler or to incoming request/message handlers when it is addressed to this service.
+     * Route a received MessageEnvelope to the appropriate internal handler when it is addressed to this service.
      *
-     * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
+     * If the envelope's targetId equals this service's id or "global", the envelope is delivered to a matching pending-request response handler when its correlationId matches an in-flight request; otherwise it is dispatched to registered request or message handlers. Envelopes not addressed to this service are ignored.
+     *
+     * @param envelope the incoming envelope to route; processed only when its targetId is this service's id or "global"
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
@@ -221,12 +232,12 @@ public final class MessagingService {
     }
 
     /**
-     * Deserializes the envelope's payload into a Message and invokes the given handler with it.
-     *
-     * @param envelope the incoming message envelope containing payloadType and payloadJson
-     * @param handler  consumer to process the deserialized Message
-     * @throws RuntimeException if the payload type cannot be loaded, deserialization fails, or the handler throws
-     */
+         * Deserialize the envelope's payload into a Message and invoke the given handler with it.
+         *
+         * @param envelope the incoming envelope containing the payload type name and JSON payload
+         * @param handler  consumer that will be invoked with the deserialized Message
+         * @throws RuntimeException if the payload class cannot be loaded, deserialization fails, or the handler throws
+         */
     private void handleMessage(final MessageEnvelope envelope, final Consumer<Message> handler) {
         try {
             final Class<?> messageType = Class.forName(envelope.payloadType());

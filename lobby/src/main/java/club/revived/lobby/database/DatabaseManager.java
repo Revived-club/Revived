@@ -36,10 +36,27 @@ public final class DatabaseManager {
 
     private final Map<Class<?>, DatabaseProvider<?>> providers = new HashMap<>();
 
+    /**
+     * Creates a DatabaseManager and registers it as the singleton instance.
+     *
+     * The constructor sets the static `manager` reference to this newly created instance.
+     */
     public DatabaseManager() {
         manager = this;
     }
 
+    /**
+     * Establishes a MongoDB connection using the given host, port, optional credentials, and selects the specified database, then registers providers.
+     *
+     * If both `username` and `password` are non-null and non-empty, credentials are included in the connection string; otherwise the connection is attempted without authentication.
+     *
+     * @param host the MongoDB host address
+     * @param port the MongoDB port
+     * @param username optional username for authentication (may be null or empty to skip authentication)
+     * @param password optional password for authentication (may be null or empty to skip authentication)
+     * @param database the name of the database to select after connecting
+     * @throws IllegalStateException if establishing the connection or initialization fails
+     */
     public void connect(
             final String host,
             final int port,

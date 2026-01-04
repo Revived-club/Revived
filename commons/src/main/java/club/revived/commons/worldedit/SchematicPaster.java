@@ -23,6 +23,17 @@ import java.nio.file.Files;
  */
 public final class SchematicPaster {
 
+    /**
+     * Paste a WorldEdit schematic file into the Bukkit world at the given location.
+     *
+     * If the file's clipboard format is recognized, the schematic is read and pasted
+     * so its origin aligns with the block coordinates of the provided location.
+     * If the format cannot be determined, the method performs no action.
+     *
+     * @param file the schematic file to paste (e.g. .schem, .schematic)
+     * @param location the target Bukkit location; the location's block coordinates are used as the paste origin
+     * @throws RuntimeException if an error occurs while reading the file or executing the paste (the original exception is wrapped)
+     */
     public static void paste(
             final File file,
             final Location location

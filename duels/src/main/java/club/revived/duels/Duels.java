@@ -79,6 +79,11 @@ public final class Duels extends JavaPlugin {
         );
     }
 
+    /**
+     * Gets the configured hostname used for cluster identification.
+     *
+     * @return the hostname provided by the HOSTNAME environment variable, or `null` if not set
+     */
     public String getHostName() {
         return hostName;
     }

@@ -109,11 +109,12 @@ public enum KitType {
     private final ArenaType arenaType;
 
     /**
-     * Creates a KitType with the specified display name, ranked flag, and associated material.
+     * Initializes a KitType with a display name, ranked status, visual material, and arena type.
      *
-     * @param beautifiedName the human-friendly name shown for the kit
-     * @param ranked         whether the kit is considered ranked
-     * @param material       the Bukkit Material associated with the kit
+     * @param beautifiedName the human-friendly display name for the kit
+     * @param ranked         `true` if the kit is considered ranked, `false` otherwise
+     * @param material       the Bukkit Material used to represent the kit
+     * @param arenaType      the arena context for the kit (e.g., INTERACTIVE or RESTRICTED)
      */
     KitType(
             final String beautifiedName,
@@ -139,7 +140,7 @@ public enum KitType {
     /**
      * Gets the human-friendly display name for this kit.
      *
-     * @return the display name for the kit
+     * @return the human-friendly display name of the kit
      */
     public String getBeautifiedName() {
         return this.bName;
@@ -148,12 +149,17 @@ public enum KitType {
     /**
      * Indicates whether this kit type is ranked.
      *
-     * @return `true` if the kit is ranked, `false` otherwise.
+     * @return {@code true} if the kit is ranked, {@code false} otherwise.
      */
     public boolean isRanked() {
         return this.isRanked;
     }
 
+    /**
+     * Get the arena type associated with this kit.
+     *
+     * @return the ArenaType that indicates the arena context for this kit
+     */
     public ArenaType getArenaType() {
         return arenaType;
     }

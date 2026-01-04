@@ -22,6 +22,13 @@ public final class RedisCacheService implements GlobalCache {
     private final ExecutorService subServer = Executors.newVirtualThreadPerTaskExecutor();
     private final Gson gson = new Gson();
 
+    /**
+     * Creates a RedisCacheService configured to connect to a Redis instance at the given host and port using the provided password.
+     *
+     * @param host the Redis server hostname or IP
+     * @param port the Redis server port
+     * @param password the authentication password for the Redis server (empty string if none)
+     */
     public RedisCacheService(
             final String host,
             final int port,
@@ -30,6 +37,12 @@ public final class RedisCacheService implements GlobalCache {
         this.jedisPool = this.connect(host, port, password);
     }
 
+    /**
+     * Creates a RedisCacheService connected to the specified Redis host and port using an empty password.
+     *
+     * @param host the Redis server hostname or IP address
+     * @param port the Redis server port
+     */
     public RedisCacheService(
             final String host,
             final int port
@@ -127,6 +140,13 @@ public final class RedisCacheService implements GlobalCache {
         }
     }
 
+    /**
+     * Appends the JSON-serialized form of the given object to the end of the Redis list stored at the specified key.
+     *
+     * @param key the Redis list key
+     * @param t   the object to serialize and append to the list
+     * @throws RuntimeException if serialization or the Redis operation fails
+     */
     @Override
     public <T> void push(
             final String key,
@@ -140,6 +160,14 @@ public final class RedisCacheService implements GlobalCache {
         }
     }
 
+    /**
+     * Retrieve and deserialize all elements of the Redis list at the given key.
+     *
+     * @param key   the Redis list key to read
+     * @param clazz the target class to deserialize each list element into
+     * @return a list of deserialized elements in list order (head to tail); empty if the key does not exist or has no elements
+     * @throws RuntimeException if a Redis access or JSON deserialization error occurs
+     */
     @Override
     public <T> List<T> getAll(
             final String key,

@@ -36,6 +36,15 @@ public final class NetworkPlayer {
     @NotNull
     private final CompletableFuture<ClusterService> currentProxy;
 
+    /**
+     * Creates a NetworkPlayer for the given identity and current server and initiates resolution of the player's proxy service.
+     *
+     * Initializes the player's UUID, username, and current server, and begins asynchronous lookup of the proxy service responsible for this player (stored in {@code currentProxy}).
+     *
+     * @param uuid the player's unique identifier
+     * @param username the player's display name
+     * @param currentServer the identifier of the server the player is currently on
+     */
     public NetworkPlayer(
             final @NotNull UUID uuid,
             final @NotNull String username,
@@ -50,25 +59,30 @@ public final class NetworkPlayer {
     /**
      * Locate the cluster proxy service responsible for this player.
      *
-     * @return the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
+     * @return the ClusterService responsible for this player, or null if the player is not currently assigned to a proxy
      */
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
     }
 
+    /**
+     * Retrieve the cluster service type handling this player.
+     *
+     * @return the cluster service type corresponding to the player's proxy
+     */
     @NotNull
     public CompletableFuture<ServiceType> getService() {
         return this.whereIs().thenApply(ClusterService::getType);
     }
 
     /**
-     * Cache an object for this player in the cluster-wide global cache.
-     * <p>
-     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     * Caches an object for this player in the cluster-wide global cache.
      *
-     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
-     * @param obj   the object to store in the global cache for this player
+     * The value is stored under the key "<playerUuid>:<clazzSimpleNameLowercased>".
+     *
+     * @param clazz the class whose simple name (lowercased) is used as the cache key suffix
+     * @param obj   the object to store for this player
      */
     public <T> void cacheValue(
             final Class<T> clazz,
@@ -80,10 +94,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Retrieve a cached value for this player identified by the given class.
+     * Retrieves the cached value for this player associated with the given class.
      *
-     * @param clazz the class used as part of the cache key and to type the returned value
-     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
+     * @param clazz the class whose simple name is used in the per-player cache key and that determines the returned value's type
+     * @return the cached value for this player and class, or {@code null} if no value is present
      */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
@@ -92,6 +106,13 @@ public final class NetworkPlayer {
                 .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
     }
 
+    /**
+     * Retrieves a cached value for this player by type or loads it from the database and caches it if absent.
+     *
+     * @param <T>   the type of the value
+     * @param clazz the class used to identify and load the value
+     * @return the cached or database-loaded instance for this player, or `null` if not found
+     */
     @NotNull
     public <T> CompletableFuture<T> getCachedOrLoad(final Class<T> clazz) {
         return this.getCachedValue(clazz).thenCompose(t -> {
@@ -130,6 +151,13 @@ public final class NetworkPlayer {
         });
     }
 
+    /**
+     * Requests a connection to the specified cluster service and instructs the player's current proxy to
+     * perform the connection if the target service reports an AVAILABLE status.
+     *
+     * @param clusterService the target cluster service to connect the player to
+     * @throws ServiceUnavailableException if the target service's status is not AVAILABLE
+     */
     public void connect(final ClusterService clusterService) {
         clusterService.sendRequest(new StatusRequest(), StatusResponse.class)
                 .thenAccept(statusResponse -> {
@@ -147,6 +175,16 @@ public final class NetworkPlayer {
                 });
     }
 
+    /**
+     * Initiates a connection sequence to the cluster service with the given identifier.
+     *
+     * Sends a status request to the target service and, if the service reports AVAILABLE,
+     * directs the player's current proxy to send a Connect message containing this player's UUID
+     * and the target service id.
+     *
+     * @param id the identifier of the target cluster service
+     * @throws ServiceUnavailableException if the target service reports a status other than AVAILABLE
+     */
     public void connect(final String id) {
         final var clusterService = Cluster.getInstance()
                 .getServices()
@@ -167,18 +205,38 @@ public final class NetworkPlayer {
                 });
     }
 
+    /**
+     * Gets the player's unique identifier.
+     *
+     * @return the player's UUID
+     */
     public @NotNull UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * Gets the player's username.
+     *
+     * @return the player's username, never null
+     */
     public @NotNull String getUsername() {
         return username;
     }
 
+    /**
+     * Identifier of the server the player is currently on.
+     *
+     * @return the identifier of the server the player is currently on
+     */
     public @NotNull String getCurrentServer() {
         return currentServer;
     }
 
+    /**
+     * Obtain the proxy service currently handling this player.
+     *
+     * @return a CompletableFuture that completes with the proxy ClusterService for this player, or `null` if no proxy is assigned
+     */
     public @NotNull CompletableFuture<ClusterService> getCurrentProxy() {
         return currentProxy;
     }
