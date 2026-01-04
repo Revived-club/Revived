@@ -1,4 +1,4 @@
-package club.revived.commons;
+package club.revived.commons.generic;
 
 /**
  * NumberUtils
@@ -6,7 +6,7 @@ package club.revived.commons;
  * @author yyuh
  * @since 03.01.26
  */
-public class NumberUtils {
+public final class NumberUtils {
 
     /**
      * Determines whether the given string represents a valid 32-bit signed integer.

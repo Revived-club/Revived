@@ -2,6 +2,7 @@ package club.revived.lobby.service.player;
 
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
+import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.exception.UnregisteredPlayerException;
 import club.revived.lobby.service.player.impl.Connect;
@@ -48,11 +49,21 @@ public final class NetworkPlayer {
     /**
      * Locate the cluster proxy service responsible for this player.
      *
-     * @return the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
+     * @return a CompletableFuture that completes with the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
      */
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
+    }
+
+    /**
+     * Obtains the type of the cluster service currently responsible for this player.
+     *
+     * @return the player's current proxy service type
+     */
+    @NotNull
+    public CompletableFuture<ServiceType> getService() {
+        return this.whereIs().thenApply(ClusterService::getType);
     }
 
     /**

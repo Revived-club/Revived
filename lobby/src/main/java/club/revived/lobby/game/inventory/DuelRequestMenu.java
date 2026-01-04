@@ -1,6 +1,6 @@
 package club.revived.lobby.game.inventory;
 
-import club.revived.commons.NumberUtils;
+import club.revived.commons.generic.NumberUtils;
 import club.revived.commons.inventories.impl.InventoryBuilder;
 import club.revived.commons.inventories.inv.AbstractMenu;
 import club.revived.commons.inventories.inv.AnvilMenu;

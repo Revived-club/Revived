@@ -9,10 +9,12 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://jitpack.io")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
     compileOnly(libs.paper)
+    compileOnly(libs.worldguard)
     implementation(libs.anvilgui)
 }
 

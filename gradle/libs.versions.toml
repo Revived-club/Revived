@@ -6,6 +6,7 @@ mongoDriver = "5.7.0-alpha0"
 commandapi = "11.0.0"
 shadow = "9.2.2"
 anvilgui = "1.10.11-SNAPSHOT"
+worldguard = "7.0.10"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -13,6 +14,7 @@ mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongoDriver
 commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "commandapi" }
 paper =  { module = "io.papermc.paper:paper-api", version.ref = "minecraft"}
 anvilgui = { module = "net.wesjd:anvilgui", version.ref = "anvilgui" }
+worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

@@ -3,6 +3,7 @@ package club.revived.lobby.game.command;
 import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.inventory.DuelRequestMenu;
+import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
@@ -18,7 +19,7 @@ public final class DuelCommand {
 
     /**
      * Registers the "duel" command and its subcommands.
-     *
+     * <p>
      * The command provides:
      * - "duel accept": accepts a pending duel request for the executing player.
      * - "duel <target>": opens a duel request menu targeting the specified player.
@@ -28,7 +29,15 @@ public final class DuelCommand {
                 .then(new LiteralArgument("accept")
                         .executesPlayer((player, args) -> {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
-                            DuelManager.getInstance().acceptDuelRequest(networkPlayer);
+
+                            networkPlayer.getService().thenAccept(serviceType -> {
+                                if (serviceType != ServiceType.LOBBY) {
+                                    player.sendRichMessage(String.format("<red>%s is not in a lobby!", networkPlayer.getUsername()));
+                                    return;
+                                }
+
+                                DuelManager.getInstance().acceptDuelRequest(networkPlayer);
+                            });
                         }))
                 .then(NetworkPlayerArgument.networkPlayer("target")
                         .executesPlayer((player, args) -> {

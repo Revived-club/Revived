@@ -1,12 +1,11 @@
 package club.revived.lobby;
 
+import club.revived.lobby.database.DatabaseManager;
+import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 /**
  * This is an interesting Class
@@ -17,8 +16,6 @@ import java.io.File;
 public final class Lobby extends JavaPlugin {
 
     private static Lobby instance;
-
-    private String hostName;
 
     /**
      * Performs plugin load-time initialization.
@@ -39,43 +36,67 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes the plugin: sets the singleton instance, reads the HOSTNAME environment variable into {@code hostName}, and configures the cluster.
+     * Performs plugin startup: sets the singleton instance and runs startup initialization.
      *
-     * @throws RuntimeException if retrieving the HOSTNAME environment variable fails
+     * <p>Establishes the static plugin instance, then initializes the database connection,
+     * registers commands, and configures cluster services.</p>
      */
     @Override
     public void onEnable() {
         instance = this;
 
-        try {
-            // Kubernetes system env variable
-            this.hostName = System.getenv("HOSTNAME");
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.connectDatabase();
+        this.setupCommands();
+        this.setupCluster();
+    }
 
-        setupCluster();
+
+    /**
+     * Initializes and registers the plugin's command handlers for the lobby.
+     *
+     * Specifically instantiates and registers the DuelCommand. 
+     */
+    private void setupCommands() {
+        new DuelCommand();
+    }
+
+
+    /**
+     * Initializes a MongoDB connection from environment-provided credentials and registers it with the DatabaseManager.
+     *
+     * Reads the environment variables `MONGODB_HOST`, `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_DATABASE`
+     * and connects to the specified host on port 27017.
+     */
+    private void connectDatabase() {
+        final String host = System.getenv("MONGODB_HOST");
+        final String password = System.getenv("MONGODB_PASSWORD");
+        final String username = System.getenv("MONGODB_USERNAME");
+        final String database = System.getenv("MONGODB_DATABASE");
+
+        DatabaseManager.getInstance().connect(
+                host,
+                27017,
+                username,
+                password,
+                database
+        );
     }
 
     /**
-     * Initializes the application's Cluster from the plugin's redis.yml configuration.
+     * Initializes the plugin Cluster using environment variables.
      *
-     * Loads host, port, and password from redis.yml in the plugin data folder and constructs
-     * a Cluster using RedisBroker and RedisCacheService configured with those values and the
-     * plugin's hostName.
+     * Reads HOSTNAME, REDIS_HOST, and REDIS_PORT from the process environment and constructs
+     * a Cluster configured with a RedisBroker and RedisCacheService using those values.
      */
     private void setupCluster() {
-        final var redisFile = new File(getDataFolder(), "redis.yml");
-        final var redisConfig = YamlConfiguration.loadConfiguration(redisFile);
-
-        final String password = redisConfig.getString("password");
-        final String host = redisConfig.getString("host");
-        final int port = redisConfig.getInt("port");
+        final String hostName = System.getenv("HOSTNAME");
+        final String host = System.getenv("REDIS_HOST");
+        final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
 
         new Cluster(
-                new RedisBroker(host, port, password),
-                new RedisCacheService(host, port, password),
-                this.hostName
+                new RedisBroker(host, port, ""),
+                new RedisCacheService(host, port, ""),
+                hostName
         );
     }
 
