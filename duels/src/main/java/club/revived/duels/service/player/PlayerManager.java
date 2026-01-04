@@ -27,12 +27,22 @@ public final class PlayerManager {
 
     private static PlayerManager instance;
 
+    /**
+     * Creates a PlayerManager, assigns this object as the singleton instance, and registers message handlers for inter-server messaging.
+     */
     public PlayerManager() {
         instance = this;
 
         this.registerMessageHandlers();
     }
 
+    /**
+     * Create a NetworkPlayer for the given identity and register it in the manager.
+     *
+     * @param uuid the player's unique UUID
+     * @param username the player's username
+     * @param currentServer the name of the server the player is currently connected to
+     */
     public void registerPlayer(
             final @NotNull UUID uuid,
             final @NotNull String username,
@@ -47,6 +57,11 @@ public final class PlayerManager {
         this.registerPlayer(player);
     }
 
+    /**
+     * Adds the given NetworkPlayer to the manager's registry keyed by the player's UUID.
+     *
+     * @param networkPlayer the NetworkPlayer to register; its UUID is used as the registry key
+     */
     public void registerPlayer(final NetworkPlayer networkPlayer) {
         log.info("Registered player {} - {}",
                 networkPlayer.getUsername(),
@@ -59,6 +74,13 @@ public final class PlayerManager {
         );
     }
 
+    /**
+     * Registers a handler that delivers incoming SendMessage payloads to the corresponding Bukkit player.
+     *
+     * The handler resolves the target player from the message's UUID and delivers the message as a rich chat message.
+     *
+     * @throws UnregisteredPlayerException if no online Bukkit player exists for the message's UUID
+     */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
@@ -73,17 +95,24 @@ public final class PlayerManager {
                 });
     }
 
+    /**
+     * Resolve the NetworkPlayer associated with the given Bukkit Player.
+     *
+     * @param player the Bukkit Player whose associated NetworkPlayer to retrieve
+     * @return the NetworkPlayer associated with the player's UUID
+     * @throws UnregisteredPlayerException if no NetworkPlayer is registered for the player's UUID
+     */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final Player player) {
         return this.fromBukkitPlayer(player.getUniqueId());
     }
 
     /**
-     * Retrieve the NetworkPlayer associated with the given Bukkit player's UUID.
+     * Resolve the NetworkPlayer for a Bukkit player's UUID.
      *
      * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
      * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
-     * @throws UnregisteredPlayerException if the internal registry contains the given UUID
+     * @throws UnregisteredPlayerException if the internal registry already contains the given UUID
      */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final UUID uuid) {
@@ -95,10 +124,10 @@ public final class PlayerManager {
     }
 
     /**
-     * Finds a registered NetworkPlayer by username using a case-insensitive match.
+     * Locate a registered NetworkPlayer by username using a case-insensitive match.
      *
      * @param name the username to search for (case-insensitive)
-     * @return the first matching NetworkPlayer, or `null` if no player has the given username
+     * @return the first matching NetworkPlayer, or `null` if no registered player matches
      */
     @Nullable
     public NetworkPlayer withName(final String name) {
@@ -115,14 +144,20 @@ public final class PlayerManager {
     }
 
     /**
-     * Gets the internal mapping of registered players keyed by their UUID.
+     * Get the live mapping of registered players keyed by their UUID.
      *
-     * @return the live map of UUID to NetworkPlayer for all registered players; modifications to the returned map affect this manager
+     * @return the live map from UUID to NetworkPlayer; modifying the returned map updates this manager's registry
      */
     public Map<UUID, NetworkPlayer> getNetworkPlayers() {
         return networkPlayers;
     }
 
+    /**
+     * Accesses the singleton PlayerManager instance.
+     *
+     * @return the initialized PlayerManager instance
+     * @throws RuntimeException if the singleton has not been initialized
+     */
     public static PlayerManager getInstance() {
         if (instance == null) {
             throw new RuntimeException("Tried to access not existing instance");

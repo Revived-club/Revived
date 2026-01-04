@@ -26,6 +26,14 @@ public final class DuelStartTask extends BukkitRunnable {
     private final Duel duel;
     private Consumer<Void> voidConsumer;
 
+    /**
+     * Creates and schedules a duel start countdown task for the given duel.
+     *
+     * Initializes the task with the provided countdown, captures the duel's players, schedules the task to run once per second, and transitions the duel's game state to STARTING.
+     *
+     * @param cooldown the starting countdown value in seconds before the duel begins
+     * @param duel the Duel instance this task will manage
+     */
     public DuelStartTask(
             final int cooldown,
             final Duel duel
@@ -39,12 +47,13 @@ public final class DuelStartTask extends BukkitRunnable {
     }
 
     /**
-     * Updates the duel start countdown UI for participating players and finalizes the duel start when it reaches zero.
+     * Advances the duel start countdown: updates player titles and action-bar messages each second,
+     * transitions the duel to RUNNING when the countdown completes, and cancels the task if the duel ends.
      *
-     * <p>On each invocation this updates player titles, action bar text and sounds to reflect the remaining
-     * countdown. If the associated duel has ended or is marked over, the task cancels immediately. When the
-     * countdown reaches zero the method displays the final "Fight" title, plays the start sound, executes an
-     * optional callback on the main server thread, clears the duel's starting flag, and cancels the task.</p>
+     * <p>Each tick this updates participating players' titles and action bar with the remaining time.
+     * If the duel's state is ENDING or COMPLETED the task cancels immediately. When the countdown reaches
+     * zero a final "Fight" title is shown to all players, an optional registered callback is executed on
+     * the main server thread, the duel's state is set to RUNNING, and the task cancels.</p>
      */
     @Override
     public void run() {
@@ -80,6 +89,11 @@ public final class DuelStartTask extends BukkitRunnable {
         cooldown--;
     }
 
+    /**
+     * Registers a callback to execute on the main server thread when the duel countdown completes.
+     *
+     * @param fallback a Consumer invoked (with a `null` argument) once the countdown finishes; if `null`, no callback is invoked
+     */
     public void then(Consumer<Void> fallback) {
         voidConsumer = fallback;
     }

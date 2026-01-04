@@ -12,6 +12,12 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class StringUtils {
 
+    /**
+     * Generate an identifier composed of 8 random alphanumeric characters followed by the specified prefix.
+     *
+     * @param prefix the string to append to the generated 8-character random sequence
+     * @return the generated identifier consisting of 8 random letters or digits followed by {@code prefix}
+     */
     @NotNull
     public static String generateId(final String prefix) {
         final ThreadLocalRandom random = ThreadLocalRandom.current();

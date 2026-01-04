@@ -23,11 +23,24 @@ public final class DuelManager {
 
     private final Map<UUID, Duel> runningDuels = new HashMap<>();
 
+    /**
+     * Initializes a DuelManager and registers a handler to start duels when a DuelStart message is received.
+     *
+     * <p>As a side effect, a message handler for DuelStart events is registered with the cluster messaging service.</p>
+     */
     public DuelManager() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(DuelStart.class, this::startDuel);
     }
 
+    /**
+     * Initiates a duel from a DuelStart message: reserves an arena, creates and registers the Duel,
+     * prepares and teleports participants, loads their kits, pushes the duel to the global cache,
+     * and starts the duel countdown task.
+     *
+     * @param duelStart message containing the blue and red team UUID lists, the number of rounds,
+     *                  and the kit type used to configure the duel
+     */
     private void startDuel(final DuelStart duelStart) {
         final List<UUID> blueTeam = duelStart.blueTeam();
         final List<UUID> redTeam = duelStart.redTeam();
@@ -99,6 +112,13 @@ public final class DuelManager {
         });
     }
 
+    /**
+     * Restore a player's health, hunger, exhaustion, potion effects, and extinguish fire.
+     *
+     * The restoration is performed on the server's main thread.
+     *
+     * @param player the Bukkit player to restore
+     */
     private void healPlayer(final Player player) {
         Bukkit.getScheduler().runTask(Duels.getInstance(), () -> {
             player.heal(20.0);
@@ -109,6 +129,14 @@ public final class DuelManager {
         });
     }
 
+    /**
+     * Retrieve the registry of active duels keyed by participant UUID.
+     *
+     * The returned map associates each participant's UUID with the Duel they are currently in.
+     * This is the live internal registry and may be modified by callers.
+     *
+     * @return the map from player UUID to their active Duel
+     */
     public Map<UUID, Duel> getRunningDuels() {
         return runningDuels;
     }

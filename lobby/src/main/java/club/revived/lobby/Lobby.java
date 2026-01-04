@@ -36,9 +36,10 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes the plugin: sets the singleton instance, reads the HOSTNAME environment variable into {@code hostName}, and configures the cluster.
+     * Performs plugin startup: sets the singleton instance and runs startup initialization.
      *
-     * @throws RuntimeException if retrieving the HOSTNAME environment variable fails
+     * <p>Establishes the static plugin instance, then initializes the database connection,
+     * registers commands, and configures cluster services.</p>
      */
     @Override
     public void onEnable() {
@@ -50,11 +51,22 @@ public final class Lobby extends JavaPlugin {
     }
 
 
+    /**
+     * Initializes and registers the plugin's command handlers for the lobby.
+     *
+     * Specifically instantiates and registers the DuelCommand. 
+     */
     private void setupCommands() {
         new DuelCommand();
     }
 
 
+    /**
+     * Initializes a MongoDB connection from environment-provided credentials and registers it with the DatabaseManager.
+     *
+     * Reads the environment variables `MONGODB_HOST`, `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_DATABASE`
+     * and connects to the specified host on port 27017.
+     */
     private void connectDatabase() {
         final String host = System.getenv("MONGODB_HOST");
         final String password = System.getenv("MONGODB_PASSWORD");
@@ -71,11 +83,10 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes the application's Cluster from the plugin's redis.yml configuration.
-     * <p>
-     * Loads host, port, and password from redis.yml in the plugin data folder and constructs
-     * a Cluster using RedisBroker and RedisCacheService configured with those values and the
-     * plugin's hostName.
+     * Initializes the plugin Cluster using environment variables.
+     *
+     * Reads HOSTNAME, REDIS_HOST, and REDIS_PORT from the process environment and constructs
+     * a Cluster configured with a RedisBroker and RedisCacheService using those values.
      */
     private void setupCluster() {
         final String hostName = System.getenv("HOSTNAME");
