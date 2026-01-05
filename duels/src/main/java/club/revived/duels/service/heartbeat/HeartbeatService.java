@@ -4,6 +4,7 @@ import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.broker.MessageHandler;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ClusterService;
+import club.revived.duels.service.cluster.OnlinePlayer;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
@@ -63,7 +64,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     cluster.getServiceType(),
                     cluster.getServiceId(),
                     Bukkit.getOnlinePlayers().size(),
-                    List.of(),
+                    Bukkit.getOnlinePlayers().stream()
+                            .map(player -> new OnlinePlayer(
+                                    player.getUniqueId(),
+                                    player.getName(),
+                                    this.cluster.getServiceId()
+                            ))
+                            .toList(),
                     cluster.getIp()
             ));
 

@@ -4,6 +4,7 @@ import club.revived.lobby.service.broker.MessageBroker;
 import club.revived.lobby.service.broker.MessageHandler;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
+import club.revived.lobby.service.cluster.OnlinePlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
@@ -49,7 +50,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                         cluster.getServiceType(),
                         cluster.getServiceId(),
                         Bukkit.getOnlinePlayers().size(),
-                        List.of(),
+                        Bukkit.getOnlinePlayers().stream()
+                                .map(player -> new OnlinePlayer(
+                                        player.getUniqueId(),
+                                        player.getName(),
+                                        this.cluster.getServiceId()
+                                ))
+                                .toList(),
                         cluster.getIp()
                 ));
 
