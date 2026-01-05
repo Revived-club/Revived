@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 
 /**
@@ -93,10 +94,14 @@ public final class Cluster {
         this.messagingService = new MessagingService(broker, id);
         this.globalCache = cache;
 
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Setting up cluster...");
+
         instance = this;
 
         startServices();
         registerRequestHandlers();
+
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Set up cluster...");
     }
 
     /**

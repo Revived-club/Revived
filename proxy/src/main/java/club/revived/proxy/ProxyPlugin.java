@@ -80,4 +80,8 @@ public final class ProxyPlugin {
     public ProxyServer getServer() {
         return server;
     }
+
+    public Logger getLogger() {
+        return logger;
+    }
 }

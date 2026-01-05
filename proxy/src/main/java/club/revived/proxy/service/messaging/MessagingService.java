@@ -1,5 +1,6 @@
 package club.revived.proxy.service.messaging;
 
+import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.broker.MessageBroker;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 /**
  * This is an interesting Class
@@ -40,10 +42,14 @@ public final class MessagingService {
             final MessageBroker broker,
             final String serviceId
     ) {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting messaging service...");
+
         this.broker = broker;
         this.serviceId = serviceId;
 
         this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
+
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started messaging service...");
     }
 
     /**
@@ -121,6 +127,7 @@ public final class MessagingService {
             final Class<T> requestType,
             final Function<T, Response> handler
     ) {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registered request handler for " + requestType.getSimpleName());
         //noinspection unchecked
         requestHandlers.put(requestType.getName(), (Function<Request, Response>) handler);
     }
@@ -135,6 +142,7 @@ public final class MessagingService {
             final Class<T> messageType,
             final Consumer<T> handler
     ) {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registered message handler for " + messageType.getSimpleName());
         //noinspection unchecked
         messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
     }

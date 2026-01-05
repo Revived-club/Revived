@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * This is an interesting Class
@@ -30,9 +31,11 @@ public final class PlayerManager {
      * Initializes the PlayerManager singleton and registers message handlers for player-related messaging.
      */
     public PlayerManager() {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting player manager...");
         instance = this;
 
         this.registerMessageHandlers();
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started player manager...");
     }
 
     /**
@@ -81,6 +84,7 @@ public final class PlayerManager {
      * @throws UnregisteredPlayerException if a `SendMessage` targets a UUID with no registered player on this proxy
      */
     private void registerMessageHandlers() {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registering player message handlers...");
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
                     final var uuid = message.uuid();
@@ -93,6 +97,8 @@ public final class PlayerManager {
                                 throw new UnregisteredPlayerException("tried to message unregistered player");
                             });
                 });
+
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registered player message handlers...");
     }
 
     /**

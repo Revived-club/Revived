@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * This is an interesting Class
@@ -41,9 +42,11 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * @param broker the MessageBroker used to subscribe to heartbeat messages for this service
      */
     public HeartbeatService(final MessageBroker broker) {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting heartbeat service...");
         broker.subscribe("service:heartbeat", Heartbeat.class, this);
 
         this.startTask();
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started heartbeat service...");
     }
 
     /**
@@ -55,6 +58,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * the corresponding ServerInfo in the proxy.
      */
     public void startTask() {
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting heartbeat task...");
         subServer.schedule(() -> {
             final var services = this.cluster.getServices()
                     .values()
@@ -94,6 +98,8 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
             });
 
         }, INTERVAL, TimeUnit.MILLISECONDS);
+
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started heartbeat task...");
     }
 
     /**
