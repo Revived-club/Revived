@@ -80,7 +80,7 @@ public final class NetworkPlayer {
     ) {
         Cluster.getInstance()
                 .getGlobalCache()
-                .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
+                .set(this.uuid + ":" + clazz.getName().toLowerCase(), obj);
     }
 
     /**
@@ -93,7 +93,7 @@ public final class NetworkPlayer {
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
         return Cluster.getInstance()
                 .getGlobalCache()
-                .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
+                .get(clazz, this.uuid + ":" + clazz.getName().toLowerCase());
     }
 
     /**

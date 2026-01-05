@@ -80,7 +80,7 @@ public final class MessagingService {
                 correlationId,
                 serviceId,
                 targetServiceId,
-                request.getClass().getSimpleName(),
+                request.getClass().getName(),
                 gson.toJson(request)
         );
 
@@ -105,7 +105,7 @@ public final class MessagingService {
                 UUID.randomUUID(),
                 serviceId,
                 targetServiceId,
-                message.getClass().getSimpleName(),
+                message.getClass().getName(),
                 gson.toJson(message)
         );
 
@@ -127,9 +127,9 @@ public final class MessagingService {
             final Class<T> requestType,
             final Function<T, Response> handler
     ) {
-        System.out.println( "Registered request handler for " + requestType.getSimpleName());
+        System.out.println( "Registered request handler for " + requestType.getName());
         //noinspection unchecked
-        requestHandlers.put(requestType.getSimpleName(), (Function<Request, Response>) handler);
+        requestHandlers.put(requestType.getName(), (Function<Request, Response>) handler);
     }
 
     /**
@@ -142,9 +142,9 @@ public final class MessagingService {
             final Class<T> messageType,
             final Consumer<T> handler
     ) {
-        System.out.println( "Registered message handler for " + messageType.getSimpleName());
+        System.out.println( "Registered message handler for " + messageType.getName());
         //noinspection unchecked
-        messageHandlers.put(messageType.getSimpleName(), (Consumer<Message>) handler);
+        messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
     }
 
     /**
@@ -237,7 +237,7 @@ public final class MessagingService {
                     envelope.correlationId(),
                     serviceId,
                     envelope.senderId(),
-                    response.getClass().getSimpleName(),
+                    response.getClass().getName(),
                     gson.toJson(response)
             );
             
