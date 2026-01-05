@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is an interesting Class
@@ -23,7 +24,7 @@ import java.util.UUID;
 public final class PlayerManager {
 
     private static final Logger log = LoggerFactory.getLogger(PlayerManager.class);
-    private final Map<UUID, NetworkPlayer> networkPlayers = new HashMap();
+    private final Map<UUID, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
 
     private static PlayerManager instance;
 
