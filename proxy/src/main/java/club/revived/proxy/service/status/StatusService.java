@@ -25,8 +25,8 @@ public final class StatusService {
      * @param messagingService the messaging service used to register the request handler
      */
     public StatusService(final MessagingService messagingService) {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting status service...");
+        System.out.println( "Starting status service...");
         messagingService.registerHandler(StatusRequest.class, statusRequest -> new StatusResponse(Cluster.STATUS));
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started status service...");
+        System.out.println( "Started status service...");
     }
 }

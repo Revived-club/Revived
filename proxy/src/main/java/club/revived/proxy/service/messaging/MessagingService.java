@@ -42,14 +42,14 @@ public final class MessagingService {
             final MessageBroker broker,
             final String serviceId
     ) {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting messaging service...");
+        System.out.println( "Starting messaging service...");
 
         this.broker = broker;
         this.serviceId = serviceId;
 
         this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
 
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started messaging service...");
+        System.out.println( "Started messaging service...");
     }
 
     /**
@@ -127,7 +127,7 @@ public final class MessagingService {
             final Class<T> requestType,
             final Function<T, Response> handler
     ) {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registered request handler for " + requestType.getSimpleName());
+        System.out.println( "Registered request handler for " + requestType.getSimpleName());
         //noinspection unchecked
         requestHandlers.put(requestType.getName(), (Function<Request, Response>) handler);
     }
@@ -142,7 +142,7 @@ public final class MessagingService {
             final Class<T> messageType,
             final Consumer<T> handler
     ) {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Registered message handler for " + messageType.getSimpleName());
+        System.out.println( "Registered message handler for " + messageType.getSimpleName());
         //noinspection unchecked
         messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
     }
