@@ -4,6 +4,7 @@ import club.revived.lobby.service.broker.MessageBroker;
 import club.revived.lobby.service.broker.MessageHandler;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
+import club.revived.lobby.service.cluster.OnlinePlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
@@ -41,6 +42,12 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
         this.startTask();
     }
 
+    /**
+     * Schedules a fixed-rate background task that publishes this service's heartbeat and purges stale services.
+     *
+     * The task publishes a Heartbeat message containing timestamp, service type/id, online player count and details, and cluster IP,
+     * then removes any services from the cluster whose last-seen timestamp exceeds TIMEOUT.
+     */
     public void startTask() {
         subServer.scheduleAtFixedRate(() -> {
             try {
@@ -49,7 +56,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                         cluster.getServiceType(),
                         cluster.getServiceId(),
                         Bukkit.getOnlinePlayers().size(),
-                        List.of(),
+                        Bukkit.getOnlinePlayers().stream()
+                                .map(player -> new OnlinePlayer(
+                                        player.getUniqueId(),
+                                        player.getName(),
+                                        this.cluster.getServiceId()
+                                ))
+                                .toList(),
                         cluster.getIp()
                 ));
 

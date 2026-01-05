@@ -4,6 +4,7 @@ import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.broker.MessageHandler;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ClusterService;
+import club.revived.duels.service.cluster.OnlinePlayer;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
@@ -50,11 +51,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Schedules a delayed task that publishes this service's heartbeat and checks for timed-out cluster services.
+     * Start a recurring task that publishes this service's heartbeat and performs timeout checks.
      *
-     * The scheduled task runs after INTERVAL milliseconds, publishes a Heartbeat message on "service:heartbeat"
-     * containing the current timestamp, service type and id, online player count, and cluster IP, and then
-     * iterates known services' last-seen timestamps to log an error for any service whose elapsed time exceeds TIMEOUT.
+     * Schedules a fixed-rate task with an initial delay of 0 and period of INTERVAL milliseconds.
+     * Each execution publishes a Heartbeat to the "service:heartbeat" topic containing the current
+     * timestamp, this service's type and id, the online player count, a list of OnlinePlayer entries,
+     * and the cluster IP. After publishing, it iterates the recorded last-seen timestamps and logs an
+     * error for any service whose elapsed time since last seen is less than TIMEOUT.
      */
     public void startTask() {
         subServer.scheduleAtFixedRate(() -> {
@@ -63,7 +66,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     cluster.getServiceType(),
                     cluster.getServiceId(),
                     Bukkit.getOnlinePlayers().size(),
-                    List.of(),
+                    Bukkit.getOnlinePlayers().stream()
+                            .map(player -> new OnlinePlayer(
+                                    player.getUniqueId(),
+                                    player.getName(),
+                                    this.cluster.getServiceId()
+                            ))
+                            .toList(),
                     cluster.getIp()
             ));
 
