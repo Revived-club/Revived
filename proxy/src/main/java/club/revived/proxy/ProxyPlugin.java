@@ -1,8 +1,10 @@
 package club.revived.proxy;
 
+import club.revived.proxy.listener.PlayerListener;
 import club.revived.proxy.service.broker.RedisBroker;
 import club.revived.proxy.service.cache.RedisCacheService;
 import club.revived.proxy.service.cluster.Cluster;
+import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.service.status.ServiceStatus;
 import com.google.inject.Inject;
@@ -50,6 +52,7 @@ public final class ProxyPlugin {
         System.out.println("Initializing Plugin...");
         this.setupCluster();
         new PlayerManager();
+        getServer().getEventManager().register(this, new PlayerListener());
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
@@ -70,6 +73,7 @@ public final class ProxyPlugin {
         new Cluster(
                 new RedisBroker(host, port, ""),
                 new RedisCacheService(host, port, ""),
+                ServiceType.PROXY,
                 hostName
         );
     }

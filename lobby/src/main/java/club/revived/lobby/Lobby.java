@@ -5,6 +5,7 @@ import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
+import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -102,6 +103,7 @@ public final class Lobby extends JavaPlugin {
         new Cluster(
                 new RedisBroker(host, port, ""),
                 new RedisCacheService(host, port, ""),
+                ServiceType.LOBBY,
                 hostName
         );
     }

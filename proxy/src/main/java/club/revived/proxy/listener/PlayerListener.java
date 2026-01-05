@@ -1,0 +1,57 @@
+package club.revived.proxy.listener;
+
+import club.revived.proxy.ProxyPlugin;
+import club.revived.proxy.service.cluster.Cluster;
+import club.revived.proxy.service.cluster.ClusterService;
+import club.revived.proxy.service.cluster.ServiceType;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
+import java.util.Comparator;
+import java.util.List;
+
+public final class PlayerListener {
+
+    /**
+     * Chooses an initial lobby server for a joining player and assigns it to the event.
+     * <p></p>
+     * If one or more lobby servers are available, the least-populated lobby server is selected and set as the player's initial server.
+     * If no lobby server can be resolved or the selected server is not registered with the proxy, the player is disconnected with an error message.
+     *
+     * @param event the server-selection event for the joining player
+     */
+    @Subscribe
+    public void onServerConnect(final PlayerChooseInitialServerEvent event) {
+        final Player player = event.getPlayer();
+
+        final List<ClusterService> lobbyServers = Cluster.getInstance().getServices().values()
+                .stream()
+                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+                .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+                .toList();
+
+        if (lobbyServers.isEmpty()) {
+            player.disconnect(Component.text("There are no available lobby servers!").style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        final var selectedServer = lobbyServers.getFirst();
+        if (selectedServer == null) {
+            player.disconnect(Component.text("Could not find lobby server!").style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        final RegisteredServer server = ProxyPlugin.getInstance().getServer().getServer(selectedServer.getId()).orElse(null);
+
+        if (server == null) {
+            player.disconnect(Component.text("Could not connect to " + selectedServer.getId()).style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        event.setInitialServer(server);
+    }
+}
