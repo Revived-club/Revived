@@ -129,7 +129,7 @@ public final class RedisBroker implements MessageBroker {
             final Class<T> type,
             final MessageHandler<T> handler
     ) {
-        System.out.println("Subscribing to redis with handler for " + type.getSimpleName());
+        System.out.println("Subscribing to redis with handler for " + type.getName());
 
         subServer.submit(() -> {
             try (final Jedis jedis = jedisPool.getResource()) {
@@ -142,6 +142,7 @@ public final class RedisBroker implements MessageBroker {
                         System.out.println("Message received");
                         try {
                             final T obj = gson.fromJson(message, type);
+                            System.out.println(message);
                             handler.handle(obj);
                         } catch (final Exception e) {
                             throw new RuntimeException(e);

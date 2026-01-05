@@ -1,4 +1,4 @@
-package club.revived.duels.service.player.impl;
+package club.revived.duels.service.messaging.impl;
 
 import club.revived.duels.service.messaging.Message;
 
@@ -10,5 +10,5 @@ import java.util.UUID;
  * @author yyuh
  * @since 03.01.26
  */
-public record Connect(UUID uuid, String server) implements Message {
+public record SendMessage(UUID uuid, String message) implements Message {
 }

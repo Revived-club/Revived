@@ -1,6 +1,6 @@
-package club.revived.duels.service.player.impl;
+package club.revived.proxy.service.messaging.impl;
 
-import club.revived.duels.service.messaging.Response;
+import club.revived.proxy.service.messaging.Response;
 
 /**
  * This is an interesting Class

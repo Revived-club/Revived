@@ -44,7 +44,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     public void startTask() {
         subServer.scheduleAtFixedRate(() -> {
             try {
-                log.info("Sending heartbeat for service: {}", cluster.getServiceId());
                 broker.publish("service:heartbeat", new Heartbeat(
                         System.currentTimeMillis(),
                         cluster.getServiceType(),
@@ -60,7 +59,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     final var time = now - timestamp;
 
                     if (time > TIMEOUT) {
-                        log.error("{} timed out after {}ms", server, time);
                         lastSeen.remove(server);
                         Cluster.getInstance().getServices().remove(server);
                     }
@@ -73,7 +71,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     @Override
     public void handle(final Heartbeat message) {
-        log.info("Received heartbeat from: {}", message.id());
         final var service = new ClusterService(
                 message.id(),
                 message.serverIp(),

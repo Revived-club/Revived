@@ -2,7 +2,7 @@ package club.revived.duels.service.player;
 
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.exception.UnregisteredPlayerException;
-import club.revived.duels.service.player.impl.SendMessage;
+import club.revived.duels.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

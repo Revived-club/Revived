@@ -3,7 +3,7 @@ package club.revived.lobby.game.duel;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
-import club.revived.lobby.service.message.DuelStart;
+import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.status.ServiceStatus;
 import club.revived.lobby.service.status.StatusRequest;

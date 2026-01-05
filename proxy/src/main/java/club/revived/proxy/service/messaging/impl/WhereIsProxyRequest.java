@@ -1,4 +1,4 @@
-package club.revived.proxy.service.player.impl;
+package club.revived.proxy.service.messaging.impl;
 
 import club.revived.proxy.service.messaging.Request;
 
@@ -10,5 +10,5 @@ import java.util.UUID;
  * @author yyuh
  * @since 03.01.26
  */
-public record WhereIsRequest(UUID uuid) implements Request {
+public record WhereIsProxyRequest(UUID uuid) implements Request {
 }

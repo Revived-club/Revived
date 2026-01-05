@@ -26,6 +26,7 @@ public final class MessagingService {
     private final Map<UUID, CompletableFuture<Response>> pendingRequests = new ConcurrentHashMap<>();
     private final Map<String, Function<Request, Response>> requestHandlers = new ConcurrentHashMap<>();
     private final Map<String, Consumer<Message>> messageHandlers = new ConcurrentHashMap<>();
+    private final Map<String, Class<?>> messageRegistry = new ConcurrentHashMap<>();
 
     /**
      * Create a MessagingService backed by the given MessageBroker and identified by serviceId.
@@ -44,6 +45,10 @@ public final class MessagingService {
         this.serviceId = serviceId;
 
         this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
+    }
+
+    public void register(final Class<?> clazz) {
+        this.messageRegistry.put(clazz.getSimpleName(), clazz);
     }
 
     /**
@@ -74,7 +79,7 @@ public final class MessagingService {
                 correlationId,
                 serviceId,
                 targetServiceId,
-                request.getClass().getName(),
+                request.getClass().getSimpleName(),
                 gson.toJson(request)
         );
 
@@ -100,7 +105,7 @@ public final class MessagingService {
                 UUID.randomUUID(),
                 serviceId,
                 targetServiceId,
-                message.getClass().getName(),
+                message.getClass().getSimpleName(),
                 gson.toJson(message)
         );
 
@@ -112,7 +117,7 @@ public final class MessagingService {
             final Function<T, Response> handler
     ) {
         //noinspection unchecked
-        requestHandlers.put(requestType.getName(), (Function<Request, Response>) handler);
+        requestHandlers.put(requestType.getSimpleName(), (Function<Request, Response>) handler);
     }
 
     /**
@@ -126,7 +131,7 @@ public final class MessagingService {
             final Consumer<T> handler
     ) {
         //noinspection unchecked
-        messageHandlers.put(messageType.getName(), (Consumer<Message>) handler);
+        messageHandlers.put(messageType.getSimpleName(), (Consumer<Message>) handler);
     }
 
     /**
@@ -135,6 +140,13 @@ public final class MessagingService {
      * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
+        System.out.println("Received request");
+
+        if (!envelope.targetId().equals(serviceId)) {
+            System.out.println("serverId != " + envelope.targetId());
+            return;
+        }
+
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
@@ -158,11 +170,11 @@ public final class MessagingService {
         final CompletableFuture<Response> future = pendingRequests.remove(envelope.correlationId());
         if (future != null) {
             try {
-                final Class<?> responseType = Class.forName(envelope.payloadType());
+                final Class<?> responseType = this.messageRegistry.get(envelope.payloadType());
                 final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
 
                 future.complete(response);
-            } catch (final ClassNotFoundException e) {
+            } catch (final Exception e) {
                 future.completeExceptionally(e);
             }
         }
@@ -176,8 +188,16 @@ public final class MessagingService {
      * @param envelope the incoming MessageEnvelope whose payloadType determines which handler should process it
      */
     private void handleIncoming(final MessageEnvelope envelope) {
+        System.out.println("handle incoming");
+
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
+        System.out.println(envelope.payloadType());
+        System.out.println(String.join(" | ", requestHandlers.keySet()));
         if (requestHandler != null) {
+            System.out.println("handler found");
+            System.out.println("Is registered " + this.messageRegistry.containsKey(envelope.payloadType()));
+            System.out.println(String.join(" | ", messageRegistry.keySet()));
+
             handleRequest(envelope, requestHandler);
             return;
         }
@@ -198,8 +218,14 @@ public final class MessagingService {
      */
     private void handleRequest(final MessageEnvelope envelope, final Function<Request, Response> handler) {
         try {
-            final Class<?> requestType = Class.forName(envelope.payloadType());
+            final Class<?> requestType = this.messageRegistry.get(envelope.payloadType());
+
+            System.out.println(requestType.getSimpleName() + " - " + envelope.payloadType());
+
             final Request request = (Request) gson.fromJson(envelope.payloadJson(), requestType);
+
+            System.out.println(request);
+
             final Response response = handler.apply(request);
 
             if (response == null) {
@@ -210,7 +236,7 @@ public final class MessagingService {
                     envelope.correlationId(),
                     serviceId,
                     envelope.senderId(),
-                    response.getClass().getName(),
+                    response.getClass().getSimpleName(),
                     gson.toJson(response)
             );
             
@@ -229,7 +255,7 @@ public final class MessagingService {
      */
     private void handleMessage(final MessageEnvelope envelope, final Consumer<Message> handler) {
         try {
-            final Class<?> messageType = Class.forName(envelope.payloadType());
+            final Class<?> messageType = this.messageRegistry.get(envelope.payloadType());
             final Message message = (Message) gson.fromJson(envelope.payloadJson(), messageType);
             handler.accept(message);
         } catch (final Exception e) {

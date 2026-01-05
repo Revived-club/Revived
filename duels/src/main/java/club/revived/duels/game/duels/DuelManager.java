@@ -5,7 +5,7 @@ import club.revived.duels.Duels;
 import club.revived.duels.game.arena.pooling.ArenaPoolManager;
 import club.revived.duels.game.kit.EditedDuelKit;
 import club.revived.duels.service.cluster.Cluster;
-import club.revived.duels.service.message.DuelStart;
+import club.revived.duels.service.messaging.impl.DuelStart;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

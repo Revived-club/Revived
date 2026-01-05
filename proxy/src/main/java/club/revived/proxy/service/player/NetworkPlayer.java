@@ -5,8 +5,8 @@ import club.revived.proxy.service.cluster.ClusterService;
 import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.exception.ServiceUnavailableException;
 import club.revived.proxy.service.exception.UnregisteredPlayerException;
-import club.revived.proxy.service.player.impl.Connect;
-import club.revived.proxy.service.player.impl.SendMessage;
+import club.revived.proxy.service.messaging.impl.Connect;
+import club.revived.proxy.service.messaging.impl.SendMessage;
 import club.revived.proxy.service.status.ServiceStatus;
 import club.revived.proxy.service.status.StatusRequest;
 import club.revived.proxy.service.status.StatusResponse;
@@ -90,7 +90,7 @@ public final class NetworkPlayer {
     ) {
         Cluster.getInstance()
                 .getGlobalCache()
-                .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
+                .set(this.uuid + ":" + clazz.getName().toLowerCase(), obj);
     }
 
     /**
@@ -103,7 +103,7 @@ public final class NetworkPlayer {
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
         return Cluster.getInstance()
                 .getGlobalCache()
-                .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
+                .get(clazz, this.uuid + ":" + clazz.getName().toLowerCase());
     }
 
     /**

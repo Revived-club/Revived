@@ -1,6 +1,6 @@
-package club.revived.lobby.service.player.impl;
+package club.revived.proxy.service.messaging.impl;
 
-import club.revived.lobby.service.messaging.Message;
+import club.revived.proxy.service.messaging.Message;
 
 import java.util.UUID;
 

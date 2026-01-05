@@ -1,6 +1,6 @@
-package club.revived.proxy.service.player.impl;
+package club.revived.lobby.service.messaging.impl;
 
-import club.revived.proxy.service.messaging.Response;
+import club.revived.lobby.service.messaging.Response;
 
 /**
  * This is an interesting Class

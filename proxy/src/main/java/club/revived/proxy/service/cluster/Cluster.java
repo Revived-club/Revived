@@ -5,12 +5,10 @@ import club.revived.proxy.service.broker.MessageBroker;
 import club.revived.proxy.service.cache.GlobalCache;
 import club.revived.proxy.service.heartbeat.HeartbeatService;
 import club.revived.proxy.service.messaging.MessagingService;
-import club.revived.proxy.service.player.PlayerManager;
-import club.revived.proxy.service.player.impl.WhereIsProxyRequest;
-import club.revived.proxy.service.player.impl.WhereIsProxyResponse;
-import club.revived.proxy.service.player.impl.WhereIsRequest;
-import club.revived.proxy.service.player.impl.WhereIsResponse;
+import club.revived.proxy.service.messaging.impl.*;
 import club.revived.proxy.service.status.ServiceStatus;
+import club.revived.proxy.service.status.StatusRequest;
+import club.revived.proxy.service.status.StatusResponse;
 import club.revived.proxy.service.status.StatusService;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 
 /**
@@ -99,8 +96,9 @@ public final class Cluster {
 
         instance = this;
 
-        startServices();
-        registerRequestHandlers();
+        this.startServices();
+        this.registerRequestHandlers();
+        this.registerMessageTypes();
 
         System.out.println( "Set up cluster...");
     }
@@ -111,6 +109,17 @@ public final class Cluster {
     private void startServices() {
         new HeartbeatService(this.broker);
         new StatusService(this.messagingService);
+    }
+
+    private void registerMessageTypes() {
+        this.messagingService.register(Connect.class);
+        this.messagingService.register(SendMessage.class);
+        this.messagingService.register(StatusRequest.class);
+        this.messagingService.register(StatusResponse.class);
+        this.messagingService.register(WhereIsProxyResponse.class);
+        this.messagingService.register(WhereIsProxyRequest.class);
+        this.messagingService.register(WhereIsRequest.class);
+        this.messagingService.register(WhereIsResponse.class);
     }
 
     /**

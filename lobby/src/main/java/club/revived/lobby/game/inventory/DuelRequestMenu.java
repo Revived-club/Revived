@@ -154,7 +154,7 @@ public final class DuelRequestMenu {
                             .getNetworkPlayers();
 
                     if (!networkPlayers.containsKey(this.target)) {
-                        player.sendRichMessage(String.format("%s: Player is offline or not registered", UnregisteredPlayerException.class.getSimpleName().toUpperCase()));
+                        player.sendRichMessage(String.format("%s: Player is offline or not registered", UnregisteredPlayerException.class.getName().toUpperCase()));
                         throw new UnregisteredPlayerException("player does not exist");
                     }
 
