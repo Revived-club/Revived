@@ -1,5 +1,6 @@
 package club.revived.duels;
 
+import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
@@ -31,6 +32,8 @@ public final class Duels extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        InventoryManager.register(this);
 
         try {
             // Kubernetes system env variable
