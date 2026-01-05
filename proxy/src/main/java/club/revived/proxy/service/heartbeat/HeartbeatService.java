@@ -42,23 +42,23 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * @param broker the MessageBroker used to subscribe to heartbeat messages for this service
      */
     public HeartbeatService(final MessageBroker broker) {
-        System.out.println( "Starting heartbeat service...");
+        System.out.println("Starting heartbeat service...");
         broker.subscribe("service:heartbeat", Heartbeat.class, this);
 
         this.startTask();
-        System.out.println( "Started heartbeat service...");
+        System.out.println("Started heartbeat service...");
     }
 
     /**
      * Schedules a recurring task that queries each known cluster service for its status
      * and ensures available services are registered with the proxy server.
-     *
+     * <p>
      * The task runs at the configured INTERVAL and, for each service, requests its status;
      * if the service reports AVAILABLE, its network address is used to register or update
      * the corresponding ServerInfo in the proxy.
      */
     public void startTask() {
-        System.out.println( "Starting heartbeat task...");
+        System.out.println("Starting heartbeat task...");
         subServer.scheduleAtFixedRate(() -> {
             final var services = this.cluster.getServices()
                     .values()
@@ -73,6 +73,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                         )
                         .thenAccept(statusResponse -> {
                             if (statusResponse.status() != ServiceStatus.AVAILABLE) {
+                                System.out.println("service is not available");
                                 return;
                             }
 
@@ -85,21 +86,23 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                             ProxyPlugin.getInstance()
                                     .getServer()
                                     .getServer(service.getId())
-                                    .ifPresent(server -> {
+                                    .ifPresentOrElse(server -> {
+                                        System.out.println("Registering service " + info.getName());
                                         final var serverInfo = server.getServerInfo();
 
                                         if (!serverInfo.equals(info)) {
                                             this.registerServer(info);
                                         }
+                                    }, () -> {
+                                        System.out.println("Registering service " + info.getName());
+                                        this.registerServer(info);
                                     });
-
-                            this.registerServer(info);
                         });
             });
 
         }, 0, INTERVAL, TimeUnit.MILLISECONDS);
 
-        System.out.println( "Started heartbeat task...");
+        System.out.println("Started heartbeat task...");
     }
 
     /**
@@ -115,7 +118,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     /**
      * Processes an incoming heartbeat to update cluster services, register online players, and remove stale player entries.
-     *
+     * <p>
      * Updates the last-seen timestamp and cluster service entry for the heartbeat's service ID, registers each reported
      * online player with the PlayerManager, and removes network player records that no longer appear on the service.
      *
