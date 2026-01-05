@@ -47,7 +47,7 @@ public final class RedisCacheService implements GlobalCache {
             final String host,
             final int port
     ) {
-        this.jedisPool = this.connect(host, port, "");
+        this(host, port, "");
     }
 
     /**
