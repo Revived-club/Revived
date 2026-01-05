@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     compileOnly(libs.velocity)
+    annotationProcessor(libs.velocity)
     implementation(project(":commons"))
     implementation(libs.jedis)
 }
