@@ -3,6 +3,7 @@ package club.revived.duels;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.player.PlayerManager;
 import club.revived.duels.service.status.ServiceStatus;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -64,11 +65,10 @@ public final class Duels extends JavaPlugin {
     }
 
     /**
-     * Initializes the application's Cluster from the plugin's redis.yml configuration.
+     * Initializes the Cluster from redis.yml in the plugin data folder.
      *
-     * Loads host, port, and password from redis.yml in the plugin data folder and constructs
-     * a Cluster using RedisBroker and RedisCacheService configured with those values and the
-     * plugin's hostName.
+     * Reads "host", "port", and "password" from that file and constructs a Cluster configured with
+     * RedisBroker and RedisCacheService using those values and this plugin's hostName.
      */
     private void setupCluster() {
         final var redisFile = new File(getDataFolder(), "redis.yml");
@@ -81,6 +81,7 @@ public final class Duels extends JavaPlugin {
         new Cluster(
                 new RedisBroker(host, port, password),
                 new RedisCacheService(host, port, password),
+                ServiceType.DUEL,
                 this.hostName
         );
     }
