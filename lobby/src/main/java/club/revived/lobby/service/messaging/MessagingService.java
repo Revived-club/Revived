@@ -140,13 +140,6 @@ public final class MessagingService {
      * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
-        System.out.println("Received request");
-
-        if (!envelope.targetId().equals(serviceId)) {
-            System.out.println("serverId != " + envelope.targetId());
-            return;
-        }
-
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
@@ -188,15 +181,8 @@ public final class MessagingService {
      * @param envelope the incoming MessageEnvelope whose payloadType determines which handler should process it
      */
     private void handleIncoming(final MessageEnvelope envelope) {
-        System.out.println("handle incoming");
-
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
-        System.out.println(envelope.payloadType());
-        System.out.println(String.join(" | ", requestHandlers.keySet()));
         if (requestHandler != null) {
-            System.out.println("handler found");
-            System.out.println("Is registered " + this.messageRegistry.containsKey(envelope.payloadType()));
-            System.out.println(String.join(" | ", messageRegistry.keySet()));
 
             handleRequest(envelope, requestHandler);
             return;
@@ -219,13 +205,7 @@ public final class MessagingService {
     private void handleRequest(final MessageEnvelope envelope, final Function<Request, Response> handler) {
         try {
             final Class<?> requestType = this.messageRegistry.get(envelope.payloadType());
-
-            System.out.println(requestType.getSimpleName() + " - " + envelope.payloadType());
-
             final Request request = (Request) gson.fromJson(envelope.payloadJson(), requestType);
-
-            System.out.println(request);
-
             final Response response = handler.apply(request);
 
             if (response == null) {
