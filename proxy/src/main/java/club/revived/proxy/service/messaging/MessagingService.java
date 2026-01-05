@@ -155,10 +155,17 @@ public final class MessagingService {
     private void handleEnvelope(final MessageEnvelope envelope) {
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
-                handleResponse(envelope);
-            } else {
-                handleIncoming(envelope);
+                try {
+                    final Class<?> payloadType = Class.forName(envelope.payloadType());
+                    if (Response.class.isAssignableFrom(payloadType)) {
+                        handleResponse(envelope);
+                        return;
+                    }
+                } catch (final ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
+            handleIncoming(envelope);
         }
     }
 
@@ -180,7 +187,7 @@ public final class MessagingService {
                 final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
 
                 future.complete(response);
-            } catch (final ClassNotFoundException e) {
+            } catch (final Exception e) {
                 future.completeExceptionally(e);
             }
         }

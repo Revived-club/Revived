@@ -1,12 +1,7 @@
 package club.revived.proxy.service.status;
 
-import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.messaging.MessagingService;
-import club.revived.proxy.service.status.StatusRequest;
-import club.revived.proxy.service.status.StatusResponse;
-
-import java.util.logging.Level;
 
 /**
  * This is an interesting Class
@@ -18,7 +13,7 @@ public final class StatusService {
 
     /**
      * Creates a StatusService and registers a handler for StatusRequest messages.
-     *
+     * <p></p>
      * The registered handler responds to each StatusRequest with a StatusResponse
      * containing the current Cluster.STATUS value.
      *
@@ -26,7 +21,10 @@ public final class StatusService {
      */
     public StatusService(final MessagingService messagingService) {
         System.out.println( "Starting status service...");
-        messagingService.registerHandler(StatusRequest.class, statusRequest -> new StatusResponse(Cluster.STATUS));
+        messagingService.registerHandler(StatusRequest.class, statusRequest -> {
+            System.out.println("Responding to status request");
+            return new StatusResponse(Cluster.STATUS);
+        });
         System.out.println( "Started status service...");
     }
 }
