@@ -29,10 +29,10 @@ public final class MessagingService {
     private final Map<String, Class<?>> messageRegistry = new ConcurrentHashMap<>();
 
     /**
-     * Create a MessagingService backed by the given MessageBroker and identified by serviceId.
+     * Constructs a MessagingService backed by the provided MessageBroker and identified by the given serviceId.
      *
-     * Subscribes the broker to the "service-messages-{serviceId}" and "service-messages-global" topics
-     * so incoming MessageEnvelope instances for this service are delivered to the internal envelope handler.
+     * Subscribes the broker to "service-messages-{serviceId}" and "service-messages-global" so incoming
+     * MessageEnvelope instances for this service are delivered to the internal envelope handler.
      *
      * @param broker    the MessageBroker used to publish and receive service messages
      * @param serviceId unique identifier for this service instance; used as the topic suffix for subscriptions
@@ -48,18 +48,23 @@ public final class MessagingService {
         this.broker.subscribe("service-messages-global", MessageEnvelope.class, this::handleEnvelope);
     }
 
+    /**
+     * Registers a class for message payload deserialization using its simple class name as the registry key.
+     *
+     * @param clazz the class to register; the registry will map `clazz.getSimpleName()` to this class for later deserialization
+     */
     public void register(final Class<?> clazz) {
         this.messageRegistry.put(clazz.getSimpleName(), clazz);
     }
 
     /**
-     * Send a request message to another service and await a correlated response.
-     *
-     * @param targetServiceId the identifier of the destination service
-     * @param request the request payload to send
-     * @param responseType the expected response class used to cast the received payload
-     * @return a CompletableFuture that completes with a response of the requested type when a matching response arrives; completes exceptionally (for example, with TimeoutException) if no response is received within 5 seconds
-     */
+         * Send a request to a target service and correlate the incoming response to this request.
+         *
+         * @param targetServiceId the identifier of the destination service
+         * @param request the request payload to send
+         * @param responseType the expected response class used to cast the received payload
+         * @return a CompletableFuture that completes with a response of the requested type when a matching response arrives; completes exceptionally with a TimeoutException if no response is received within 5 seconds
+         */
     @NotNull
     public <T extends Response> CompletableFuture<T> sendRequest(
             final String targetServiceId,
@@ -127,11 +132,11 @@ public final class MessagingService {
     }
 
     /**
-     * Send a request message to all services and await the first correlated response.
+     * Sends a request message to all services and awaits the first correlated response.
      *
-     * @param request the request payload to send
-     * @param responseType the expected response class used to cast the received payload
-     * @return a CompletableFuture that completes with a response of the requested type when the first matching response arrives; completes exceptionally (for example, with TimeoutException) if no response is received within 5 seconds
+     * @param request      the request payload to broadcast
+     * @param responseType the expected response class for deserializing and casting the reply
+     * @return the CompletableFuture that completes with the first matching response of the requested type, or completes exceptionally (for example, with {@link java.util.concurrent.TimeoutException}) if no response arrives within 5 seconds
      */
     @NotNull
     public <T extends Response> CompletableFuture<T> sendGlobalRequest(
@@ -141,6 +146,12 @@ public final class MessagingService {
         return sendRequest("global", request, responseType);
     }
 
+    /**
+     * Registers the given request type for deserialization and associates a handler to process incoming requests of that type.
+     *
+     * @param requestType the request class to register and handle
+     * @param handler     function invoked with a deserialized request of type `requestType`; its return value is sent back as the response (if `null`, no response is sent)
+     */
     public <T extends Request> void registerHandler(
             final Class<T> requestType,
             final Function<T, Response> handler
@@ -181,15 +192,16 @@ public final class MessagingService {
     }
 
     /**
-     * Completes a pending request future (if any) using the envelope's payload as the response.
-     *
-     * If a pending request with the envelope's correlationId exists, deserializes the payloadJson
-     * into the payloadType and completes the corresponding CompletableFuture with the resulting
-     * Response; if the payload type class cannot be found, completes the future exceptionally
-     * with a ClassNotFoundException.
-     *
-     * @param envelope the incoming message envelope containing correlationId, payloadType and payloadJson
-     */
+         * Matches an incoming response envelope to a pending request and completes the corresponding future.
+         *
+         * If a pending request with the envelope's correlationId exists, deserializes the envelope payload
+         * into the registered response type and completes that request's CompletableFuture with the result.
+         * If no class is registered for the payload type, completes the future exceptionally with
+         * ClassNotFoundException. Any deserialization or runtime error completes the future exceptionally
+         * with the thrown exception.
+         *
+         * @param envelope the incoming message envelope containing correlationId, payloadType, and payloadJson
+         */
     private void handleResponse(final MessageEnvelope envelope) {
         final CompletableFuture<Response> future = pendingRequests.remove(envelope.correlationId());
         if (future != null) {
@@ -211,11 +223,11 @@ public final class MessagingService {
     }
 
     /**
-     * Dispatches an incoming MessageEnvelope to a registered request or message handler based on the envelope's payload type.
+     * Routes an incoming MessageEnvelope to the appropriate registered handler based on its payload type.
      *
-     * If a request handler is registered for the payload type, the envelope is handled as a request; otherwise, if a message handler is registered, it is handled as a message. If no handler is registered for the payload type, the envelope is ignored.
+     * If a request handler exists for the envelope's payload type the envelope is processed as a request; otherwise, if a message handler exists it is processed as a message. If neither handler is registered the envelope is ignored.
      *
-     * @param envelope the incoming MessageEnvelope whose payloadType determines which handler should process it
+     * @param envelope the incoming envelope whose payloadType determines dispatch target
      */
     private void handleIncoming(final MessageEnvelope envelope) {
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
