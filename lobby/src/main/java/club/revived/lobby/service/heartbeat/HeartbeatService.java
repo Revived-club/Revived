@@ -42,6 +42,12 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
         this.startTask();
     }
 
+    /**
+     * Schedules a fixed-rate background task that publishes this service's heartbeat and purges stale services.
+     *
+     * The task publishes a Heartbeat message containing timestamp, service type/id, online player count and details, and cluster IP,
+     * then removes any services from the cluster whose last-seen timestamp exceeds TIMEOUT.
+     */
     public void startTask() {
         subServer.scheduleAtFixedRate(() -> {
             try {
