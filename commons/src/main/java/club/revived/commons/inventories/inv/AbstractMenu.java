@@ -58,6 +58,9 @@ public final class AbstractMenu extends InventoryBuilder {
     @NotNull
     public AbstractMenu fillEmpty(final ItemBuilder item) {
         for (int i = 0; i < (rows * 9); i++) {
+
+            if (!getItem(i).isEmpty()) continue;
+
             setItem(i, item.build(), event -> event.setCancelled(true));
         }
         return this;
