@@ -1,6 +1,5 @@
 package club.revived.proxy.service.broker;
 
-import club.revived.proxy.ProxyPlugin;
 import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -8,8 +7,6 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 /**
  * This is an interesting Class
@@ -73,14 +70,18 @@ public final class RedisBroker implements MessageBroker {
             final int port,
             final String password
     ) {
-        final JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxIdle(20);
-        config.setMaxTotal(50);
-        config.setTestOnBorrow(true);
-        config.setTestOnReturn(true);
+        try {
+            final JedisPoolConfig config = new JedisPoolConfig();
+            config.setMaxIdle(20);
+            config.setMaxTotal(50);
+            config.setTestOnBorrow(true);
+            config.setTestOnReturn(true);
 
-        System.out.println("Connecting to Redis...");
-        return new JedisPool(config, host, port, 0, password, false);
+            System.out.println("Connecting to Redis...");
+            return new JedisPool(config, host, port, 0, password, false);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -100,7 +101,7 @@ public final class RedisBroker implements MessageBroker {
             final String json = this.gson.toJson(message);
             jedis.publish(topic, json);
         } catch (final Exception e) {
-            // TODO: Log
+            throw new RuntimeException(e);
         }
      }
 
@@ -136,7 +137,7 @@ public final class RedisBroker implements MessageBroker {
                             final T obj = gson.fromJson(message, type);
                             handler.handle(obj);
                         } catch (final Exception e) {
-                            // TODO: Log
+                            throw new RuntimeException(e);
                         }
                     }
                 });
