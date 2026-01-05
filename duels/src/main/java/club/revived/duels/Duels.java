@@ -3,6 +3,7 @@ package club.revived.duels;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.player.PlayerManager;
 import club.revived.duels.service.status.ServiceStatus;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +39,8 @@ public final class Duels extends JavaPlugin {
         }
 
         this.setupCluster();
+
+        new PlayerManager();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }

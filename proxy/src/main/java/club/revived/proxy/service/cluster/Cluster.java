@@ -5,6 +5,7 @@ import club.revived.proxy.service.broker.MessageBroker;
 import club.revived.proxy.service.cache.GlobalCache;
 import club.revived.proxy.service.heartbeat.HeartbeatService;
 import club.revived.proxy.service.messaging.MessagingService;
+import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.service.player.impl.WhereIsProxyRequest;
 import club.revived.proxy.service.player.impl.WhereIsProxyResponse;
 import club.revived.proxy.service.player.impl.WhereIsRequest;
