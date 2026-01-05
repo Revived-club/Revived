@@ -3,6 +3,7 @@ package club.revived.lobby;
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.command.DuelCommand;
+import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -56,6 +57,7 @@ public final class Lobby extends JavaPlugin {
         this.setupCluster();
 
         new PlayerManager();
+        new DuelManager();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
