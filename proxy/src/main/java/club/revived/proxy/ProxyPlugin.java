@@ -23,6 +23,12 @@ public final class ProxyPlugin {
 
     private static ProxyPlugin instance;
 
+    /**
+     * Creates the plugin instance, stores the injected server and logger, and initializes cluster support.
+     *
+     * <p>Sets the static singleton reference to this instance, retains the provided {@code ProxyServer}
+     * and {@code Logger}, and invokes cluster setup. </p>
+     */
     @Inject
     public ProxyPlugin(
             final ProxyServer server,
@@ -54,10 +60,20 @@ public final class ProxyPlugin {
         );
     }
 
+    /**
+     * Retrieve the singleton ProxyPlugin instance.
+     *
+     * @return the singleton ProxyPlugin instance, or null if the plugin has not been initialized
+     */
     public static ProxyPlugin getInstance() {
         return instance;
     }
 
+    /**
+     * Retrieve the plugin's ProxyServer instance.
+     *
+     * @return the ProxyServer used by this plugin
+     */
     public ProxyServer getServer() {
         return server;
     }
