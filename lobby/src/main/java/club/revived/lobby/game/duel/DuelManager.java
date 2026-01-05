@@ -38,12 +38,7 @@ public final class DuelManager {
      * @throws ServiceUnavailableException if the selected duel service is not available
      */
     public void acceptDuelRequest(final NetworkPlayer networkPlayer) {
-        final var request = Cluster.getInstance().getGlobalCache().get(
-                DuelRequest.class,
-                "duelRequest:" + networkPlayer.getUuid()
-        );
-
-        request.thenAccept(duelRequest -> {
+        networkPlayer.getCachedValue(DuelRequest.class).thenAccept(duelRequest -> {
             if (duelRequest == null) {
                 networkPlayer.sendMessage("<red>You don't have any open requests!");
                 return;
