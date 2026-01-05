@@ -186,7 +186,10 @@ public final class MessagingService {
         System.out.println("handle incoming");
 
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
+        System.out.println(envelope.payloadType());
+        System.out.println(String.join(" | ", requestHandlers.keySet()));
         if (requestHandler != null) {
+            System.out.println("handler found");
             handleRequest(envelope, requestHandler);
             return;
         }
