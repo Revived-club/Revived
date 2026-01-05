@@ -1,6 +1,7 @@
 package club.revived.proxy.service.broker;
 
 import com.google.gson.Gson;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
@@ -131,7 +132,7 @@ public final class RedisBroker implements MessageBroker {
         System.out.println("Subscribing to redis with handler for " + type.getSimpleName());
 
         subServer.submit(() -> {
-            try (final var jedis = jedisPool.getResource()) {
+            try (final Jedis jedis = jedisPool.getResource()) {
                 jedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onMessage(
