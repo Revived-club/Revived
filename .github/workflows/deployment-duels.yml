@@ -6,6 +6,7 @@ on:
     paths:
       - "duels/**"
       - "commons/**"
+      - "gradle/**"
   workflow_dispatch:
 
 env:

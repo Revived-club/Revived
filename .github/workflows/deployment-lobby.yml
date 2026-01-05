@@ -6,6 +6,7 @@ on:
     paths:
       - "lobby/**"
       - "commons/**"
+      - "gradle/**"
   workflow_dispatch:
 
 env:
