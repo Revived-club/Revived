@@ -153,19 +153,21 @@ public final class MessagingService {
      * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be dispatched either to the matching pending request (by correlationId) or to the appropriate request/message handler
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
+        System.out.println("Received envelope - Target: " + envelope.targetId() +
+                ", Sender: " + envelope.senderId() +
+                ", Correlation: " + envelope.correlationId() +
+                ", Type: " + envelope.payloadType());
+
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
-                try {
-                    final Class<?> payloadType = Class.forName(envelope.payloadType());
-                    if (Response.class.isAssignableFrom(payloadType)) {
-                        handleResponse(envelope);
-                        return;
-                    }
-                } catch (final ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Handling as response");
+                handleResponse(envelope);
+            } else {
+                System.out.println("Handling as incoming request/message");
+                handleIncoming(envelope);
             }
-            handleIncoming(envelope);
+        } else {
+            System.out.println("Envelope not for this service");
         }
     }
 
@@ -187,7 +189,7 @@ public final class MessagingService {
                 final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
 
                 future.complete(response);
-            } catch (final Exception e) {
+            } catch (final ClassNotFoundException e) {
                 future.completeExceptionally(e);
             }
         }
