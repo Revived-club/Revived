@@ -42,29 +42,38 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     public void startTask() {
-        subServer.schedule(() -> {
-            broker.publish("service:heartbeat", new Heartbeat(
-                    System.currentTimeMillis(),
-                    cluster.getServiceType(),
-                    cluster.getServiceId(),
-                    Bukkit.getOnlinePlayers().size(),
-                    List.of(),
-                    cluster.getIp()
-            ));
+        subServer.scheduleAtFixedRate(() -> {
+            try {
+                log.info("Sending heartbeat for service: {}", cluster.getServiceId());
+                broker.publish("service:heartbeat", new Heartbeat(
+                        System.currentTimeMillis(),
+                        cluster.getServiceType(),
+                        cluster.getServiceId(),
+                        Bukkit.getOnlinePlayers().size(),
+                        List.of(),
+                        cluster.getIp()
+                ));
 
-            for (final String server : lastSeen.keySet()) {
-                final var timestamp = lastSeen.get(server);
-                final var time = System.currentTimeMillis() - timestamp;
+                final long now = System.currentTimeMillis();
+                for (final String server : lastSeen.keySet()) {
+                    final var timestamp = lastSeen.get(server);
+                    final var time = now - timestamp;
 
-                if (time < TIMEOUT) {
-                    log.error("{} timed out after {}ms", server, time);
+                    if (time > TIMEOUT) {
+                        log.error("{} timed out after {}ms", server, time);
+                        lastSeen.remove(server);
+                        Cluster.getInstance().getServices().remove(server);
+                    }
                 }
+            } catch (Exception e) {
+                log.error("Error in heartbeat task", e);
             }
-        }, INTERVAL, TimeUnit.MILLISECONDS);
+        }, 0, INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void handle(final Heartbeat message) {
+        log.info("Received heartbeat from: {}", message.id());
         final var service = new ClusterService(
                 message.id(),
                 message.serverIp(),

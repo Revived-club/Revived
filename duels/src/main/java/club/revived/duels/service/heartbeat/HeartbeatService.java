@@ -57,7 +57,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * iterates known services' last-seen timestamps to log an error for any service whose elapsed time exceeds TIMEOUT.
      */
     public void startTask() {
-        subServer.schedule(() -> {
+        subServer.scheduleAtFixedRate(() -> {
             broker.publish("service:heartbeat", new Heartbeat(
                     System.currentTimeMillis(),
                     cluster.getServiceType(),
@@ -75,7 +75,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     log.error("{} timed out after {}ms", server, time);
                 }
             }
-        }, INTERVAL, TimeUnit.MILLISECONDS);
+        }, 0, INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     /**

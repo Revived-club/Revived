@@ -59,7 +59,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      */
     public void startTask() {
         System.out.println( "Starting heartbeat task...");
-        subServer.schedule(() -> {
+        subServer.scheduleAtFixedRate(() -> {
             final var services = this.cluster.getServices()
                     .values()
                     .stream()
@@ -97,7 +97,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                         });
             });
 
-        }, INTERVAL, TimeUnit.MILLISECONDS);
+        }, 0, INTERVAL, TimeUnit.MILLISECONDS);
 
         System.out.println( "Started heartbeat task...");
     }
