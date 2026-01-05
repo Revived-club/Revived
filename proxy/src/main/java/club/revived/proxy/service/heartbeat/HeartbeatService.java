@@ -66,12 +66,15 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     .toList();
 
             services.forEach(service -> {
+                System.out.println("[Heartbeat] Checking service: " + service.getId());
                 this.cluster.getMessagingService().sendRequest(
                                 service.getId(),
                                 new StatusRequest(),
                                 StatusResponse.class
                         )
                         .thenAccept(statusResponse -> {
+                            System.out.println("response");
+
                             if (statusResponse.status() != ServiceStatus.AVAILABLE) {
                                 System.out.println("service is not available");
                                 return;
