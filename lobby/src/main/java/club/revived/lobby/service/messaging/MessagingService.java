@@ -31,8 +31,8 @@ public final class MessagingService {
     /**
      * Create a MessagingService backed by the given MessageBroker and identified by serviceId.
      *
-     * Subscribes the broker to the "service-messages-{serviceId}" topic so incoming MessageEnvelope
-     * instances for this service are delivered to the internal envelope handler.
+     * Subscribes the broker to the "service-messages-{serviceId}" and "service-messages-global" topics
+     * so incoming MessageEnvelope instances for this service are delivered to the internal envelope handler.
      *
      * @param broker    the MessageBroker used to publish and receive service messages
      * @param serviceId unique identifier for this service instance; used as the topic suffix for subscriptions
@@ -45,6 +45,7 @@ public final class MessagingService {
         this.serviceId = serviceId;
 
         this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
+        this.broker.subscribe("service-messages-global", MessageEnvelope.class, this::handleEnvelope);
     }
 
     public void register(final Class<?> clazz) {
@@ -65,6 +66,9 @@ public final class MessagingService {
             final Request request,
             final Class<T> responseType
     ) {
+        register(request.getClass());
+        register(responseType);
+
         final UUID correlationId = UUID.randomUUID();
         final CompletableFuture<Response> future = new CompletableFuture<>();
         pendingRequests.put(correlationId, future);
@@ -101,6 +105,7 @@ public final class MessagingService {
             final String targetServiceId,
             final Message message
     ) {
+        register(message.getClass());
         final MessageEnvelope envelope = new MessageEnvelope(
                 UUID.randomUUID(),
                 serviceId,
@@ -112,10 +117,35 @@ public final class MessagingService {
         broker.publish("service-messages-" + targetServiceId, envelope);
     }
 
+    /**
+     * Sends a fire-and-forget message to all services.
+     *
+     * @param message the message payload to send
+     */
+    public void sendGlobalMessage(final Message message) {
+        sendMessage("global", message);
+    }
+
+    /**
+     * Send a request message to all services and await the first correlated response.
+     *
+     * @param request the request payload to send
+     * @param responseType the expected response class used to cast the received payload
+     * @return a CompletableFuture that completes with a response of the requested type when the first matching response arrives; completes exceptionally (for example, with TimeoutException) if no response is received within 5 seconds
+     */
+    @NotNull
+    public <T extends Response> CompletableFuture<T> sendGlobalRequest(
+            final Request request,
+            final Class<T> responseType
+    ) {
+        return sendRequest("global", request, responseType);
+    }
+
     public <T extends Request> void registerHandler(
             final Class<T> requestType,
             final Function<T, Response> handler
     ) {
+        register(requestType);
         //noinspection unchecked
         requestHandlers.put(requestType.getSimpleName(), (Function<Request, Response>) handler);
     }
@@ -130,6 +160,7 @@ public final class MessagingService {
             final Class<T> messageType,
             final Consumer<T> handler
     ) {
+        register(messageType);
         //noinspection unchecked
         messageHandlers.put(messageType.getSimpleName(), (Consumer<Message>) handler);
     }
@@ -164,6 +195,12 @@ public final class MessagingService {
         if (future != null) {
             try {
                 final Class<?> responseType = this.messageRegistry.get(envelope.payloadType());
+
+                if (responseType == null) {
+                    future.completeExceptionally(new ClassNotFoundException("No class registered for payload type: " + envelope.payloadType()));
+                    return;
+                }
+
                 final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
 
                 future.complete(response);
@@ -183,7 +220,6 @@ public final class MessagingService {
     private void handleIncoming(final MessageEnvelope envelope) {
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
         if (requestHandler != null) {
-
             handleRequest(envelope, requestHandler);
             return;
         }
@@ -211,6 +247,7 @@ public final class MessagingService {
             if (response == null) {
                 return;
             }
+            register(response.getClass());
 
             final MessageEnvelope responseEnvelope = new MessageEnvelope(
                     envelope.correlationId(),
