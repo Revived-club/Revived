@@ -1,5 +1,6 @@
 package club.revived.proxy.service.broker;
 
+import club.revived.proxy.ProxyPlugin;
 import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -7,6 +8,8 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 /**
  * This is an interesting Class
@@ -68,6 +71,7 @@ public final class RedisBroker implements MessageBroker {
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
 
+        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Connecting to Redis...");
         return new JedisPool(config, host, port, 0, password, false);
     }
 
