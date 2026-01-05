@@ -71,7 +71,11 @@ public final class RedisCacheService implements GlobalCache {
         config.setTestOnReturn(true);
 
         System.out.println( "Connecting to Redis...");
-        return new JedisPool(config, host, port, 0, password, false);
+        if (password.isEmpty()) {
+            return new JedisPool(config, host, port, 0);
+        } else {
+            return new JedisPool(config, host, port, 0, password, false);
+        }
     }
 
     /**

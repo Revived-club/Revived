@@ -47,7 +47,11 @@ public final class RedisBroker implements MessageBroker {
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
 
-        return new JedisPool(config, host, port, 0, password, false);
+        if (password.isEmpty()) {
+            return new JedisPool(config, host, port, 0);
+        } else {
+            return new JedisPool(config, host, port, 0, password, false);
+        }
     }
 
     @Override
