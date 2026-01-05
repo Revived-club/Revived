@@ -65,7 +65,9 @@ public final class DuelManager {
     }
 
     /**
-     * Creates and stores a duel request for the given receiver and notifies them with a clickable, hoverable message.
+     * Stores a duel request for the receiver and notifies them with a clickable, hoverable acceptance message.
+     *
+     * The request is saved in the global cache under the key "duelRequest:&lt;receiver UUID&gt;" with a 120-second expiry.
      *
      * @param sender   the player who initiated the duel request
      * @param receiver the player who will receive the duel request
