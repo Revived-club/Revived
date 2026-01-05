@@ -42,11 +42,11 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * @param broker the MessageBroker used to subscribe to heartbeat messages for this service
      */
     public HeartbeatService(final MessageBroker broker) {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting heartbeat service...");
+        System.out.println( "Starting heartbeat service...");
         broker.subscribe("service:heartbeat", Heartbeat.class, this);
 
         this.startTask();
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started heartbeat service...");
+        System.out.println( "Started heartbeat service...");
     }
 
     /**
@@ -58,7 +58,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * the corresponding ServerInfo in the proxy.
      */
     public void startTask() {
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Starting heartbeat task...");
+        System.out.println( "Starting heartbeat task...");
         subServer.schedule(() -> {
             final var services = this.cluster.getServices()
                     .values()
@@ -99,7 +99,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
         }, INTERVAL, TimeUnit.MILLISECONDS);
 
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Started heartbeat task...");
+        System.out.println( "Started heartbeat task...");
     }
 
     /**

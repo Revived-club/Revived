@@ -71,7 +71,7 @@ public final class RedisBroker implements MessageBroker {
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
 
-        ProxyPlugin.getInstance().getLogger().log(Level.ALL, "Connecting to Redis...");
+        System.out.println( "Connecting to Redis...");
         return new JedisPool(config, host, port, 0, password, false);
     }
 
