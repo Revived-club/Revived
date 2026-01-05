@@ -116,7 +116,7 @@ public final class PlayerManager {
      */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final UUID uuid) {
-        if (this.networkPlayers.containsKey(uuid)) {
+        if (!this.networkPlayers.containsKey(uuid)) {
             throw new UnregisteredPlayerException("tried to find a non existing player");
         }
 
