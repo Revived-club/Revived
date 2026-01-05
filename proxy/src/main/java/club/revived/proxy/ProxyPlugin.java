@@ -40,10 +40,13 @@ public final class ProxyPlugin {
         instance = this;
         this.server = server;
         this.logger = logger;
+
+        System.out.println("Loading Plugin...");
     }
 
     @Subscribe
     public void onProxyInitialization(final ProxyInitializeEvent event) {
+        System.out.println("Initializing Plugin...");
         this.setupCluster();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
