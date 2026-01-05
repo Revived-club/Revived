@@ -5,6 +5,8 @@ import club.revived.proxy.service.cache.RedisCacheService;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.status.ServiceStatus;
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 
@@ -36,14 +38,18 @@ public final class ProxyPlugin {
             final Logger logger
     ) {
         instance = this;
-
         this.server = server;
         this.logger = logger;
+    }
 
+    @Subscribe
+    public void onProxyInitialization(final ProxyInitializeEvent event) {
         this.setupCluster();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
+
+
 
     /**
      * Initializes the plugin Cluster using environment variables.
