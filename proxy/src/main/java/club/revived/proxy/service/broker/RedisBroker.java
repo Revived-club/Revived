@@ -38,7 +38,7 @@ public final class RedisBroker implements MessageBroker {
             System.out.println("Checking connection...");
             System.out.println("Response " + jedis.ping());
         } catch (final Exception e) {
-            // TODO: Log
+            throw new RuntimeException(e);
         }
 
     }
