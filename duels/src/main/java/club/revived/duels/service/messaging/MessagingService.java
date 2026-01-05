@@ -74,7 +74,7 @@ public final class MessagingService {
                 correlationId,
                 serviceId,
                 targetServiceId,
-                request.getClass().getTypeName(),
+                request.getClass().getSimpleName(),
                 gson.toJson(request)
         );
 
@@ -100,7 +100,7 @@ public final class MessagingService {
                 UUID.randomUUID(),
                 serviceId,
                 targetServiceId,
-                message.getClass().getTypeName(),
+                message.getClass().getSimpleName(),
                 gson.toJson(message)
         );
 
@@ -121,7 +121,7 @@ public final class MessagingService {
             final Function<T, Response> handler
     ) {
         //noinspection unchecked
-        requestHandlers.put(requestType.getTypeName(), (Function<Request, Response>) handler);
+        requestHandlers.put(requestType.getSimpleName(), (Function<Request, Response>) handler);
     }
 
     /**
@@ -135,7 +135,7 @@ public final class MessagingService {
             final Consumer<T> handler
     ) {
         //noinspection unchecked
-        messageHandlers.put(messageType.getTypeName(), (Consumer<Message>) handler);
+        messageHandlers.put(messageType.getSimpleName(), (Consumer<Message>) handler);
     }
 
     /**
@@ -221,7 +221,7 @@ public final class MessagingService {
                     envelope.correlationId(),
                     serviceId,
                     envelope.senderId(),
-                    response.getClass().getTypeName(),
+                    response.getClass().getSimpleName(),
                     gson.toJson(response)
             );
             
