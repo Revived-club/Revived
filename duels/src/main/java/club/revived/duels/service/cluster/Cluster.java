@@ -6,6 +6,8 @@ import club.revived.duels.service.heartbeat.HeartbeatService;
 import club.revived.duels.service.messaging.MessagingService;
 import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.status.ServiceStatus;
+import club.revived.duels.service.status.StatusRequest;
+import club.revived.duels.service.status.StatusResponse;
 import club.revived.duels.service.status.StatusService;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -120,6 +122,8 @@ public final class Cluster {
         this.messagingService.register(WhereIsProxyRequest.class);
         this.messagingService.register(WhereIsRequest.class);
         this.messagingService.register(WhereIsResponse.class);
+        this.messagingService.register(StatusRequest.class);
+        this.messagingService.register(StatusResponse.class);
     }
 
     /**

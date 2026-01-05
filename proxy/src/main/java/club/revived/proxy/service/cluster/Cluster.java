@@ -7,6 +7,8 @@ import club.revived.proxy.service.heartbeat.HeartbeatService;
 import club.revived.proxy.service.messaging.MessagingService;
 import club.revived.proxy.service.messaging.impl.*;
 import club.revived.proxy.service.status.ServiceStatus;
+import club.revived.proxy.service.status.StatusRequest;
+import club.revived.proxy.service.status.StatusResponse;
 import club.revived.proxy.service.status.StatusService;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.jetbrains.annotations.NotNull;
@@ -112,6 +114,8 @@ public final class Cluster {
     private void registerMessageTypes() {
         this.messagingService.register(Connect.class);
         this.messagingService.register(SendMessage.class);
+        this.messagingService.register(StatusRequest.class);
+        this.messagingService.register(StatusResponse.class);
         this.messagingService.register(WhereIsProxyResponse.class);
         this.messagingService.register(WhereIsProxyRequest.class);
         this.messagingService.register(WhereIsRequest.class);
