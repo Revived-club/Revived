@@ -2,7 +2,7 @@ package club.revived.lobby.service.player;
 
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.exception.UnregisteredPlayerException;
-import club.revived.lobby.service.player.impl.SendMessage;
+import club.revived.lobby.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

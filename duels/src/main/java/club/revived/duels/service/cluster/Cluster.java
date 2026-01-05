@@ -4,10 +4,7 @@ import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.cache.GlobalCache;
 import club.revived.duels.service.heartbeat.HeartbeatService;
 import club.revived.duels.service.messaging.MessagingService;
-import club.revived.duels.service.player.impl.WhereIsProxyRequest;
-import club.revived.duels.service.player.impl.WhereIsProxyResponse;
-import club.revived.duels.service.player.impl.WhereIsRequest;
-import club.revived.duels.service.player.impl.WhereIsResponse;
+import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.status.ServiceStatus;
 import club.revived.duels.service.status.StatusService;
 import org.bukkit.Bukkit;
@@ -98,8 +95,9 @@ public final class Cluster {
 
         instance = this;
 
-        startServices();
-        registerRequestHandlers();
+        this.startServices();
+        this.registerRequestHandlers();
+        this.registerMessageTypes();
     }
 
     /**
@@ -111,6 +109,17 @@ public final class Cluster {
     private void startServices() {
         new HeartbeatService(this.broker);
         new StatusService(this.messagingService);
+    }
+
+    private void registerMessageTypes() {
+        this.messagingService.register(BotDuelStart.class);
+        this.messagingService.register(Connect.class);
+        this.messagingService.register(DuelStart.class);
+        this.messagingService.register(SendMessage.class);
+        this.messagingService.register(WhereIsProxyResponse.class);
+        this.messagingService.register(WhereIsProxyRequest.class);
+        this.messagingService.register(WhereIsRequest.class);
+        this.messagingService.register(WhereIsResponse.class);
     }
 
     /**

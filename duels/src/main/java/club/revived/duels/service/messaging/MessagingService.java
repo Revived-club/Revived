@@ -26,6 +26,7 @@ public final class MessagingService {
     private final Map<UUID, CompletableFuture<Response>> pendingRequests = new ConcurrentHashMap<>();
     private final Map<String, Function<Request, Response>> requestHandlers = new ConcurrentHashMap<>();
     private final Map<String, Consumer<Message>> messageHandlers = new ConcurrentHashMap<>();
+    private final Map<String, Class<?>> messageRegistry = new ConcurrentHashMap<>();
 
     /**
      * Construct a MessagingService that uses the given MessageBroker and service identifier.
@@ -45,6 +46,11 @@ public final class MessagingService {
 
         this.broker.subscribe("service-messages-" + serviceId, MessageEnvelope.class, this::handleEnvelope);
     }
+
+    public void register(final Class<?> clazz) {
+        this.messageRegistry.put(clazz.getSimpleName(), clazz);
+    }
+
 
     /**
      * Send a request message to another service and await a correlated response.
@@ -169,11 +175,11 @@ public final class MessagingService {
         final CompletableFuture<Response> future = pendingRequests.remove(envelope.correlationId());
         if (future != null) {
             try {
-                final Class<?> responseType = Class.forName(envelope.payloadType());
+                final Class<?> responseType = this.messageRegistry.get(envelope.payloadType());
                 final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
 
                 future.complete(response);
-            } catch (final ClassNotFoundException e) {
+            } catch (final Exception e) {
                 future.completeExceptionally(e);
             }
         }

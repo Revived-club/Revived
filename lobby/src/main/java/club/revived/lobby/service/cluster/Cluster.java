@@ -4,10 +4,7 @@ import club.revived.lobby.service.broker.MessageBroker;
 import club.revived.lobby.service.cache.GlobalCache;
 import club.revived.lobby.service.heartbeat.HeartbeatService;
 import club.revived.lobby.service.messaging.MessagingService;
-import club.revived.lobby.service.player.impl.WhereIsProxyRequest;
-import club.revived.lobby.service.player.impl.WhereIsProxyResponse;
-import club.revived.lobby.service.player.impl.WhereIsRequest;
-import club.revived.lobby.service.player.impl.WhereIsResponse;
+import club.revived.lobby.service.messaging.impl.*;
 import club.revived.lobby.service.status.ServiceStatus;
 import club.revived.lobby.service.status.StatusService;
 import org.bukkit.Bukkit;
@@ -77,13 +74,24 @@ public final class Cluster {
 
         instance = this;
 
-        startServices();
-        registerRequestHandlers();
+        this.startServices();
+        this.registerRequestHandlers();
     }
 
     private void startServices() {
         new HeartbeatService(this.broker);
         new StatusService(this.messagingService);
+    }
+
+    private void registerMessageTypes() {
+        this.messagingService.register(BotDuelStart.class);
+        this.messagingService.register(Connect.class);
+        this.messagingService.register(DuelStart.class);
+        this.messagingService.register(SendMessage.class);
+        this.messagingService.register(WhereIsProxyResponse.class);
+        this.messagingService.register(WhereIsProxyRequest.class);
+        this.messagingService.register(WhereIsRequest.class);
+        this.messagingService.register(WhereIsResponse.class);
     }
 
     private void registerRequestHandlers() {

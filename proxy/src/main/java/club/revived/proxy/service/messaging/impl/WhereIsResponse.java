@@ -1,4 +1,4 @@
-package club.revived.proxy.service.player.impl;
+package club.revived.proxy.service.messaging.impl;
 
 import club.revived.proxy.service.messaging.Response;
 
@@ -8,5 +8,5 @@ import club.revived.proxy.service.messaging.Response;
  * @author yyuh
  * @since 03.01.26
  */
-public record WhereIsProxyResponse(String proxy) implements Response {
+public record WhereIsResponse(String server) implements Response {
 }

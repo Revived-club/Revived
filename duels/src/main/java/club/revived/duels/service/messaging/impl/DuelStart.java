@@ -1,4 +1,4 @@
-package club.revived.duels.service.message;
+package club.revived.duels.service.messaging.impl;
 
 import club.revived.duels.game.duels.KitType;
 import club.revived.duels.service.messaging.Message;

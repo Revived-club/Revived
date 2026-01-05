@@ -3,7 +3,7 @@ package club.revived.proxy.service.player;
 import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.exception.UnregisteredPlayerException;
-import club.revived.proxy.service.player.impl.SendMessage;
+import club.revived.proxy.service.messaging.impl.SendMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * This is an interesting Class

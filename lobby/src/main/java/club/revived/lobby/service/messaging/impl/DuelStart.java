@@ -1,4 +1,4 @@
-package club.revived.lobby.service.message;
+package club.revived.lobby.service.messaging.impl;
 
 import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.service.messaging.Message;
