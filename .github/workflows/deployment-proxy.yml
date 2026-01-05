@@ -6,6 +6,7 @@ on:
     paths:
       - "proxy/**"
       - "commons/**"
+      - "gradle/**"
   workflow_dispatch:
 
 env:
