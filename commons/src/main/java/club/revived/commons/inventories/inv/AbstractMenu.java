@@ -21,7 +21,7 @@ public final class AbstractMenu extends InventoryBuilder {
     private final int rows;
 
     public AbstractMenu(final int rows, final String title) {
-        super(rows, title);
+        super(rows * 9, title);
         this.rows = rows;
     }
 
