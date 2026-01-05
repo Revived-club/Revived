@@ -126,8 +126,8 @@ public final class RedisBroker implements MessageBroker {
                             // TODO: Log
                         }
                     }
-                });
+                }, topic);
             }
-        }, topic);
+        });
     }
 }

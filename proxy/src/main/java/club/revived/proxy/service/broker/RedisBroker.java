@@ -146,8 +146,10 @@ public final class RedisBroker implements MessageBroker {
                             throw new RuntimeException(e);
                         }
                     }
-                });
+                }, topic);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }, topic);
+        });
     }
 }
