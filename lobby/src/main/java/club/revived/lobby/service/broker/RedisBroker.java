@@ -26,13 +26,20 @@ public final class RedisBroker implements MessageBroker {
             final String password
     ) {
         this.jedisPool = this.connect(host, port, password);
+
+        try (final var jedis = this.jedisPool.getResource()) {
+            System.out.println("Checking connection...");
+            System.out.println("Response " + jedis.ping());
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public RedisBroker(
             final String host,
             final int port
     ) {
-        this.jedisPool = this.connect(host, port, "");
+        this(host, port, "");
     }
 
     @Override
