@@ -52,7 +52,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     /**
      * Start a recurring task that publishes this service's heartbeat and performs timeout checks.
-     *
+     * <p></p>
      * Schedules a fixed-rate task with an initial delay of 0 and period of INTERVAL milliseconds.
      * Each execution publishes a Heartbeat to the "service:heartbeat" topic containing the current
      * timestamp, this service's type and id, the online player count, a list of OnlinePlayer entries,
@@ -89,7 +89,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     /**
      * Process an incoming Heartbeat message and reconcile cluster and player state.
-     *
+     * <p></p>
      * Updates the last-seen timestamp and the Cluster service entry for the sender, registers each player reported
      * as online in the message with the PlayerManager, and removes any network players whose current server is not
      * present among the message's online players.
