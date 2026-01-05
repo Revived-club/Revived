@@ -20,6 +20,13 @@ public final class RedisCacheService implements GlobalCache {
     private final ExecutorService subServer = Executors.newVirtualThreadPerTaskExecutor();
     private final Gson gson = new Gson();
 
+    /**
+     * Creates a RedisCacheService connected to the specified Redis server and configured for pooled access.
+     *
+     * @param host     the Redis server host
+     * @param port     the Redis server port
+     * @param password the password for Redis authentication (empty string if no password)
+     */
     public RedisCacheService(
             final String host,
             final int port,
@@ -28,6 +35,12 @@ public final class RedisCacheService implements GlobalCache {
         this.jedisPool = this.connect(host, port, password);
     }
 
+    /**
+     * Creates a RedisCacheService connected to the specified Redis host and port using no password.
+     *
+     * @param host Redis server host name or IP address
+     * @param port Redis server port
+     */
     public RedisCacheService(
             final String host,
             final int port
@@ -104,12 +117,12 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     /**
-     * Store a value in Redis under the given key with an expiration.
+     * Store the given value in Redis under the specified key and set an expiration.
      *
      * @param key     the Redis key to set
-     * @param t       the value to serialize and store
+     * @param t       the value to store
      * @param seconds expiration time in seconds
-     * @throws RuntimeException if serialization or the Redis operation fails
+     * @throws RuntimeException if the Redis operation fails
      */
     @Override
     public <T> void setEx(

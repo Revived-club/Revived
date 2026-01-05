@@ -11,10 +11,10 @@ import java.util.concurrent.CompletableFuture;
 public interface GlobalCache {
 
     /**
- * Retrieve a cached value by its key and expected type.
+ * Retrieves a cached value by key for the specified target type.
  *
  * @param <T>   the expected type of the cached value
- * @param clazz the Class object representing the expected type for decoding/casting
+ * @param clazz the Class object representing the target type for decoding or casting
  * @param key   the cache key
  * @return      the cached value of type T, or {@code null} if no value is associated with the key
  */
@@ -32,9 +32,9 @@ public interface GlobalCache {
     );
 
     /**
-     * Stores a value in the global cache under the specified key and sets an expiration time.
+     * Store a value under the given key and set its time-to-live.
      *
-     * @param key     the cache key under which the value will be stored
+     * @param key     the cache key to associate with the value
      * @param t       the value to store
      * @param seconds the time-to-live for the stored value, in seconds
      */

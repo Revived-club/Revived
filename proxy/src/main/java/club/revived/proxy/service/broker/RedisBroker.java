@@ -20,6 +20,13 @@ public final class RedisBroker implements MessageBroker {
     private final ExecutorService subServer = Executors.newVirtualThreadPerTaskExecutor();
     private final Gson gson = new Gson();
 
+    /**
+     * Creates a RedisBroker and initializes the Redis connection pool used for publishing and subscribing.
+     *
+     * @param host     Redis server hostname or IP address
+     * @param port     Redis server port
+     * @param password Password for Redis authentication; an empty string indicates no authentication
+     */
     public RedisBroker(
             final String host,
             final int port,
@@ -28,6 +35,12 @@ public final class RedisBroker implements MessageBroker {
         this.jedisPool = this.connect(host, port, password);
     }
 
+    /**
+     * Creates a RedisBroker connected to the given host and port using no password.
+     *
+     * @param host the Redis server hostname or IP
+     * @param port the Redis server TCP port
+     */
     public RedisBroker(
             final String host,
             final int port
@@ -35,6 +48,14 @@ public final class RedisBroker implements MessageBroker {
         this.jedisPool = this.connect(host, port, "");
     }
 
+    /**
+     * Create a JedisPool connected to the specified Redis host and port.
+     *
+     * @param host     the Redis server hostname or IP address
+     * @param port     the Redis server port
+     * @param password the password for authenticating with Redis; empty string for no authentication
+     * @return a configured {@link JedisPool} connected to the specified host and port using the provided password
+     */
     @Override
     public JedisPool connect(
             final String host,
@@ -50,7 +71,15 @@ public final class RedisBroker implements MessageBroker {
         return new JedisPool(config, host, port, 0, password, false);
     }
 
-    @Override
+    /**
+      * Publishes the given message to the specified Redis topic after serializing it to JSON.
+      *
+      * <p>Any exceptions thrown during serialization or publish are caught and not propagated.</p>
+      *
+      * @param topic   the Redis channel to publish the message to
+      * @param message the object to serialize to JSON and send to the topic
+      */
+     @Override
     public <T> void publish(
             final String topic,
             final T message
@@ -63,6 +92,17 @@ public final class RedisBroker implements MessageBroker {
         }
      }
 
+    /**
+     * Subscribes to a Redis topic and delivers incoming JSON messages to the given handler.
+     *
+     * Subscription is performed asynchronously on the broker's executor; each received message
+     * is deserialized to the provided type using Gson and passed to the handler. Exceptions
+     * thrown while deserializing or handling a message are caught and suppressed.
+     *
+     * @param topic   the Redis channel/topic to subscribe to
+     * @param type    the target class to deserialize incoming JSON messages into
+     * @param handler callback invoked with each deserialized message
+     */
     @Override
     public <T> void subscribe(
             final String topic,

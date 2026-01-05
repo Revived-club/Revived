@@ -26,12 +26,22 @@ public final class PlayerManager {
 
     private static PlayerManager instance;
 
+    /**
+     * Initializes the PlayerManager singleton and registers message handlers for player-related messaging.
+     */
     public PlayerManager() {
         instance = this;
 
         this.registerMessageHandlers();
     }
 
+    /**
+     * Registers a new NetworkPlayer for the given UUID, username, and current server.
+     *
+     * @param uuid the player's UUID
+     * @param username the player's username
+     * @param currentServer the name of the server the player is currently connected to
+     */
     public void registerPlayer(
             final @NotNull UUID uuid,
             final @NotNull String username,
@@ -46,6 +56,11 @@ public final class PlayerManager {
         this.registerPlayer(player);
     }
 
+    /**
+     * Registers the given NetworkPlayer in the manager so it can be looked up by UUID.
+     *
+     * @param networkPlayer the NetworkPlayer to register; its UUID is used as the map key
+     */
     public void registerPlayer(final NetworkPlayer networkPlayer) {
         log.info("Registered player {} - {}",
                 networkPlayer.getUsername(),
@@ -58,6 +73,13 @@ public final class PlayerManager {
         );
     }
 
+    /**
+     * Registers a handler that forwards incoming `SendMessage` messages to the corresponding Bukkit player.
+     *
+     * When a `SendMessage` is received the handler looks up the player by UUID and delivers the rich message.
+     *
+     * @throws UnregisteredPlayerException if a `SendMessage` targets a UUID with no registered player on this proxy
+     */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
@@ -74,12 +96,12 @@ public final class PlayerManager {
     }
 
     /**
-     * Retrieve the NetworkPlayer associated with the given Bukkit player's UUID.
-     *
-     * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
-     * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
-     * @throws UnregisteredPlayerException if the internal registry contains the given UUID
-     */
+         * Retrieve the NetworkPlayer for a given Bukkit player's UUID.
+         *
+         * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
+         * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
+         * @throws UnregisteredPlayerException if the internal registry contains the given UUID
+         */
     @NotNull
     public NetworkPlayer fromVelocityPlayer(final UUID uuid) {
         if (this.networkPlayers.containsKey(uuid)) {
@@ -110,14 +132,20 @@ public final class PlayerManager {
     }
 
     /**
-     * Gets the internal mapping of registered players keyed by their UUID.
+     * Retrieve the live mapping of registered players keyed by their UUID.
      *
-     * @return the live map of UUID to NetworkPlayer for all registered players; modifications to the returned map affect this manager
+     * @return the live map from UUID to NetworkPlayer; modifications to the returned map update this manager's registry
      */
     public Map<UUID, NetworkPlayer> getNetworkPlayers() {
         return networkPlayers;
     }
 
+    /**
+     * Accesses the singleton PlayerManager instance.
+     *
+     * @return the initialized PlayerManager singleton
+     * @throws RuntimeException if the singleton has not been initialized
+     */
     public static PlayerManager getInstance() {
         if (instance == null) {
             throw new RuntimeException("Tried to access not existing instance");

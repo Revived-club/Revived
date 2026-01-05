@@ -35,6 +35,16 @@ public final class NetworkPlayer {
     @NotNull
     private final CompletableFuture<ClusterService> currentProxy;
 
+    /**
+     * Create a NetworkPlayer and initialize its proxy lookup.
+     *
+     * Initializes the player's identity, current server, and starts an asynchronous lookup
+     * for the proxy service responsible for this player's UUID.
+     *
+     * @param uuid the player's unique identifier
+     * @param username the player's username
+     * @param currentServer the name of the server the player is currently on
+     */
     public NetworkPlayer(
             final @NotNull UUID uuid,
             final @NotNull String username,
@@ -47,9 +57,9 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Locate the cluster proxy service responsible for this player.
+     * Locates the cluster proxy service responsible for this player.
      *
-     * @return a CompletableFuture that completes with the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
+     * @return the {@link ClusterService} responsible for this player, or {@code null} if the player is not currently assigned to a proxy
      */
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
@@ -84,10 +94,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Retrieve a cached value for this player identified by the given class.
+     * Retrieve the cached value associated with this player for the provided class.
      *
-     * @param clazz the class used as part of the cache key and to type the returned value
-     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
+     * @param clazz the class used to form the cache key and to type the retrieved value
+     * @return the cached value for this player and class, or {@code null} if no value is present
      */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
@@ -97,10 +107,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Sends a chat message to this player's current proxy service.
+     * Send a chat message to the proxy currently handling this player.
      *
-     * @param message the text to send to the player
-     * @throws UnregisteredPlayerException if the player's proxy service cannot be located
+     * @param message the text to deliver to the player
+     * @throws UnregisteredPlayerException if no proxy service is registered for this player
      */
     public void sendMessage(
             final String message
@@ -116,6 +126,16 @@ public final class NetworkPlayer {
         });
     }
 
+    /**
+     * Requests connection of this player to the specified cluster service.
+     *
+     * Sends a status check to the target service and, if the service reports `ServiceStatus.AVAILABLE`,
+     * instructs the player's current proxy to initiate the connection by sending a `Connect` message
+     * containing this player's UUID and the target service ID.
+     *
+     * @param clusterService the target service to connect the player to
+     * @throws ServiceUnavailableException if the target service reports a status other than `ServiceStatus.AVAILABLE`
+     */
     public void connect(final ClusterService clusterService) {
         clusterService.sendRequest(new StatusRequest(), StatusResponse.class)
                 .thenAccept(statusResponse -> {
@@ -133,6 +153,14 @@ public final class NetworkPlayer {
                 });
     }
 
+    /**
+     * Requests a transfer of this player to the service identified by the given id.
+     *
+     * Sends a status check to the target service and, if its status is AVAILABLE, instructs the player's current proxy to connect the player to that service.
+     *
+     * @param id the identifier of the target service
+     * @throws ServiceUnavailableException if the target service reports a status other than AVAILABLE
+     */
     public void connect(final String id) {
         final var clusterService = Cluster.getInstance()
                 .getServices()
@@ -153,18 +181,38 @@ public final class NetworkPlayer {
                 });
     }
 
+    /**
+     * Retrieves the player's unique identifier.
+     *
+     * @return the player's UUID (never null)
+     */
     public @NotNull UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * Gets the player's username.
+     *
+     * @return the player's username
+     */
     public @NotNull String getUsername() {
         return username;
     }
 
+    /**
+     * The name of the server the player is currently on.
+     *
+     * @return the current server name
+     */
     public @NotNull String getCurrentServer() {
         return currentServer;
     }
 
+    /**
+     * The ClusterService currently known to be the player's proxy.
+     *
+     * @return the ClusterService currently acting as this player's proxy
+     */
     public @NotNull CompletableFuture<ClusterService> getCurrentProxy() {
         return currentProxy;
     }
