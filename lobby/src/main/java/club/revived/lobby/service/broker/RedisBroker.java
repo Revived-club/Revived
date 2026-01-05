@@ -88,8 +88,6 @@ public final class RedisBroker implements MessageBroker {
                             final String channel,
                             final String message
                     ) {
-                        System.out.println(channel + " - " + message);
-
                         try {
                             final T obj = gson.fromJson(message, type);
                             handler.handle(obj);

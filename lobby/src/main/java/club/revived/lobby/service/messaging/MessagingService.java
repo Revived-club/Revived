@@ -135,6 +135,13 @@ public final class MessagingService {
      * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
+        System.out.println("Received request");
+
+        if (!envelope.targetId().equals(serviceId)) {
+            System.out.println("serverId != " + envelope.targetId());
+            return;
+        }
+
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
@@ -176,6 +183,8 @@ public final class MessagingService {
      * @param envelope the incoming MessageEnvelope whose payloadType determines which handler should process it
      */
     private void handleIncoming(final MessageEnvelope envelope) {
+        System.out.println("handle incoming");
+
         final Function<Request, Response> requestHandler = requestHandlers.get(envelope.payloadType());
         if (requestHandler != null) {
             handleRequest(envelope, requestHandler);
