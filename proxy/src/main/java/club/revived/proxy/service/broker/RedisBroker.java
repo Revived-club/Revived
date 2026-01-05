@@ -36,6 +36,14 @@ public final class RedisBroker implements MessageBroker {
             final String password
     ) {
         this.jedisPool = this.connect(host, port, password);
+
+        try (final var jedis = this.jedisPool.getResource()) {
+            System.out.println("Checking connection...");
+            System.out.println("Response " + jedis.ping());
+        } catch (final Exception e) {
+            // TODO: Log
+        }
+
     }
 
     /**
@@ -48,7 +56,7 @@ public final class RedisBroker implements MessageBroker {
             final String host,
             final int port
     ) {
-        this.jedisPool = this.connect(host, port, "");
+        this(host, port, "");
     }
 
     /**
@@ -71,7 +79,7 @@ public final class RedisBroker implements MessageBroker {
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
 
-        System.out.println( "Connecting to Redis...");
+        System.out.println("Connecting to Redis...");
         return new JedisPool(config, host, port, 0, password, false);
     }
 
@@ -113,6 +121,8 @@ public final class RedisBroker implements MessageBroker {
             final Class<T> type,
             final MessageHandler<T> handler
     ) {
+        System.out.println("Subscribing to redis with handler for " + type.getSimpleName());
+
         subServer.submit(() -> {
             try (final var jedis = jedisPool.getResource()) {
                 jedis.subscribe(new JedisPubSub() {
@@ -121,6 +131,7 @@ public final class RedisBroker implements MessageBroker {
                             final String channel,
                             final String message
                     ) {
+                        System.out.println("Message received");
                         try {
                             final T obj = gson.fromJson(message, type);
                             handler.handle(obj);

@@ -123,6 +123,8 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      */
     @Override
     public void handle(final Heartbeat message) {
+        System.out.println("Received heartbeat");
+
         final var service = new ClusterService(
                 message.id(),
                 message.serverIp(),
