@@ -47,12 +47,12 @@ public final class MessagingService {
     }
 
     /**
-     * Send a request message to another service and await a correlated response.
+     * Send a request to a target service and correlate an incoming response to this request.
      *
      * @param targetServiceId the identifier of the destination service
      * @param request the request payload to send
-     * @param responseType the expected response class used to cast the received payload
-     * @return a CompletableFuture that completes with a response of the requested type when a matching response arrives; completes exceptionally (for example, with TimeoutException) if no response is received within 5 seconds
+     * @param responseType the expected response class used to deserialize and cast the received payload
+     * @return the response payload of type `T` when a matching response is received; if no response arrives within 5 seconds the returned `CompletableFuture` completes exceptionally (for example, with `TimeoutException`)
      */
     @NotNull
     public <T extends Response> CompletableFuture<T> sendRequest(
@@ -84,10 +84,9 @@ public final class MessagingService {
     }
 
     /**
-     * Sends a fire-and-forget message to another service via the message broker.
+     * Send a fire-and-forget message to another service.
      *
-     * Publishes a MessageEnvelope containing the message (serialized to JSON) and its type
-     * to the recipient's topic ("service-messages-{targetServiceId}").
+     * The message is serialized and delivered via the MessagingService's broker to the specified destination.
      *
      * @param targetServiceId the identifier of the destination service
      * @param message the message payload to send
@@ -107,6 +106,17 @@ public final class MessagingService {
         broker.publish("service-messages-" + targetServiceId, envelope);
     }
 
+    /**
+     * Registers a handler to process incoming requests of the given type.
+     *
+     * When a request whose payload type matches `requestType` is received, the `handler`
+     * will be invoked with the deserialized request; if the handler returns a non-null
+     * `Response` that response will be sent back to the original requester. If the
+     * handler returns `null`, no reply is sent.
+     *
+     * @param requestType the class of requests this handler should process
+     * @param handler     a function that takes a deserialized request and produces a `Response`
+     */
     public <T extends Request> void registerHandler(
             final Class<T> requestType,
             final Function<T, Response> handler
@@ -130,9 +140,9 @@ public final class MessagingService {
     }
 
     /**
-     * Routes a received MessageEnvelope to the response handler or to incoming request/message handlers when it is addressed to this service.
+     * Route an incoming MessageEnvelope to a pending response handler or to registered request/message handlers when it is addressed to this service.
      *
-     * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
+     * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be dispatched either to the matching pending request (by correlationId) or to the appropriate request/message handler
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
