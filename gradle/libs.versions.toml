@@ -7,6 +7,7 @@ commandapi = "11.0.0"
 shadow = "9.2.2"
 anvilgui = "1.10.11-SNAPSHOT"
 worldguard = "7.0.10"
+velocity = "3.4.0-SNAPSHOT"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -15,6 +16,7 @@ commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "comman
 paper =  { module = "io.papermc.paper:paper-api", version.ref = "minecraft"}
 anvilgui = { module = "net.wesjd:anvilgui", version.ref = "anvilgui" }
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
+velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

@@ -1,8 +1,11 @@
-name: Build and Deploy
+name: Duels Deployment
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "duels/**"
+      - "commons/**"
   workflow_dispatch:
 
 env:

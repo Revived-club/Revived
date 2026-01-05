@@ -1,10 +1,10 @@
-name: Lobby Deployment
+name: Proxy Deployment
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "lobby/**"
+      - "proxy/**"
       - "commons/**"
   workflow_dispatch:
 
@@ -51,12 +51,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=lobby
+            type=raw,value=proxy
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./lobby
-          file: ./lobby/Dockerfile
+          context: ./proxy
+          file: ./proxy/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
