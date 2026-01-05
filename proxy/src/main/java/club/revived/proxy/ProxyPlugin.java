@@ -47,6 +47,14 @@ public final class ProxyPlugin {
         System.out.println("Loading Plugin...");
     }
 
+    /**
+     * Performs plugin startup tasks when the proxy initializes.
+     *
+     * <p>Initializes clustering components, creates the player manager, registers the player event
+     * listener with the server, and marks the cluster service as available.</p>
+     *
+     * @param event the proxy initialization event that triggers startup actions
+     */
     @Subscribe
     public void onProxyInitialization(final ProxyInitializeEvent event) {
         System.out.println("Initializing Plugin...");
