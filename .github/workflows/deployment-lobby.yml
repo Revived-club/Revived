@@ -7,6 +7,7 @@ on:
       - "lobby/**"
       - "commons/**"
       - "gradle/**"
+      - ".github/**"
   workflow_dispatch:
 
 env:

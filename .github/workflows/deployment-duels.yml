@@ -7,6 +7,7 @@ on:
       - "duels/**"
       - "commons/**"
       - "gradle/**"
+      - ".github/**"
   workflow_dispatch:
 
 env:
