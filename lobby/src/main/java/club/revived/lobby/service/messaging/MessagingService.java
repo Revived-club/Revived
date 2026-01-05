@@ -215,7 +215,7 @@ public final class MessagingService {
      */
     private void handleRequest(final MessageEnvelope envelope, final Function<Request, Response> handler) {
         try {
-            final Class<?> requestType = Class.forName(envelope.payloadType());
+            final Class<?> requestType = this.messageRegistry.get(envelope.payloadType());
 
             System.out.println(requestType.getSimpleName() + " - " + envelope.payloadType());
 
@@ -252,7 +252,7 @@ public final class MessagingService {
      */
     private void handleMessage(final MessageEnvelope envelope, final Consumer<Message> handler) {
         try {
-            final Class<?> messageType = Class.forName(envelope.payloadType());
+            final Class<?> messageType = this.messageRegistry.get(envelope.payloadType());
             final Message message = (Message) gson.fromJson(envelope.payloadJson(), messageType);
             handler.accept(message);
         } catch (final Exception e) {
