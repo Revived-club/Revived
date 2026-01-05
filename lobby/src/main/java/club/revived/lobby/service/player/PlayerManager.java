@@ -49,11 +49,6 @@ public final class PlayerManager {
     }
 
     public void registerPlayer(final NetworkPlayer networkPlayer) {
-        log.info("Registered player {} - {}",
-                networkPlayer.getUsername(),
-                networkPlayer.getUuid()
-        );
-
         this.networkPlayers.put(
                 networkPlayer.getUuid(),
                 networkPlayer
@@ -63,6 +58,8 @@ public final class PlayerManager {
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
+                    System.out.println("[HANDLER] Sending chat message to " + message.uuid());
+
                     final var uuid = message.uuid();
                     final var player = Bukkit.getPlayer(uuid);
 

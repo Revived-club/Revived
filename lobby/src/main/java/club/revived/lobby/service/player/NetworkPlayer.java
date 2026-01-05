@@ -102,12 +102,10 @@ public final class NetworkPlayer {
      * @param message the text to send to the player
      * @throws UnregisteredPlayerException if the player's proxy service cannot be located
      */
-    public void sendMessage(
-            final String message
-    ) {
-        final var whereIs = this.whereIs();
+    public void sendMessage(final String message) {
+        this.whereIs().thenAccept(service -> {
+            System.out.println("Sending chat message to " + this.username);
 
-        whereIs.thenAccept(service -> {
             if (service == null) {
                 throw new UnregisteredPlayerException("service player is on is not registered");
             }
