@@ -90,10 +90,10 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes the plugin Cluster using environment variables.
+     * Configures and instantiates the plugin Cluster from environment variables.
      *
-     * Reads HOSTNAME, REDIS_HOST, and REDIS_PORT from the process environment and constructs
-     * a Cluster configured with a RedisBroker and RedisCacheService using those values.
+     * Reads the following environment variables and uses them to create a Cluster:
+     * HOSTNAME, REDIS_HOST, REDIS_PORT (REDIS_PORT is parsed as a base-10 integer).
      */
     private void setupCluster() {
         final String hostName = System.getenv("HOSTNAME");
