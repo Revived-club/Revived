@@ -76,6 +76,7 @@ public final class Cluster {
 
         this.startServices();
         this.registerRequestHandlers();
+        this.registerMessageTypes();
     }
 
     private void startServices() {
