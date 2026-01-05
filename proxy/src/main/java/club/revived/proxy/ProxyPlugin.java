@@ -3,6 +3,7 @@ package club.revived.proxy;
 import club.revived.proxy.service.broker.RedisBroker;
 import club.revived.proxy.service.cache.RedisCacheService;
 import club.revived.proxy.service.cluster.Cluster;
+import club.revived.proxy.service.status.ServiceStatus;
 import com.google.inject.Inject;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -40,6 +41,8 @@ public final class ProxyPlugin {
         this.logger = logger;
 
         this.setupCluster();
+
+        Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
 
     /**
