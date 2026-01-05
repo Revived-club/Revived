@@ -137,11 +137,11 @@ public final class DuelRequestMenu {
     }
 
     /**
-     * Builds the "Edit Duel" inventory UI allowing the player to review the selected kit and rounds, pick rounds, cancel, or send the duel request.
+     * Create the "Edit Duel" inventory allowing review and modification of the pending duel before sending.
      *
-     * The returned menu contains controls to send the configured duel to the target, cancel the request, open the rounds picker, and display current request information.
+     * The menu includes buttons to send or cancel the request, open the rounds picker, and display the selected kit and rounds.
      *
-     * @return an InventoryBuilder configured as the "Edit Duel" menu
+     * @return the InventoryBuilder for the "Edit Duel" menu
      * @throws UnregisteredPlayerException if the target player is not present in the network player map when attempting to send the request
      */
     @NotNull
@@ -154,7 +154,7 @@ public final class DuelRequestMenu {
                             .getNetworkPlayers();
 
                     if (!networkPlayers.containsKey(this.target)) {
-                        player.sendRichMessage(String.format("%s: Player is offline or not registered", UnregisteredPlayerException.class.getName().toUpperCase()));
+                        player.sendRichMessage(String.format("<red>%s: Player is offline or not registered", UnregisteredPlayerException.class.getSimpleName().toUpperCase()));
                         throw new UnregisteredPlayerException("player does not exist");
                     }
 

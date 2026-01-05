@@ -99,8 +99,16 @@ public final class Cluster {
         this.messagingService.register(StatusResponse.class);
     }
 
+    /**
+     * Registers request handlers on the messaging service used by this cluster.
+     *
+     * <p>Specifically registers a handler for {@code WhereIsRequest} that looks up a player by the
+     * provided UUID and, if found, returns a {@code WhereIsResponse} identifying this service; if the
+     * player is not found the handler returns {@code null}.</p>
+     */
     private void registerRequestHandlers() {
         this.messagingService.registerHandler(WhereIsRequest.class, whereIsRequest -> {
+            System.out.println("handling whereis");
             final var player = Bukkit.getPlayer(whereIsRequest.uuid());
 
             if (player == null) {
@@ -129,9 +137,15 @@ public final class Cluster {
         return services.getFirst();
     }
 
+    /**
+     * Locate the cluster service that hosts the proxy for the given player UUID.
+     *
+     * @param uuid the player's UUID to locate the proxy for
+     * @return the ClusterService that hosts the proxy for the given UUID, or `null` if no matching service is known
+     */
     @NotNull
     public CompletableFuture<ClusterService> whereIsProxy(final UUID uuid) {
-        return this.messagingService.sendRequest("global", new WhereIsProxyRequest(uuid), WhereIsProxyResponse.class)
+        return this.messagingService.sendGlobalRequest(new WhereIsProxyRequest(uuid), WhereIsProxyResponse.class)
                 .thenApply(whereIsResponse -> {
                     final var id = whereIsResponse.proxy();
 
@@ -139,10 +153,17 @@ public final class Cluster {
                 });
     }
 
+    /**
+     * Finds the cluster service currently hosting the player with the given UUID.
+     *
+     * @param uuid the unique identifier of the player to locate
+     * @return a CompletableFuture that completes with the ClusterService hosting the player, or `null` if no matching service is known
+     */
     @NotNull
     public CompletableFuture<ClusterService> whereIs(final UUID uuid) {
-        return this.messagingService.sendRequest("global", new WhereIsRequest(uuid), WhereIsResponse.class)
+        return this.messagingService.sendGlobalRequest(new WhereIsRequest(uuid), WhereIsResponse.class)
                 .thenApply(whereIsResponse -> {
+                    System.out.println("WhereIsResponse: " + whereIsResponse.server());
                     final var id = whereIsResponse.server();
 
                     return this.services.get(id);

@@ -65,7 +65,9 @@ public final class DuelManager {
     }
 
     /**
-     * Creates and stores a duel request for the given receiver and notifies them with a clickable, hoverable message.
+     * Stores a duel request for the receiver and notifies them with a clickable, hoverable acceptance message.
+     *
+     * The request is saved in the global cache under the key "duelRequest:&lt;receiver UUID&gt;" with a 120-second expiry.
      *
      * @param sender   the player who initiated the duel request
      * @param receiver the player who will receive the duel request
@@ -78,6 +80,12 @@ public final class DuelManager {
             final int rounds,
             final KitType kitType
     ) {
+        receiver.sendMessage("<#3B82F6><player> <white>sent you a duel request! Accept the request by <click:run_command:'/duel accept'><hover:show_text:'<#3B82F6>Click to Accept'><#3B82F6>[Clicking Here]</hover></click>. You can view the duel settings by <hover:show_text:'<#3B82F6>Rounds: <rounds>\n<#3B82F6>Kit: <kit>'><#3B82F6>[Hovering Here]</hover>."
+                .replace("<player>", sender.getUsername())
+                .replace("<rounds>", String.valueOf(rounds))
+                .replace("<kit>", kitType.getBeautifiedName())
+        );
+
         final var key = "duelRequest:" + receiver.getUuid();
 
         Cluster.getInstance().getGlobalCache().setEx(key, new DuelRequest(
@@ -86,12 +94,6 @@ public final class DuelManager {
                 rounds,
                 kitType
         ), 120L);
-
-        receiver.sendMessage("<#3B82F6><player> <white>sent you a duel request! Accept the request by <click:run_command:'/duel accept'><hover:show_text:'<#3B82F6>Click to Accept'><#3B82F6>[Clicking Here]</hover></click>. You can view the duel settings by <hover:show_text:'<#3B82F6>Rounds: <rounds>\n<#3B82F6>Kit: <kit>'><#3B82F6>[Hovering Here]</hover>."
-                .replace("<player>", sender.getUsername())
-                .replace("<rounds>", String.valueOf(rounds))
-                .replace("<kit>", kitType.getBeautifiedName())
-        );
     }
 
     /**
