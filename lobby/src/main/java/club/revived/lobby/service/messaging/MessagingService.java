@@ -195,6 +195,9 @@ public final class MessagingService {
         System.out.println(String.join(" | ", requestHandlers.keySet()));
         if (requestHandler != null) {
             System.out.println("handler found");
+            System.out.println("Is registered " + this.messageRegistry.containsKey(envelope.payloadType()));
+            System.out.println(String.join(" | ", messageRegistry.keySet()));
+
             handleRequest(envelope, requestHandler);
             return;
         }
