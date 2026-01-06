@@ -157,11 +157,20 @@ public final class MessagingService {
 
         if (pendingRequests.containsKey(envelope.correlationId())) {
             handleResponse(envelope);
-        } else if (pendingGlobalRequests.containsKey(envelope.correlationId())) {
-            handleGlobalResponse(envelope);
-        } else {
-            handleIncoming(envelope);
+            return;
         }
+
+        if (envelope.targetId().equals("global")) {
+            handleIncoming(envelope);
+            return;
+        }
+
+        if (pendingGlobalRequests.containsKey(envelope.correlationId())) {
+            handleGlobalResponse(envelope);
+            return;
+        }
+
+        handleIncoming(envelope);
     }
 
     private void handleResponse(final MessageEnvelope envelope) {
