@@ -1,16 +1,15 @@
 package club.revived.duels;
 
 import club.revived.commons.inventories.impl.InventoryManager;
+import club.revived.duels.database.DatabaseManager;
+import club.revived.duels.game.chat.listener.PlayerChatListener;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.player.PlayerManager;
 import club.revived.duels.service.status.ServiceStatus;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 /**
  * Duels
@@ -35,8 +34,10 @@ public final class Duels extends JavaPlugin {
         InventoryManager.register(this);
 
         this.setupCluster();
+        this.connectDatabase();
 
         new PlayerManager();
+        new PlayerChatListener();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
@@ -75,6 +76,21 @@ public final class Duels extends JavaPlugin {
                 new RedisCacheService(host, port, ""),
                 ServiceType.LOBBY,
                 hostName
+        );
+    }
+
+    private void connectDatabase() {
+        final String host = System.getenv("MONGODB_HOST");
+        final String password = System.getenv("MONGODB_PASSWORD");
+        final String username = System.getenv("MONGODB_USERNAME");
+        final String database = System.getenv("MONGODB_DATABASE");
+
+        DatabaseManager.getInstance().connect(
+                host,
+                27017,
+                username,
+                password,
+                database
         );
     }
 

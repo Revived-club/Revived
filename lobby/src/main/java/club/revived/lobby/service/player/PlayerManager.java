@@ -2,6 +2,7 @@ package club.revived.lobby.service.player;
 
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.exception.UnregisteredPlayerException;
+import club.revived.lobby.service.messaging.impl.BroadcastMessage;
 import club.revived.lobby.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,6 +68,13 @@ public final class PlayerManager {
                     }
 
                     player.sendRichMessage(message.message());
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(BroadcastMessage.class, message -> {
+                    for (final var player : Bukkit.getOnlinePlayers()) {
+                        player.sendRichMessage(message.message());
+                    }
                 });
     }
 

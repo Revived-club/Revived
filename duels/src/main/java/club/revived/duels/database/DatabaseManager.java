@@ -1,6 +1,5 @@
 package club.revived.duels.database;
 
-import club.revived.duels.Duels;
 import club.revived.duels.database.provider.ArenaSchematicProvider;
 import club.revived.duels.database.provider.DuelArenaSchematicProvider;
 import club.revived.duels.database.provider.DuelKitProvider;
@@ -14,9 +13,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +44,6 @@ public final class DatabaseManager {
      */
     public DatabaseManager() {
         manager = this;
-        connect();
     }
 
     /**
@@ -63,17 +59,28 @@ public final class DatabaseManager {
      *         the manager's connection state will be set to false and resources
      *         will be destroyed before the exception is thrown
      */
-    public void connect() {
+    public void connect(
+            final String host,
+            final int port,
+            final String username,
+            final String password,
+            final String database
+    ) {
         try {
-            final var configFile = new File(Duels.getInstance().getDataFolder(), "mongo.yml");
-            final var config = YamlConfiguration.loadConfiguration(configFile);
+            final String connectionString;
+
+            if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
+                connectionString = String.format("mongodb://%s:%s@%s:%d", username, password, host, port);
+            } else {
+                connectionString = String.format("mongodb://%s:%d", host, port);
+            }
 
             final MongoClientSettings settings = MongoClientSettings.builder()
-                    .applyConnectionString(new ConnectionString(config.getString("connectionString", "mongodb://localhost:27017")))
+                    .applyConnectionString(new ConnectionString(connectionString))
                     .build();
 
             this.mongoClient = MongoClients.create(settings);
-            this.database = mongoClient.getDatabase("revived");
+            this.database = mongoClient.getDatabase(database);
             this.isConnected = true;
         } catch (final Exception e) {
             this.isConnected = false;

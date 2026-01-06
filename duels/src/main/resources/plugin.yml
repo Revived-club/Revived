@@ -2,3 +2,4 @@ name: revived-duels
 main: club.revived.duels.Duels
 version: 1.0.0
 author: yyuh
+api-version: 1.21
