@@ -4,12 +4,15 @@ import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.cluster.ClusterService;
 import club.revived.proxy.service.cluster.ServiceType;
+import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.tab.TABManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.proxy.server.ServerPing;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
@@ -68,5 +71,15 @@ public final class PlayerListener {
         final Player player = event.getPlayer();
 
         TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
+    }
+
+    @Subscribe
+    public void onPing(final ProxyPingEvent event) {
+        final var networkPlayers = PlayerManager.getInstance().getNetworkPlayers().size();
+        final ServerPing.Builder pingBuilder = event.getPing().asBuilder();
+
+        pingBuilder.onlinePlayers(networkPlayers);
+        pingBuilder.maximumPlayers(networkPlayers + 1);
+        event.setPing(pingBuilder.build());
     }
 }

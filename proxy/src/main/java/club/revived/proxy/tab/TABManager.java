@@ -117,6 +117,7 @@ public final class TABManager {
     public void startUpdateTask() {
         this.proxyServer.getScheduler().buildTask(ProxyPlugin.getInstance(), () -> {
                     final var players = this.proxyServer.getAllPlayers();
+                    final var networkPlayers = PlayerManager.getInstance().getNetworkPlayers().size();
 
                     for (final Player player : players) {
                         final Optional<ServerConnection> serverOpt = player.getCurrentServer();
@@ -137,8 +138,8 @@ public final class TABManager {
                                         <white>                                                        <white>
                                         <#6aa2fc><strikethrough>                                            </strikethrough></#6aa2fc>"""
                                         .replace("<server>", serverId)
-                                        .replace("<online>", String.valueOf(players.size()))
-                                        .replace("<max-online>", String.valueOf(players.size() + 1))
+                                        .replace("<online>", String.valueOf(networkPlayers))
+                                        .replace("<max-online>", String.valueOf(networkPlayers + 1))
                                         .replace("<ping>", String.valueOf(player.getPing()))
                                 ));
                     }
