@@ -67,7 +67,7 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Cache an object for this player in the cluster-wide global cache.
+     * Store an object in the cluster-wide global cache for this player.
      *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
@@ -80,20 +80,20 @@ public final class NetworkPlayer {
     ) {
         Cluster.getInstance()
                 .getGlobalCache()
-                .set(this.uuid + ":" + clazz.getName().toLowerCase(), obj);
+                .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
     }
 
     /**
-     * Retrieve a cached value for this player identified by the given class.
+     * Retrieve the cached object for this player associated with the given class.
      *
-     * @param clazz the class used as part of the cache key and to type the returned value
-     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
+     * @param clazz the class whose simple name is used as part of the cache key and which types the returned value
+     * @return the cached value for this player and class, or `null` if no value is present
      */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
         return Cluster.getInstance()
                 .getGlobalCache()
-                .get(clazz, this.uuid + ":" + clazz.getName().toLowerCase());
+                .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
     }
 
     /**

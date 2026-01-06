@@ -9,7 +9,6 @@ import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.service.status.ServiceStatus;
 import club.revived.proxy.service.status.StatusRequest;
 import club.revived.proxy.service.status.StatusResponse;
-import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import java.net.InetSocketAddress;
@@ -29,7 +28,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     private static final long INTERVAL = 1_000;
 
-    private final ProxyServer proxyServer = ProxyPlugin.getInstance().getServer();
     private final Map<String, Long> lastSeen = new ConcurrentHashMap<>();
     private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
@@ -49,12 +47,11 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Schedules a recurring task that queries each known cluster service for its status
-     * and ensures available services are registered with the proxy server.
-     * <p>
-     * The task runs at the configured INTERVAL and, for each service, requests its status;
-     * if the service reports AVAILABLE, its network address is used to register or update
-     * the corresponding ServerInfo in the proxy.
+     * Starts a recurring heartbeat task that queries known cluster services for status and registers available services with the proxy.
+     *
+     * <p>The scheduled task runs at the configured INTERVAL. For each discovered service it requests a StatusResponse; when
+     * a service reports `AVAILABLE` the task derives a `ServerInfo` from the service IP and ensures the proxy's server registry
+     * contains that `ServerInfo`, registering or updating it as needed.
      */
     public void startTask() {
         System.out.println("Starting heartbeat task...");
@@ -79,7 +76,26 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                                 return;
                             }
 
-                            this.registerServer(service);
+                            final var str = service.getIp().split(":");
+                            final var host = str[0];
+                            final var port = Integer.parseInt(str[1]);
+
+                            final var info = new ServerInfo(service.getId(), new InetSocketAddress(host, port));
+
+                            ProxyPlugin.getInstance()
+                                    .getServer()
+                                    .getServer(service.getId())
+                                    .ifPresentOrElse(server -> {
+                                        System.out.println("Registering service " + info.getName());
+                                        final var serverInfo = server.getServerInfo();
+
+                                        if (!serverInfo.equals(info)) {
+                                            this.registerServer(info);
+                                        }
+                                    }, () -> {
+                                        System.out.println("Registering service " + info.getName());
+                                        this.registerServer(info);
+                                    });
                         });
             });
 
@@ -89,26 +105,14 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Registers the given server with the proxy's server registry.
-     *
-     * @param serverInfo the server information to register (id and address)
-     */
-    private void registerServer(final ClusterService service) {
-        final var str = service.getIp().split(":");
-        final var host = str[0];
-        final var port = Integer.parseInt(str[1]);
-
-        final var info = new ServerInfo(service.getId(), new InetSocketAddress(host, port));
-
-        this.proxyServer.getServer(service.getId())
-                .ifPresentOrElse(server -> {
-                    final var serverInfo = server.getServerInfo();
-
-                    this.proxyServer.unregisterServer(serverInfo);
-                    this.proxyServer.registerServer(info);
-                }, () -> {
-                    this.proxyServer.registerServer(info);
-                });
+         * Register the specified server in the proxy's server registry.
+         *
+         * @param serverInfo the ServerInfo containing the server id and network address
+         */
+    private void registerServer(final ServerInfo serverInfo) {
+        ProxyPlugin.getInstance()
+                .getServer()
+                .registerServer(serverInfo);
     }
 
     /**
