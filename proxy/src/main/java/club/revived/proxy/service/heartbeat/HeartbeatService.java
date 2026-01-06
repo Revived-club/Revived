@@ -47,12 +47,11 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Schedules a recurring task that queries each known cluster service for its status
-     * and ensures available services are registered with the proxy server.
-     * <p>
-     * The task runs at the configured INTERVAL and, for each service, requests its status;
-     * if the service reports AVAILABLE, its network address is used to register or update
-     * the corresponding ServerInfo in the proxy.
+     * Starts a recurring heartbeat task that queries known cluster services for status and registers available services with the proxy.
+     *
+     * <p>The scheduled task runs at the configured INTERVAL. For each discovered service it requests a StatusResponse; when
+     * a service reports `AVAILABLE` the task derives a `ServerInfo` from the service IP and ensures the proxy's server registry
+     * contains that `ServerInfo`, registering or updating it as needed.
      */
     public void startTask() {
         System.out.println("Starting heartbeat task...");
@@ -106,10 +105,10 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Registers the given server with the proxy's server registry.
-     *
-     * @param serverInfo the server information to register (id and address)
-     */
+         * Register the specified server in the proxy's server registry.
+         *
+         * @param serverInfo the ServerInfo containing the server id and network address
+         */
     private void registerServer(final ServerInfo serverInfo) {
         ProxyPlugin.getInstance()
                 .getServer()
