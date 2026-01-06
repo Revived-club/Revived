@@ -108,7 +108,6 @@ public final class Cluster {
      */
     private void registerRequestHandlers() {
         this.messagingService.registerHandler(WhereIsRequest.class, whereIsRequest -> {
-            System.out.println("handling whereis");
             final var player = Bukkit.getPlayer(whereIsRequest.uuid());
 
             if (player == null) {
@@ -163,7 +162,6 @@ public final class Cluster {
     public CompletableFuture<ClusterService> whereIs(final UUID uuid) {
         return this.messagingService.sendGlobalRequest(new WhereIsRequest(uuid), WhereIsResponse.class)
                 .thenApply(whereIsResponse -> {
-                    System.out.println("WhereIsResponse: " + whereIsResponse.server());
                     final var id = whereIsResponse.server();
 
                     return this.services.get(id);

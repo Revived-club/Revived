@@ -111,6 +111,7 @@ public final class MessagingService {
             final Message message
     ) {
         register(message.getClass());
+
         final MessageEnvelope envelope = new MessageEnvelope(
                 UUID.randomUUID(),
                 serviceId,
