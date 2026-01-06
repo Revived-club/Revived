@@ -4,8 +4,6 @@ import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
 import club.revived.lobby.service.player.NetworkPlayer;
 import dev.jorel.commandapi.CommandTree;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * WhereIsCommand
  *
@@ -22,8 +20,6 @@ public final class WhereIsCommand {
 
                             target.whereIs().thenAccept(clusterService -> {
                                 player.sendRichMessage(String.format("<white>%s is on %s", target.getUsername(), clusterService.getId()));
-                            }).orTimeout(3, TimeUnit.SECONDS).thenAccept(v -> {
-                                player.sendRichMessage(String.format("<red>Timed out while trying to find %s", target.getUsername()));
                             });
                         })
                 ).register("revived");
