@@ -67,22 +67,22 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Retrieve the cluster service type handling this player.
-     *
-     * @return the cluster service type corresponding to the player's proxy
-     */
+         * Determine which kind of cluster service currently handles the player.
+         *
+         * @return the ServiceType of the cluster service that handles the player
+         */
     @NotNull
     public CompletableFuture<ServiceType> getService() {
         return this.whereIs().thenApply(ClusterService::getType);
     }
 
     /**
-     * Cache an object for this player with an expiration in the cluster-wide global cache.
+     * Cache the given object for this player in the cluster-wide global cache with an expiration.
      *
-     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     * The entry is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
      * @param clazz   class whose simple name (lowercased) is used as the cache key suffix
-     * @param obj     the object to store in the global cache for this player
+     * @param obj     the object to store for this player
      * @param seconds expiration time in seconds for the cached entry
      */
     public <T> void cacheExValue(

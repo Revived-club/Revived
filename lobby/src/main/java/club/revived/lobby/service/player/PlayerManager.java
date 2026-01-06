@@ -55,6 +55,16 @@ public final class PlayerManager {
         );
     }
 
+    /**
+     * Installs messaging handlers to deliver chat messages to players.
+     *
+     * <p>Registers a handler for SendMessage that resolves the target player by UUID and delivers
+     * the provided rich message to that player; if no player is found for the UUID, an
+     * UnregisteredPlayerException is thrown. Also registers a handler for BroadcastMessage that
+     * delivers the provided rich message to every currently online player.
+     *
+     * @throws UnregisteredPlayerException if a SendMessage targets a UUID with no corresponding online player
+     */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
@@ -78,6 +88,13 @@ public final class PlayerManager {
                 });
     }
 
+    /**
+     * Locate the NetworkPlayer associated with the given Bukkit Player.
+     *
+     * @param player the Bukkit Player whose associated NetworkPlayer to retrieve
+     * @return the NetworkPlayer for the player's UUID
+     * @throws UnregisteredPlayerException if no NetworkPlayer is registered for the player's UUID
+     */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final Player player) {
         return this.fromBukkitPlayer(player.getUniqueId());

@@ -17,10 +17,22 @@ import org.bukkit.event.Listener;
  */
 public final class PlayerChatListener implements Listener {
 
+    /**
+     * Creates a PlayerChatListener and registers it with the server plugin manager.
+     *
+     * Registers this listener instance so it receives Bukkit events using the Duels plugin instance.
+     */
     public PlayerChatListener() {
         Bukkit.getServer().getPluginManager().registerEvents(this, Duels.getInstance());
     }
 
+    /**
+     * Handles player async chat events by cancelling the default chat and broadcasting a formatted global message containing the player's name and serialized chat content.
+     *
+     * If the event is already cancelled, no action is taken.
+     *
+     * @param event the AsyncChatEvent to process
+     */
     @EventHandler
     public void onChat(final AsyncChatEvent event) {
         if (event.isCancelled()) {
