@@ -109,14 +109,14 @@ public final class MessagingService {
 
         this.pendingGlobalRequests.put(correlationId, responses);
 
-        CompletableFuture.delayedExecutor(3, TimeUnit.SECONDS).execute(() -> {
-            final List<Response> collected = this.pendingGlobalRequests.remove(correlationId);
-            if (collected != null) {
-                @SuppressWarnings("unchecked")
-                List<T> typedResponses = (List<T>) collected;
-                future.complete(typedResponses);
-            }
-        });
+//        CompletableFuture.delayedExecutor(3, TimeUnit.SECONDS).execute(() -> {
+//            final List<Response> collected = this.pendingGlobalRequests.remove(correlationId);
+//            if (collected != null) {
+//                @SuppressWarnings("unchecked")
+//                List<T> typedResponses = (List<T>) collected;
+//                future.complete(typedResponses);
+//            }
+//        });
 
         final MessageEnvelope envelope = new MessageEnvelope(
                 correlationId,
