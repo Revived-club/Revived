@@ -112,7 +112,10 @@ public final class Cluster {
         this.messagingService.registerHandler(WhereIsRequest.class, whereIsRequest -> {
             final var player = Bukkit.getPlayer(whereIsRequest.uuid());
 
+            System.out.println("Responding to WhereIsRequest " + whereIsRequest.uuid());
+
             if (player == null) {
+                System.out.println("player is not online");
                 return null;
             }
 
