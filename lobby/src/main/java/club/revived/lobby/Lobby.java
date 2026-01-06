@@ -3,6 +3,7 @@ package club.revived.lobby;
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.command.DuelCommand;
+import club.revived.lobby.game.command.PingCommand;
 import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.service.broker.RedisBroker;
@@ -72,6 +73,7 @@ public final class Lobby extends JavaPlugin {
     private void setupCommands() {
         new DuelCommand();
         new WhereIsCommand();
+        new PingCommand();
     }
 
 

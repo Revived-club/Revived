@@ -97,6 +97,8 @@ public final class Cluster {
         this.messagingService.register(WhereIsResponse.class);
         this.messagingService.register(StatusRequest.class);
         this.messagingService.register(StatusResponse.class);
+        this.messagingService.register(PingRequest.class);
+        this.messagingService.register(PingResponse.class);
     }
 
     /**
