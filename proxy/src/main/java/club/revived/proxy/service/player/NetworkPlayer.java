@@ -37,12 +37,12 @@ public final class NetworkPlayer {
 
     /**
      * Create a NetworkPlayer and initialize its proxy lookup.
-     *
+     * <p>
      * Initializes the player's identity, current server, and starts an asynchronous lookup
      * for the proxy service responsible for this player's UUID.
      *
-     * @param uuid the player's unique identifier
-     * @param username the player's username
+     * @param uuid          the player's unique identifier
+     * @param username      the player's username
      * @param currentServer the name of the server the player is currently on
      */
     public NetworkPlayer(
@@ -78,7 +78,7 @@ public final class NetworkPlayer {
 
     /**
      * Cache an object for this player in the cluster-wide global cache.
-     *
+     * <p>
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
      * @param clazz the class whose simple name (lowercased) is used as part of the cache key
@@ -91,6 +91,28 @@ public final class NetworkPlayer {
         Cluster.getInstance()
                 .getGlobalCache()
                 .set(this.uuid + ":" + clazz.getSimpleName().toLowerCase(), obj);
+    }
+
+    /**
+     * Cache an object for this player in the cluster-wide global cache.
+     * <p>
+     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     *
+     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
+     * @param obj   the object to store in the global cache for this player
+     */
+    public <T> void cacheExValue(
+            final Class<T> clazz,
+            final T obj,
+            final long seconds
+    ) {
+        Cluster.getInstance()
+                .getGlobalCache()
+                .setEx(
+                        this.uuid + ":" + clazz.getSimpleName().toLowerCase(),
+                        obj,
+                        seconds
+                );
     }
 
     /**
@@ -128,7 +150,7 @@ public final class NetworkPlayer {
 
     /**
      * Requests connection of this player to the specified cluster service.
-     *
+     * <p>
      * Sends a status check to the target service and, if the service reports `ServiceStatus.AVAILABLE`,
      * instructs the player's current proxy to initiate the connection by sending a `Connect` message
      * containing this player's UUID and the target service ID.
@@ -155,7 +177,7 @@ public final class NetworkPlayer {
 
     /**
      * Requests a transfer of this player to the service identified by the given id.
-     *
+     * <p>
      * Sends a status check to the target service and, if its status is AVAILABLE, instructs the player's current proxy to connect the player to that service.
      *
      * @param id the identifier of the target service

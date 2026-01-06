@@ -68,6 +68,28 @@ public final class NetworkPlayer {
 
     /**
      * Cache an object for this player in the cluster-wide global cache.
+     * <p>
+     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     *
+     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
+     * @param obj   the object to store in the global cache for this player
+     */
+    public <T> void cacheExValue(
+            final Class<T> clazz,
+            final T obj,
+            final long seconds
+    ) {
+        Cluster.getInstance()
+                .getGlobalCache()
+                .setEx(
+                        this.uuid + ":" + clazz.getSimpleName().toLowerCase(),
+                        obj,
+                        seconds
+                );
+    }
+
+    /**
+     * Cache an object for this player in the cluster-wide global cache.
      *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
