@@ -58,6 +58,28 @@ public final class PlayerManager {
         this.registerPlayer(player);
     }
 
+    public void registerPlayer(
+            final @NotNull UUID uuid,
+            final @NotNull String username,
+            final @NotNull String currentServer,
+            final String skin,
+            final String signature,
+            final int ping
+    ) {
+        final var player = new NetworkPlayer(
+                uuid,
+                username,
+                currentServer
+        );
+
+        player.setSkin(skin);
+        player.setSkinSignature(signature);
+        player.setPing(ping);
+
+        this.registerPlayer(player);
+    }
+
+
     /**
      * Registers the given NetworkPlayer in the manager so it can be looked up by UUID.
      *

@@ -6,11 +6,11 @@ import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
 import club.revived.lobby.service.cluster.OnlinePlayer;
 import club.revived.lobby.service.player.PlayerManager;
+import club.revived.lobby.util.SkinUtils;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -60,7 +60,10 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                                 .map(player -> new OnlinePlayer(
                                         player.getUniqueId(),
                                         player.getName(),
-                                        this.cluster.getServiceId()
+                                        this.cluster.getServiceId(),
+                                        player.getPing(),
+                                        SkinUtils.getSkin(player),
+                                        SkinUtils.getSignature(player)
                                 ))
                                 .toList(),
                         cluster.getIp()

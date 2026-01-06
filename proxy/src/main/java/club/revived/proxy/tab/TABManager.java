@@ -13,10 +13,7 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.util.GameProfile;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class TABManager {
@@ -70,11 +67,11 @@ public final class TABManager {
                                     tabEntries.computeIfAbsent(networkPlayer.getUuid(), u -> TabListEntry.builder()
                                             .tabList(tabList)
                                             .displayName(ColorUtils.parse(networkPlayer.getUsername()))
-                                            .latency(-1)
+                                            .latency(20)
                                             .profile(new GameProfile(
                                                     networkPlayer.getUuid(),
                                                     networkPlayer.getUsername(),
-                                                    new ArrayList<>()
+                                                    List.of(new GameProfile.Property("textures", networkPlayer.getSkin(), networkPlayer.getSkinSignature()))
                                             ))
                                             .build());
 
