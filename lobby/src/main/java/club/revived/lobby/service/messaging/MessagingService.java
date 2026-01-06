@@ -158,6 +158,7 @@ public final class MessagingService {
         if (pendingRequests.containsKey(envelope.correlationId())) {
             handleResponse(envelope);
         }
+
         else if (pendingGlobalRequests.containsKey(envelope.correlationId())) {
             handleGlobalResponse(envelope);
         }
@@ -177,9 +178,14 @@ public final class MessagingService {
                     future.completeExceptionally(new ClassNotFoundException("No class registered for payload type: " + envelope.payloadType()));
                     return;
                 }
+                final var t = gson.fromJson(envelope.payloadJson(), responseType);
 
-                final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
-                future.complete(response);
+                // TODO: Fix if I can't complete with null
+                if (t instanceof final Response response) {
+                    future.complete(response);
+                }
+
+                future.complete(null);
             } catch (final Exception e) {
                 future.completeExceptionally(e);
             }
@@ -197,8 +203,11 @@ public final class MessagingService {
                     return;
                 }
 
-                final Response response = (Response) gson.fromJson(envelope.payloadJson(), responseType);
-                responses.add(response);
+                final var t = gson.fromJson(envelope.payloadJson(), responseType);
+
+                if (t instanceof final Response response) {
+                    responses.add(response);
+                }
             } catch (final Exception e) {
                 System.err.println("Error handling global response: " + e.getMessage());
                 e.printStackTrace();
