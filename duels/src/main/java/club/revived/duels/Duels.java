@@ -23,9 +23,10 @@ public final class Duels extends JavaPlugin {
 
 
     /**
-     * Initializes the plugin: sets the singleton instance, reads the HOSTNAME environment variable into {@code hostName}, and configures the cluster.
+     * Perform startup initialization for the plugin.
      *
-     * @throws RuntimeException if retrieving the HOSTNAME environment variable fails
+     * Sets the singleton instance, registers the inventory manager, configures cluster and database connections,
+     * initializes player management and chat listener, and marks the cluster as available.
      */
     @Override
     public void onEnable() {
@@ -61,10 +62,10 @@ public final class Duels extends JavaPlugin {
     }
 
     /**
-     * Initializes the Cluster from redis.yml in the plugin data folder.
+     * Initializes the application's Cluster integration using Redis and environment configuration.
      *
-     * Reads "host", "port", and "password" from that file and constructs a Cluster configured with
-     * RedisBroker and RedisCacheService using those values and this plugin's hostName.
+     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and constructs a
+     * Cluster configured with a Redis broker and Redis cache service for ServiceType.LOBBY.
      */
     private void setupCluster() {
         final String hostName = System.getenv("HOSTNAME");
@@ -79,6 +80,11 @@ public final class Duels extends JavaPlugin {
         );
     }
 
+    /**
+     * Establishes a connection to the configured MongoDB instance using environment variables.
+     *
+     * Reads MONGODB_HOST, MONGODB_USERNAME, MONGODB_PASSWORD, and MONGODB_DATABASE to configure the connection and connects on port 27017.
+     */
     private void connectDatabase() {
         final String host = System.getenv("MONGODB_HOST");
         final String password = System.getenv("MONGODB_PASSWORD");

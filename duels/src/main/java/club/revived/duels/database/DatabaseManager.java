@@ -35,29 +35,31 @@ public final class DatabaseManager {
     private final Map<Class<?>, DatabaseProvider<?>> providers = new HashMap<>();
 
     /**
-     * Creates the DatabaseManager singleton and initiates a connection to the configured MongoDB.
+     * Initializes a DatabaseManager instance and publishes it as the class-wide singleton.
      *
-     * The newly constructed instance is published as the class-wide singleton and immediately
-     * attempts to establish the database connection and register providers.
-     *
-     * @throws IllegalStateException if establishing the MongoDB connection fails
+     * This constructor assigns this instance to the static manager reference and performs no other initialization.
+     * Call connect(...) to establish a MongoDB connection and register providers.
      */
     public DatabaseManager() {
         manager = this;
     }
 
     /**
-     * Establishes a MongoDB connection and initializes database providers.
+     * Establishes a MongoDB connection using the provided host, port, optional credentials,
+     * and database name, then initializes and starts registered database providers.
      *
-     * Reads connection settings from "mongo.yml" in the plugin data folder (key
-     * `connectionString`, defaulting to "mongodb://localhost:27017"), creates a
-     * MongoClient with those settings, selects the "revived" database, and marks
-     * the manager as connected. After a successful connection, calls {@code register()}
-     * to initialize and start per-class providers.
+     * If both `username` and `password` are provided and non-empty, credentials are included
+     * in the connection string; otherwise a credential-less connection is used. On success
+     * the manager's `isConnected` flag is set to true and `register()` is invoked.
      *
-     * @throws IllegalStateException if establishing the MongoDB connection fails;
-     *         the manager's connection state will be set to false and resources
-     *         will be destroyed before the exception is thrown
+     * @param host     the MongoDB host
+     * @param port     the MongoDB port
+     * @param username the username for authentication, or null/empty to omit credentials
+     * @param password the password for authentication, or null/empty to omit credentials
+     * @param database the name of the database to select
+     * @throws IllegalStateException if establishing the MongoDB connection fails; the
+     *         manager's connection state will be set to false and resources will be
+     *         released before this exception is thrown
      */
     public void connect(
             final String host,

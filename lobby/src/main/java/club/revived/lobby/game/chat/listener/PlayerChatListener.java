@@ -17,10 +17,22 @@ import org.bukkit.event.Listener;
  */
 public final class PlayerChatListener implements Listener {
 
+    /**
+     * Creates a PlayerChatListener and registers it with the server plugin manager using the Lobby plugin instance.
+     */
     public PlayerChatListener() {
         Bukkit.getServer().getPluginManager().registerEvents(this, Lobby.getInstance());
     }
 
+    /**
+     * Handles player chat events by broadcasting a formatted global chat message and preventing default chat processing.
+     *
+     * <p>If the incoming {@code AsyncChatEvent} is not already cancelled, this handler cancels the event, formats the
+     * player's name and serialized chat content into a colored message, and sends that message as a global broadcast
+     * via the cluster messaging service.</p>
+     *
+     * @param event the async chat event containing the player's message; this event will be cancelled to suppress default chat handling
+     */
     @EventHandler
     public void onChat(final AsyncChatEvent event) {
         if (event.isCancelled()) {
