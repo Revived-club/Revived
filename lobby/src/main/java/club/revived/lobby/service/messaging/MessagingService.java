@@ -155,7 +155,7 @@ public final class MessagingService {
             return;
         }
 
-        if (pendingRequests.containsKey(envelope.correlationId()) && !envelope.senderId().equals(serviceId)) {
+        if (pendingRequests.containsKey(envelope.correlationId())) {
             handleResponse(envelope);
             return;
         }
@@ -165,7 +165,7 @@ public final class MessagingService {
             return;
         }
 
-        if (pendingGlobalRequests.containsKey(envelope.correlationId()) && !envelope.senderId().equals(serviceId)) {
+        if (pendingGlobalRequests.containsKey(envelope.correlationId())) {
             handleGlobalResponse(envelope);
             return;
         }
