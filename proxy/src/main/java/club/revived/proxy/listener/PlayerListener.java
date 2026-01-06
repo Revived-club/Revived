@@ -4,12 +4,15 @@ import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.cluster.ClusterService;
 import club.revived.proxy.service.cluster.ServiceType;
+import club.revived.proxy.tab.TABManager;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
@@ -53,5 +56,17 @@ public final class PlayerListener {
         }
 
         event.setInitialServer(server);
+    }
+
+    /**
+     * Removes the disconnecting player's tab entry from TABManager.
+     *
+     * @param event the disconnect event containing the player that is leaving
+     */
+    @Subscribe
+    public void onQuit(final @NotNull DisconnectEvent event) {
+        final Player player = event.getPlayer();
+
+        TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
     }
 }

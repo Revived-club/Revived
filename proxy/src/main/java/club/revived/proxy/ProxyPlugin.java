@@ -7,6 +7,7 @@ import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.service.status.ServiceStatus;
+import club.revived.proxy.tab.TABManager;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -60,6 +61,7 @@ public final class ProxyPlugin {
         System.out.println("Initializing Plugin...");
         this.setupCluster();
         new PlayerManager();
+        TABManager.getInstance();
         getServer().getEventManager().register(this, new PlayerListener());
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
