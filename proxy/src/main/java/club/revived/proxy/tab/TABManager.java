@@ -64,7 +64,6 @@ public final class TABManager {
                     for (final Player player : proxyServer.getAllPlayers()) {
 
                         final var tabList = player.getTabList();
-
                         PlayerManager.getInstance().getNetworkPlayers()
                                 .values()
                                 .forEach(networkPlayer -> {
@@ -78,7 +77,17 @@ public final class TABManager {
                                                     new ArrayList<>()
                                             ))
                                             .build());
+
                                 });
+
+                        tabEntries.forEach((uuid, tabListEntry) -> {
+                            for (final var entry : tabEntries.keySet()) {
+
+                                if (tabList.containsEntry(entry)) continue;
+
+                                tabList.addEntry(tabListEntry);
+                            }
+                        });
                     }
 
                     final var uuids = PlayerManager.getInstance().getNetworkPlayers()
