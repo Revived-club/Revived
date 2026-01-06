@@ -183,6 +183,10 @@ public final class MessagingService {
      * @param envelope the incoming envelope; if its targetId equals this service's id or "global", it will be treated as a response when its correlationId matches a pending request, otherwise as an incoming request or message
      */
     private void handleEnvelope(final MessageEnvelope envelope) {
+        if (envelope.targetId().contains("global")) {
+            System.out.println(envelope);
+        }
+
         if (envelope.targetId().equals(serviceId) || envelope.targetId().equals("global")) {
             if (pendingRequests.containsKey(envelope.correlationId())) {
                 handleResponse(envelope);
