@@ -13,5 +13,8 @@ import java.util.UUID;
 public record OnlinePlayer(
         @NotNull UUID uuid,
         @NotNull String username,
-        @NotNull String currentServer
+        @NotNull String currentServer,
+        int ping,
+        @NotNull String skinBase64,
+        @NotNull String signing
 ) {}

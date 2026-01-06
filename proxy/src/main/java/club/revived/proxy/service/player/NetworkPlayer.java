@@ -35,6 +35,10 @@ public final class NetworkPlayer {
     @NotNull
     private final CompletableFuture<ClusterService> currentProxy;
 
+    private String skin;
+    private String skinSignature;
+    private int ping;
+
     /**
      * Create a NetworkPlayer and initialize its proxy lookup.
      * <p>
@@ -238,5 +242,29 @@ public final class NetworkPlayer {
      */
     public @NotNull CompletableFuture<ClusterService> getCurrentProxy() {
         return currentProxy;
+    }
+
+    public String getSkin() {
+        return skin;
+    }
+
+    public String getSkinSignature() {
+        return skinSignature;
+    }
+
+    public int getPing() {
+        return ping;
+    }
+
+    public void setSkin(String skin) {
+        this.skin = skin;
+    }
+
+    public void setSkinSignature(String skinSignature) {
+        this.skinSignature = skinSignature;
+    }
+
+    public void setPing(int ping) {
+        this.ping = ping;
     }
 }
