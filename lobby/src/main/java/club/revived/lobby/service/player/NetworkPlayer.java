@@ -67,12 +67,13 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Cache an object for this player in the cluster-wide global cache.
-     * <p>
+     * Store an object in the cluster-wide global cache for this player with a time-to-live.
+     *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
-     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
-     * @param obj   the object to store in the global cache for this player
+     * @param clazz   the class whose simple name (lowercased) is used as part of the cache key
+     * @param obj     the object to store in the global cache for this player
+     * @param seconds the time-to-live for the cached value, in seconds
      */
     public <T> void cacheExValue(
             final Class<T> clazz,
@@ -89,12 +90,12 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Cache an object for this player in the cluster-wide global cache.
+     * Store an object in the cluster-wide global cache for this player.
      *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
-     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
-     * @param obj   the object to store in the global cache for this player
+     * @param clazz the class whose simple name (lowercased) is appended to the player's UUID to form the cache key
+     * @param obj   the object to store
      */
     public <T> void cacheValue(
             final Class<T> clazz,
@@ -106,10 +107,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Retrieve a cached value for this player identified by the given class.
+     * Get the cached value for this player for the specified class.
      *
      * @param clazz the class used as part of the cache key and to type the returned value
-     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
+     * @return the cached value for this player and class, or `null` if no value is present
      */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
