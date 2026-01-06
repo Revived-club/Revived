@@ -77,9 +77,9 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Caches an object for this player in the cluster-wide global cache.
+     * Store a value for this player in the cluster-wide global cache.
      *
-     * The value is stored under the key "<playerUuid>:<clazzSimpleNameLowercased>".
+     * The value is stored under the key "<playerUuid>:<clazzSimpleNameLowercased>" and will overwrite any existing entry with the same key.
      *
      * @param clazz the class whose simple name (lowercased) is used as the cache key suffix
      * @param obj   the object to store for this player
