@@ -22,7 +22,6 @@ public final class Duels extends JavaPlugin {
 
     private static Duels instance;
 
-    private String hostName;
 
     /**
      * Initializes the plugin: sets the singleton instance, reads the HOSTNAME environment variable into {@code hostName}, and configures the cluster.
@@ -34,13 +33,6 @@ public final class Duels extends JavaPlugin {
         instance = this;
 
         InventoryManager.register(this);
-
-        try {
-            // Kubernetes system env variable
-            this.hostName = System.getenv("HOSTNAME");
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
 
         this.setupCluster();
 
@@ -74,28 +66,16 @@ public final class Duels extends JavaPlugin {
      * RedisBroker and RedisCacheService using those values and this plugin's hostName.
      */
     private void setupCluster() {
-        final var redisFile = new File(getDataFolder(), "redis.yml");
-        final var redisConfig = YamlConfiguration.loadConfiguration(redisFile);
-
-        final String password = redisConfig.getString("password");
-        final String host = redisConfig.getString("host");
-        final int port = redisConfig.getInt("port");
+        final String hostName = System.getenv("HOSTNAME");
+        final String host = System.getenv("REDIS_HOST");
+        final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
 
         new Cluster(
-                new RedisBroker(host, port, password),
-                new RedisCacheService(host, port, password),
-                ServiceType.DUEL,
-                this.hostName
+                new RedisBroker(host, port, ""),
+                new RedisCacheService(host, port, ""),
+                ServiceType.LOBBY,
+                hostName
         );
-    }
-
-    /**
-     * Gets the configured hostname used for cluster identification.
-     *
-     * @return the hostname provided by the HOSTNAME environment variable, or `null` if not set
-     */
-    public String getHostName() {
-        return hostName;
     }
 
     /**
