@@ -17,8 +17,11 @@ public final class PingCommand {
         new CommandTree("ping-all")
                 .executesPlayer((player, args) -> {
                     Cluster.getInstance().getMessagingService().sendGlobalRequest(new PingRequest(), PingResponse.class)
-                            .thenAccept(pingResponse -> {
-                                player.sendRichMessage(pingResponse.serverId() + " PONG");
+                            .thenAccept(pingResponses -> {
+                                for (final var pingResponse : pingResponses) {
+                                    player.sendRichMessage(pingResponse.serverId() + " PONG");
+                                }
+
                             });
                 }).register("revived");
     }
