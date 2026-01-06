@@ -109,7 +109,7 @@ public final class MessagingService {
 
         this.pendingGlobalRequests.put(correlationId, responses);
 
-        CompletableFuture.delayedExecutor(3, TimeUnit.SECONDS).execute(() -> {
+        CompletableFuture.delayedExecutor(50, TimeUnit.MILLISECONDS).execute(() -> {
             final List<Response> collected = this.pendingGlobalRequests.remove(correlationId);
             if (collected != null) {
                 @SuppressWarnings("unchecked")
