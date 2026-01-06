@@ -68,7 +68,6 @@ public final class RedisBroker implements MessageBroker {
     ) {
         try (final var jedis = jedisPool.getResource()) {
             final String json = this.gson.toJson(message);
-            System.out.println(json);
             jedis.publish(topic, json);
         } catch (final Exception e) {
             throw new RuntimeException(e);
