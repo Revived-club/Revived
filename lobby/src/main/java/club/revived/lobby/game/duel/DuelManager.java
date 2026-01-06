@@ -30,7 +30,7 @@ public final class DuelManager {
 
     /**
      * Attempts to accept a pending duel request for the given player and, if a duel service is available, initiates the duel.
-     *
+     * <p>
      * If no pending request exists the player is notified. If the resolved duel service reports a non-available status,
      * the player is notified and a {@link ServiceUnavailableException} is thrown.
      *
@@ -66,7 +66,7 @@ public final class DuelManager {
 
     /**
      * Stores a duel request for the receiver and notifies them with a clickable, hoverable acceptance message.
-     *
+     * <p>
      * The request is saved in the global cache under the key "duelRequest:&lt;receiver UUID&gt;" with a 120-second expiry.
      *
      * @param sender   the player who initiated the duel request
@@ -86,14 +86,18 @@ public final class DuelManager {
                 .replace("<kit>", kitType.getBeautifiedName())
         );
 
-        final var key = "duelRequest:" + receiver.getUuid();
-
-        Cluster.getInstance().getGlobalCache().setEx(key, new DuelRequest(
+        final var request = new DuelRequest(
                 sender.getUuid(),
                 receiver.getUuid(),
                 rounds,
                 kitType
-        ), 120L);
+        );
+
+        receiver.cacheExValue(
+                DuelRequest.class,
+                request,
+                120
+        );
     }
 
     /**

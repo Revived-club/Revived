@@ -67,7 +67,29 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Store an object in the cluster-wide global cache for this player.
+     * Cache an object for this player in the cluster-wide global cache.
+     * <p>
+     * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     *
+     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
+     * @param obj   the object to store in the global cache for this player
+     */
+    public <T> void cacheExValue(
+            final Class<T> clazz,
+            final T obj,
+            final long seconds
+    ) {
+        Cluster.getInstance()
+                .getGlobalCache()
+                .setEx(
+                        this.uuid + ":" + clazz.getSimpleName().toLowerCase(),
+                        obj,
+                        seconds
+                );
+    }
+
+    /**
+     * Cache an object for this player in the cluster-wide global cache.
      *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
@@ -84,10 +106,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Retrieve the cached object for this player associated with the given class.
+     * Retrieve a cached value for this player identified by the given class.
      *
-     * @param clazz the class whose simple name is used as part of the cache key and which types the returned value
-     * @return the cached value for this player and class, or `null` if no value is present
+     * @param clazz the class used as part of the cache key and to type the returned value
+     * @return a CompletableFuture that completes with the cached value for this player and class, or `null` if no value is present
      */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
