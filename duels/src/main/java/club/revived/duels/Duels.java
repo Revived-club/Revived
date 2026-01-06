@@ -1,16 +1,15 @@
 package club.revived.duels;
 
 import club.revived.commons.inventories.impl.InventoryManager;
+import club.revived.duels.database.DatabaseManager;
+import club.revived.duels.game.chat.listener.PlayerChatListener;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.player.PlayerManager;
 import club.revived.duels.service.status.ServiceStatus;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 /**
  * Duels
@@ -24,9 +23,10 @@ public final class Duels extends JavaPlugin {
 
 
     /**
-     * Initializes the plugin: sets the singleton instance, reads the HOSTNAME environment variable into {@code hostName}, and configures the cluster.
+     * Perform startup initialization for the plugin.
      *
-     * @throws RuntimeException if retrieving the HOSTNAME environment variable fails
+     * Sets the singleton instance, registers the inventory manager, configures cluster and database connections,
+     * initializes player management and chat listener, and marks the cluster as available.
      */
     @Override
     public void onEnable() {
@@ -35,8 +35,10 @@ public final class Duels extends JavaPlugin {
         InventoryManager.register(this);
 
         this.setupCluster();
+        this.connectDatabase();
 
         new PlayerManager();
+        new PlayerChatListener();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
@@ -60,10 +62,10 @@ public final class Duels extends JavaPlugin {
     }
 
     /**
-     * Initializes the Cluster from redis.yml in the plugin data folder.
+     * Initializes the application's Cluster integration using Redis and environment configuration.
      *
-     * Reads "host", "port", and "password" from that file and constructs a Cluster configured with
-     * RedisBroker and RedisCacheService using those values and this plugin's hostName.
+     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and constructs a
+     * Cluster configured with a Redis broker and Redis cache service for ServiceType.LOBBY.
      */
     private void setupCluster() {
         final String hostName = System.getenv("HOSTNAME");
@@ -75,6 +77,26 @@ public final class Duels extends JavaPlugin {
                 new RedisCacheService(host, port, ""),
                 ServiceType.LOBBY,
                 hostName
+        );
+    }
+
+    /**
+     * Establishes a connection to the configured MongoDB instance using environment variables.
+     *
+     * Reads MONGODB_HOST, MONGODB_USERNAME, MONGODB_PASSWORD, and MONGODB_DATABASE to configure the connection and connects on port 27017.
+     */
+    private void connectDatabase() {
+        final String host = System.getenv("MONGODB_HOST");
+        final String password = System.getenv("MONGODB_PASSWORD");
+        final String username = System.getenv("MONGODB_USERNAME");
+        final String database = System.getenv("MONGODB_DATABASE");
+
+        DatabaseManager.getInstance().connect(
+                host,
+                27017,
+                username,
+                password,
+                database
         );
     }
 

@@ -2,6 +2,7 @@ package club.revived.duels.service.player;
 
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.exception.UnregisteredPlayerException;
+import club.revived.duels.service.messaging.impl.BroadcastMessage;
 import club.revived.duels.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -75,11 +76,15 @@ public final class PlayerManager {
     }
 
     /**
-     * Registers a handler that delivers incoming SendMessage payloads to the corresponding Bukkit player.
+     * Registers message handlers that deliver inter-server chat payloads to Bukkit players.
      *
-     * The handler resolves the target player from the message's UUID and delivers the message as a rich chat message.
+     * <p>Installs two handlers on the cluster messaging service:
+     * <ul>
+     *   <li>SendMessage — resolves the target by UUID and sends the message to that player as a rich chat message.</li>
+     *   <li>BroadcastMessage — sends the message as a rich chat message to every online player.</li>
+     * </ul>
      *
-     * @throws UnregisteredPlayerException if no online Bukkit player exists for the message's UUID
+     * @throws UnregisteredPlayerException if a SendMessage target UUID does not correspond to an online Bukkit player
      */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
@@ -92,6 +97,13 @@ public final class PlayerManager {
                     }
 
                     player.sendRichMessage(message.message());
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(BroadcastMessage.class, message -> {
+                    for (final var player : Bukkit.getOnlinePlayers()) {
+                        player.sendRichMessage(message.message());
+                    }
                 });
     }
 

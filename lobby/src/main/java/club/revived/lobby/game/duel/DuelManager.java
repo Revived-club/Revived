@@ -29,13 +29,14 @@ public final class DuelManager {
     }
 
     /**
-     * Attempts to accept a pending duel request for the given player and, if a duel service is available, initiates the duel.
-     * <p>
-     * If no pending request exists the player is notified. If the resolved duel service reports a non-available status,
-     * the player is notified and a {@link ServiceUnavailableException} is thrown.
+     * Accepts a pending duel request for the given player and initiates the duel on an available duel service.
+     *
+     * If the player has no pending request, the player is notified and no further action is taken. If the resolved
+     * duel service reports a status other than AVAILABLE, the player is notified and a {@link ServiceUnavailableException}
+     * is thrown.
      *
      * @param networkPlayer the player attempting to accept a duel request
-     * @throws ServiceUnavailableException if the selected duel service is not available
+     * @throws ServiceUnavailableException if the selected duel service reports a non-available status
      */
     public void acceptDuelRequest(final NetworkPlayer networkPlayer) {
         networkPlayer.getCachedValue(DuelRequest.class).thenAccept(duelRequest -> {
@@ -65,9 +66,10 @@ public final class DuelManager {
     }
 
     /**
-     * Stores a duel request for the receiver and notifies them with a clickable, hoverable acceptance message.
-     * <p>
-     * The request is saved in the global cache under the key "duelRequest:&lt;receiver UUID&gt;" with a 120-second expiry.
+     * Store a duel request for the receiver and notify them with a clickable, hoverable acceptance message.
+     *
+     * <p>The request is saved in the receiver's per-player cache for 120 seconds. The notification includes a clickable
+     * action to accept the duel and hover text showing the configured rounds and kit.
      *
      * @param sender   the player who initiated the duel request
      * @param receiver the player who will receive the duel request

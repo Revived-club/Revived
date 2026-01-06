@@ -94,12 +94,13 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Cache an object for this player in the cluster-wide global cache.
-     * <p>
+     * Store an object in the cluster-wide global cache for this player with a time-to-live.
+     *
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
-     * @param clazz the class whose simple name (lowercased) is used as part of the cache key
-     * @param obj   the object to store in the global cache for this player
+     * @param clazz   the class whose simple name (lowercased) is used as the key suffix
+     * @param obj     the object to store in the global cache for this player
+     * @param seconds the time-to-live for the cached entry, in seconds
      */
     public <T> void cacheExValue(
             final Class<T> clazz,

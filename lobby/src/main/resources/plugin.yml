@@ -2,3 +2,4 @@ name: revived-lobby
 main: club.revived.lobby.Lobby
 version: 1.0.0
 author: yyuh
+api-version: 1.21
