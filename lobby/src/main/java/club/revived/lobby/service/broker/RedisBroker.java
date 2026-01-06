@@ -90,10 +90,6 @@ public final class RedisBroker implements MessageBroker {
                             final String message
                     ) {
                         try {
-                            if (!channel.contains("heartbeat") && !channel.contains("WhereIsProxyRequest") && !channel.contains("StatusRequest") && !channel.contains("StatusResponse")) {
-                                System.out.println(message);
-                            }
-
                             final T obj = gson.fromJson(message, type);
                             handler.handle(obj);
                         } catch (final Exception e) {

@@ -52,7 +52,7 @@ public final class NetworkPlayer {
      * @return a CompletableFuture that completes with the ClusterService responsible for this player, or `null` if the player is not currently assigned to a proxy
      */
     @NotNull
-    private CompletableFuture<ClusterService> whereIs() {
+    public CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
     }
 
