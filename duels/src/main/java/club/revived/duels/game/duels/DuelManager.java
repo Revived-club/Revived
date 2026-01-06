@@ -64,7 +64,7 @@ public final class DuelManager {
                     .toList();
 
             networkPlayers.forEach(networkPlayer -> {
-                networkPlayer.connect(Duels.getInstance().getHostName());
+                networkPlayer.connect(Cluster.getInstance().getServiceId());
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
 
