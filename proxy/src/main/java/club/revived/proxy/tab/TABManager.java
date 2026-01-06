@@ -27,6 +27,12 @@ public final class TABManager {
 
     private static TABManager instance;
 
+    /**
+     * Initializes the TABManager singleton and begins periodic entry and display update tasks.
+     *
+     * Sets this object as the singleton instance and starts the background tasks that
+     * maintain per-player tab entries and refresh tab header/footer displays.
+     */
     private TABManager() {
         startEntryUpdateTask();
         startUpdateTask();
@@ -34,6 +40,11 @@ public final class TABManager {
         instance = this;
     }
 
+    /**
+     * Get the singleton TABManager instance, creating it if none exists.
+     *
+     * @return the singleton TABManager instance
+     */
     public static TABManager getInstance() {
         if (instance == null) {
             new TABManager();
@@ -42,6 +53,12 @@ public final class TABManager {
         return instance;
     }
 
+    /**
+     * Starts a repeating task that synchronizes the manager's tabEntries with the current set of NetworkPlayer instances.
+     *
+     * The task iterates online players to ensure a TabListEntry exists (using each player's TabList) for every NetworkPlayer,
+     * and removes entries whose UUIDs are no longer present among NetworkPlayer instances. Runs repeatedly (every 750 ms).
+     */
     public void startEntryUpdateTask() {
         this.proxyServer.getScheduler().buildTask(ProxyPlugin.getInstance(), () -> {
                     for (final Player player : proxyServer.getAllPlayers()) {
@@ -85,6 +102,12 @@ public final class TABManager {
                 .schedule();
     }
 
+    /**
+     * Schedules a recurring task that updates the tab list header and footer for every online player.
+     *
+     * The header displays a branded banner; the footer shows the player's current server name,
+     * the online player count, a simple max-online estimate, and the player's ping.
+     */
     public void startUpdateTask() {
         this.proxyServer.getScheduler().buildTask(ProxyPlugin.getInstance(), () -> {
                     final var players = this.proxyServer.getAllPlayers();
@@ -118,6 +141,11 @@ public final class TABManager {
                 .schedule();
     }
 
+    /**
+     * Provides the current mapping of player UUIDs to their TabListEntry objects.
+     *
+     * @return the concurrent map from player UUID to TabListEntry (live reference)
+     */
     public Map<UUID, TabListEntry> getTabEntries() {
         return tabEntries;
     }

@@ -58,6 +58,11 @@ public final class PlayerListener {
         event.setInitialServer(server);
     }
 
+    /**
+     * Removes the disconnecting player's tab entry from TABManager.
+     *
+     * @param event the disconnect event containing the player that is leaving
+     */
     @Subscribe
     public void onQuit(final @NotNull DisconnectEvent event) {
         final Player player = event.getPlayer();
