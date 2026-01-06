@@ -68,7 +68,6 @@ public final class RedisBroker implements MessageBroker {
     ) {
         try (final var jedis = jedisPool.getResource()) {
             final String json = this.gson.toJson(message);
-            System.out.println(json);
             jedis.publish(topic, json);
         } catch (final Exception e) {
             throw new RuntimeException(e);
@@ -90,10 +89,6 @@ public final class RedisBroker implements MessageBroker {
                             final String message
                     ) {
                         try {
-                            if (!channel.contains("heartbeat") && !channel.contains("WhereIsProxyRequest") && !channel.contains("StatusRequest") && !channel.contains("StatusResponse")) {
-                                System.out.println(message);
-                            }
-
                             final T obj = gson.fromJson(message, type);
                             handler.handle(obj);
                         } catch (final Exception e) {

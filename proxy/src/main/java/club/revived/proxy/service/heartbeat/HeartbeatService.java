@@ -9,9 +9,8 @@ import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.service.status.ServiceStatus;
 import club.revived.proxy.service.status.StatusRequest;
 import club.revived.proxy.service.status.StatusResponse;
+import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * This is an interesting Class
@@ -31,6 +29,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
     private static final long INTERVAL = 1_000;
 
+    private final ProxyServer proxyServer = ProxyPlugin.getInstance().getServer();
     private final Map<String, Long> lastSeen = new ConcurrentHashMap<>();
     private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
@@ -80,26 +79,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                                 return;
                             }
 
-                            final var str = service.getIp().split(":");
-                            final var host = str[0];
-                            final var port = Integer.parseInt(str[1]);
-
-                            final var info = new ServerInfo(service.getId(), new InetSocketAddress(host, port));
-
-                            ProxyPlugin.getInstance()
-                                    .getServer()
-                                    .getServer(service.getId())
-                                    .ifPresentOrElse(server -> {
-                                        System.out.println("Registering service " + info.getName());
-                                        final var serverInfo = server.getServerInfo();
-
-                                        if (!serverInfo.equals(info)) {
-                                            this.registerServer(info);
-                                        }
-                                    }, () -> {
-                                        System.out.println("Registering service " + info.getName());
-                                        this.registerServer(info);
-                                    });
+                            this.registerServer(service);
                         });
             });
 
@@ -113,10 +93,22 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      *
      * @param serverInfo the server information to register (id and address)
      */
-    private void registerServer(final ServerInfo serverInfo) {
-        ProxyPlugin.getInstance()
-                .getServer()
-                .registerServer(serverInfo);
+    private void registerServer(final ClusterService service) {
+        final var str = service.getIp().split(":");
+        final var host = str[0];
+        final var port = Integer.parseInt(str[1]);
+
+        final var info = new ServerInfo(service.getId(), new InetSocketAddress(host, port));
+
+        this.proxyServer.getServer(service.getId())
+                .ifPresentOrElse(server -> {
+                    final var serverInfo = server.getServerInfo();
+
+                    this.proxyServer.unregisterServer(serverInfo);
+                    this.proxyServer.registerServer(info);
+                }, () -> {
+                    this.proxyServer.registerServer(info);
+                });
     }
 
     /**

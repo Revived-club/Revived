@@ -97,6 +97,8 @@ public final class Cluster {
         this.messagingService.register(WhereIsResponse.class);
         this.messagingService.register(StatusRequest.class);
         this.messagingService.register(StatusResponse.class);
+        this.messagingService.register(PingRequest.class);
+        this.messagingService.register(PingResponse.class);
     }
 
     /**
@@ -110,7 +112,10 @@ public final class Cluster {
         this.messagingService.registerHandler(WhereIsRequest.class, whereIsRequest -> {
             final var player = Bukkit.getPlayer(whereIsRequest.uuid());
 
+            System.out.println("Responding to WhereIsRequest " + whereIsRequest.uuid());
+
             if (player == null) {
+                System.out.println("player is not online");
                 return null;
             }
 
@@ -145,7 +150,9 @@ public final class Cluster {
     @NotNull
     public CompletableFuture<ClusterService> whereIsProxy(final UUID uuid) {
         return this.messagingService.sendGlobalRequest(new WhereIsProxyRequest(uuid), WhereIsProxyResponse.class)
-                .thenApply(whereIsResponse -> {
+                .thenApply(whereIsResponses -> {
+                    final var whereIsResponse = whereIsResponses.getFirst();
+
                     final var id = whereIsResponse.proxy();
 
                     return this.services.get(id);
@@ -161,7 +168,9 @@ public final class Cluster {
     @NotNull
     public CompletableFuture<ClusterService> whereIs(final UUID uuid) {
         return this.messagingService.sendGlobalRequest(new WhereIsRequest(uuid), WhereIsResponse.class)
-                .thenApply(whereIsResponse -> {
+                .thenApply(whereIsResponses -> {
+                    final var whereIsResponse = whereIsResponses.getFirst();
+
                     final var id = whereIsResponse.server();
 
                     return this.services.get(id);
