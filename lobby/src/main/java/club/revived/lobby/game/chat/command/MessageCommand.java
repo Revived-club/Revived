@@ -24,14 +24,17 @@ public final class MessageCommand {
                                     final var networkPlayer = (NetworkPlayer) args.get("target");
                                     final var message = (String) args.get("message");
 
-                                    final var sentMessage = String.format(
+                                    networkPlayer.sendMessage(String.format(
                                             "<#3B82F6>✉ <dark_grey>[<#3B82F6>%s → You<dark_grey>] <white>%s",
                                             player.getName(),
                                             message
-                                    );
+                                    ));
 
-                                    networkPlayer.sendMessage(sentMessage);
-                                    player.sendRichMessage(sentMessage);
+                                    player.sendRichMessage(String.format(
+                                            "<#3B82F6>✉ <dark_grey>[<#3B82F6>You → %s<dark_grey>] <white>%s",
+                                            player.getName(),
+                                            message
+                                    ));
 
                                     networkPlayer.cacheValue(MessageInfo.class, new MessageInfo(
                                             player.getUniqueId(),
