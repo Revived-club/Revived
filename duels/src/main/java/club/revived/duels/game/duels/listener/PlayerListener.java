@@ -1,6 +1,7 @@
 package club.revived.duels.game.duels.listener;
 
 import club.revived.commons.inventories.util.ColorUtils;
+import club.revived.commons.location.BukkitCuboidRegion;
 import club.revived.duels.Duels;
 import club.revived.duels.game.arena.ArenaType;
 import club.revived.duels.game.arena.IArena;
@@ -12,7 +13,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -464,14 +464,12 @@ public final class PlayerListener implements Listener {
 
             final IArena arena = duel.getArena();
 
-            final BlockVector3 position = BukkitAdapter.adapt(event.getBlock().getLocation()).toVector().toBlockPoint();
-
-            final CuboidRegion region = new CuboidRegion(
-                    BukkitAdapter.adapt(arena.getCorner1()).toVector().toBlockPoint(),
-                    BukkitAdapter.adapt(arena.getCorner2()).toVector().toBlockPoint()
+            final BukkitCuboidRegion region = new BukkitCuboidRegion(
+                    arena.getCorner1(),
+                    arena.getCorner2()
             );
 
-            if (region.contains(position)) {
+            if (region.contains(event.getBlock().getLocation())) {
                 event.setCancelled(true);
                 break;
             }
@@ -488,7 +486,7 @@ public final class PlayerListener implements Listener {
      * @param location the world location to record (evaluated at block precision)
      */
     private void trackModifiedBlockInArena(final Location location) {
-        for (final Duel duel : duelManager.getOngoingDuels()) {
+        for (final Duel duel : duelManager.getRunningDuels().values()) {
             if (duel.getGameState() == GameState.STARTING ||
                     duel.getGameState() == GameState.ENDING
             ) continue;
@@ -496,11 +494,12 @@ public final class PlayerListener implements Listener {
             final IArena arena = duel.getArena();
 
             if (arena instanceof final DuelArena duelArena) {
-                BlockVector3 position = BukkitAdapter.adapt(location).toVector().toBlockPoint();
+                final BukkitCuboidRegion region = new BukkitCuboidRegion(
+                        arena.getCorner1(),
+                        arena.getCorner2()
+                );
 
-                CuboidRegion region = new CuboidRegion(BukkitAdapter.adapt(arena.getCorner1()).toVector().toBlockPoint(), BukkitAdapter.adapt(arena.getCorner2()).toVector().toBlockPoint());
-
-                if (region.contains(position)) {
+                if (region.contains(location)) {
                     duelArena.getModifiedLocations().add(location);
                     break;
                 }

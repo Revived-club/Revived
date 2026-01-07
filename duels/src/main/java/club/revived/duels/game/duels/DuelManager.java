@@ -59,7 +59,8 @@ public final class DuelManager {
                     blueTeam,
                     redTeam,
                     rounds,
-                    kitType
+                    kitType,
+                    arena
             );
 
             // TODO: Replace? Cant think of a better solution rn :3 :§ :§ § :3
