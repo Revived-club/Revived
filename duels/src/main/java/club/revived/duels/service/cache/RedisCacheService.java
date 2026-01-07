@@ -193,4 +193,31 @@ public final class RedisCacheService implements GlobalCache {
             return list;
         }, this.subServer);
     }
+
+    @Override
+    public CompletableFuture<Boolean> remove(
+            final String key
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                return jedis.del(key) > 0;
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    @Override
+    public <T> void removeFromList(
+            final String key,
+            final T t,
+            final long count
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.lrem(key, count, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

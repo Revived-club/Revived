@@ -3,13 +3,11 @@ package club.revived.duels.game.duels;
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.duels.Duels;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * DuelStartTask
@@ -19,16 +17,13 @@ import java.util.function.Consumer;
  */
 public final class DuelStartTask extends BukkitRunnable {
 
-    private final Duels instance = Duels.getInstance();
-
     private int cooldown;
     private final List<Player> players;
     private final Duel duel;
-    private Consumer<Void> voidConsumer;
 
     /**
      * Creates and schedules a duel start countdown task for the given duel.
-     *
+     * <p></p>
      * Initializes the task with the provided countdown, captures the duel's players, schedules the task to run once per second, and transitions the duel's game state to STARTING.
      *
      * @param cooldown the starting countdown value in seconds before the duel begins
@@ -41,7 +36,7 @@ public final class DuelStartTask extends BukkitRunnable {
         this.cooldown = cooldown;
         this.players = duel.getPlayers();
         this.duel = duel;
-        this.runTaskTimer(instance, 0, 20);
+        this.runTaskTimer(Duels.getInstance(), 0, 20);
 
         duel.setGameState(GameState.STARTING);
     }
@@ -57,8 +52,7 @@ public final class DuelStartTask extends BukkitRunnable {
      */
     @Override
     public void run() {
-        if (duel.getGameState() == GameState.ENDING ||
-                duel.getGameState() == GameState.COMPLETED) {
+        if (duel.getGameState() == GameState.ENDING || duel.getGameState() == GameState.DISCARDED) {
             this.cancel();
             return;
         }
@@ -72,10 +66,6 @@ public final class DuelStartTask extends BukkitRunnable {
                 ));
             }
 
-            if (voidConsumer != null) {
-                Bukkit.getScheduler().runTask(instance, () -> voidConsumer.accept(null));
-            }
-
             duel.setGameState(GameState.RUNNING);
             this.cancel();
             return;
@@ -87,14 +77,5 @@ public final class DuelStartTask extends BukkitRunnable {
         }
 
         cooldown--;
-    }
-
-    /**
-     * Registers a callback to execute on the main server thread when the duel countdown completes.
-     *
-     * @param fallback a Consumer invoked (with a `null` argument) once the countdown finishes; if `null`, no callback is invoked
-     */
-    public void then(Consumer<Void> fallback) {
-        voidConsumer = fallback;
     }
 }

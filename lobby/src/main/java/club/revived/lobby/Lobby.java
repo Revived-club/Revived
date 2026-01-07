@@ -38,16 +38,6 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Called when the plugin is disabled.
-     *
-     * <p>Currently this implementation performs no actions.</p>
-     */
-    @Override
-    public void onDisable() {
-        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
-    }
-
-    /**
      * Performs plugin startup: sets the singleton instance and runs startup initialization.
      *
      * <p>Establishes the static plugin instance, then initializes the database connection,
@@ -74,6 +64,15 @@ public final class Lobby extends JavaPlugin {
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
 
+    /**
+     * Called when the plugin is disabled.
+     *
+     * <p>Currently this implementation performs no actions.</p>
+     */
+    @Override
+    public void onDisable() {
+        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+    }
 
     /**
      * Initializes and registers the plugin's command handlers for the lobby.

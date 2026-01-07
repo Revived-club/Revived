@@ -82,4 +82,27 @@ public interface GlobalCache {
             final int port,
             final String password
     );
+
+    /**
+     * Removes the given key and its associated value(s) from the cache.
+     *
+     * @param key the cache key to remove
+     * @return a future resolving to true if the key was removed, false if it did not exist
+     */
+    CompletableFuture<Boolean> remove(
+            final String key
+    );
+
+    /**
+     * Removes occurrences of the given value from a list stored at the specified key.
+     *
+     * @param key the list key
+     * @param t   the value to remove
+     * @param count number of occurrences to remove (0 = all)
+     */
+    <T> void removeFromList(
+            final String key,
+            final T t,
+            final long count
+    );
 }

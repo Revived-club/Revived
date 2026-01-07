@@ -12,6 +12,5 @@ public enum GameState {
     STARTING,
     RUNNING,
     ENDING,
-    COMPLETED,
     DISCARDED
 }

@@ -47,13 +47,36 @@ public interface GlobalCache {
     );
 
     /**
+     * Removes the given key and its associated value(s) from the cache.
+     *
+     * @param key the cache key to remove
+     * @return a future resolving to true if the key was removed, false if it did not exist
+     */
+    CompletableFuture<Boolean> remove(
+            final String key
+    );
+
+    /**
+     * Removes occurrences of the given value from a list stored at the specified key.
+     *
+     * @param key the list key
+     * @param t   the value to remove
+     * @param count number of occurrences to remove (0 = all)
+     */
+    <T> void removeFromList(
+            final String key,
+            final T t,
+            final long count
+    );
+
+    /**
      * Retrieve all values stored under the given cache key as a list of the specified type.
      *
      * @param key   the cache key whose associated values should be returned
      * @param clazz the class of the elements to decode or cast the stored values to
      * @return      a list of values of type `T`; empty if no values are associated with the key
      */
-    <T> List<T> getAll(
+    <T> CompletableFuture<List<T>> getAll(
             final String key,
             final Class<T> clazz
     );

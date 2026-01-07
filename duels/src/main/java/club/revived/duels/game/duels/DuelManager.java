@@ -5,11 +5,14 @@ import club.revived.duels.Duels;
 import club.revived.duels.game.arena.pooling.ArenaPoolManager;
 import club.revived.duels.game.kit.EditedDuelKit;
 import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.cluster.ServiceType;
+import club.revived.duels.service.messaging.impl.DuelEnd;
 import club.revived.duels.service.messaging.impl.DuelStart;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -23,12 +26,16 @@ public final class DuelManager {
 
     private final Map<UUID, Duel> runningDuels = new HashMap<>();
 
+    private static DuelManager instance;
+
     /**
      * Initializes a DuelManager and registers a handler to start duels when a DuelStart message is received.
      *
      * <p>As a side effect, a message handler for DuelStart events is registered with the cluster messaging service.</p>
      */
     public DuelManager() {
+        instance = this;
+
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(DuelStart.class, this::startDuel);
     }
@@ -55,7 +62,7 @@ public final class DuelManager {
                     kitType
             );
 
-            // TODO: Replace? Cant think of a better solutation rn :3 :§ :§ § :3
+            // TODO: Replace? Cant think of a better solution rn :3 :§ :§ § :3
             final var uuids = new HashSet<>(redTeam);
             uuids.addAll(blueTeam);
 
@@ -67,15 +74,6 @@ public final class DuelManager {
                 networkPlayer.connect(Cluster.getInstance().getServiceId());
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
-
-            Cluster.getInstance().getGlobalCache().push("games", new Game(
-                    blueTeam,
-                    redTeam,
-                    rounds,
-                    kitType,
-                    GameState.STARTING,
-                    duel.getId()
-            ));
 
             PlayerJoinTracker.of(Duels.getInstance(), uuids, players -> {
                 for (final var player : players) {
@@ -119,6 +117,35 @@ public final class DuelManager {
         });
     }
 
+    public void endDuel(
+            final Duel duel,
+            final DuelTeam winner,
+            final DuelTeam loser
+    ) {
+        duel.setGameState(GameState.ENDING);
+
+        for (final var player : duel.getPlayers()) {
+            this.runningDuels.remove(player.getUniqueId());
+
+            this.healPlayer(player);
+        }
+
+        Cluster.getInstance().getLeastLoadedService(ServiceType.LOBBY)
+                .sendMessage(new DuelEnd(
+                        winner.getUuids(),
+                        loser.getUuids(),
+                        duel.getRounds(),
+                        winner.getScore(),
+                        loser.getScore(),
+                        duel.getKitType(),
+                        0L // TODO: Impl
+                ));
+    }
+
+    public void startNewRound(final Duel duel) {
+
+    }
+
     /**
      * Restore a player's health, hunger, exhaustion, potion effects, and extinguish fire.
      * <p>
@@ -136,6 +163,24 @@ public final class DuelManager {
         });
     }
 
+    public boolean isDueling(final Player player) {
+        return this.isDueling(player.getUniqueId());
+    }
+
+    public boolean isDueling(final UUID uuid) {
+        return this.runningDuels.containsKey(uuid);
+    }
+
+    @Nullable
+    public Duel getDuel(final Player player) {
+        return this.getDuel(player.getUniqueId());
+    }
+
+    @Nullable
+    public Duel getDuel(final UUID uuid) {
+        return this.runningDuels.get(uuid);
+    }
+
     /**
      * Retrieve the registry of active duels keyed by participant UUID.
      * <p>
@@ -146,5 +191,13 @@ public final class DuelManager {
      */
     public Map<UUID, Duel> getRunningDuels() {
         return runningDuels;
+    }
+
+    public static DuelManager getInstance() {
+        if (instance == null) {
+            return new DuelManager();
+        }
+
+        return instance;
     }
 }
