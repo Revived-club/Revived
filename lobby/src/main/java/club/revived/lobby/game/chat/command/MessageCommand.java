@@ -32,7 +32,7 @@ public final class MessageCommand {
 
                                     player.sendRichMessage(String.format(
                                             "<#3B82F6>✉ <dark_grey>[<#3B82F6>You → %s<dark_grey>] <white>%s",
-                                            player.getName(),
+                                            networkPlayer.getUsername(),
                                             message
                                     ));
 

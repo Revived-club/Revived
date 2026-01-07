@@ -48,7 +48,7 @@ public final class ReplyCommand {
 
                                 player.sendRichMessage(String.format(
                                         "<#3B82F6>✉ <dark_grey>[<#3B82F6>You → %s<dark_grey>] <white>%s",
-                                        player.getName(),
+                                        target.getUsername(),
                                         message
                                 ));
 
