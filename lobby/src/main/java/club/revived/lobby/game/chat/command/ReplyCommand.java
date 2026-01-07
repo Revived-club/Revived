@@ -9,6 +9,16 @@ public final class ReplyCommand {
     
     private final PlayerManager playerManager = this.playerManager;
 
+    /**
+     * Registers the "reply" (alias "r") chat command which sends a private message to the last conversation partner.
+     *
+     * <p>The command accepts a single `message` argument. When executed, it looks up the invoking player's
+     * last MessageInfo; if no valid recipient is found or the recipient is not online, the invoker is notified.
+     * Otherwise the command delivers a formatted mail-style message to the recipient and updates both participants'
+     * MessageInfo caches with the current timestamp.</p>
+     *
+     * @implNote the command tree is registered under the "revived" command space
+     */
     public ReplyCommand() {
         new CommandTree("reply")
                 .withAliases("r")

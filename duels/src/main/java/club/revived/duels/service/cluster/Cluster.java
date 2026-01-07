@@ -113,6 +113,12 @@ public final class Cluster {
         new StatusService(this.messagingService);
     }
 
+    /**
+     * Registers all message classes used by the cluster with the messaging service.
+     *
+     * <p>Ensures the messaging service is aware of the cluster's request/response and event
+     * message types so they can be serialized and dispatched across the cluster.</p>
+     */
     private void registerMessageTypes() {
         this.messagingService.register(BotDuelStart.class);
         this.messagingService.register(Connect.class);

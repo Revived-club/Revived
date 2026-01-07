@@ -44,11 +44,11 @@ public interface GlobalCache {
     );
 
     /**
-     * Retrieve all values stored under the given cache key as a list of the specified type.
+     * Retrieve all values stored under the given cache key.
      *
      * @param key   the cache key whose associated values should be returned
-     * @param clazz the class of the elements to decode or cast the stored values to
-     * @return      a list of values of type `T`; empty if no values are associated with the key
+     * @param clazz the target element class for decoding or casting stored entries
+     * @return      a List of values of type T; empty if no values are associated with the key
      */
     <T> CompletableFuture<List<T>> getAll(
             final String key,
@@ -69,11 +69,11 @@ public interface GlobalCache {
     );
 
     /**
-     * Establishes a connection to the cache service at the specified host and port using the provided password.
+     * Create and return a client connected to the cache service at the given host and port using the provided password.
      *
      * @param host     the hostname or IP address of the cache service
      * @param port     the TCP port of the cache service
-     * @param password the authentication password to use for the connection
+     * @param password the authentication password for the connection
      * @param <P>      the type of the returned connection or client
      * @return         a connection or client instance of type P representing the established connection
      */
@@ -84,21 +84,22 @@ public interface GlobalCache {
     );
 
     /**
-     * Removes the given key and its associated value(s) from the cache.
+     * Removes the specified key and its associated value(s) from the cache.
      *
      * @param key the cache key to remove
-     * @return a future resolving to true if the key was removed, false if it did not exist
+     * @return true if the key was removed, false otherwise
      */
     CompletableFuture<Boolean> remove(
             final String key
     );
 
     /**
-     * Removes occurrences of the given value from a list stored at the specified key.
+     * Remove occurrences of a value from the list stored under the specified key.
      *
-     * @param key the list key
-     * @param t   the value to remove
-     * @param count number of occurrences to remove (0 = all)
+     * @param <T>  the element type stored in the list
+     * @param key  the key identifying the list
+     * @param t    the value to remove from the list
+     * @param count the number of occurrences to remove; 0 removes all occurrences
      */
     <T> void removeFromList(
             final String key,

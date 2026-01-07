@@ -170,10 +170,22 @@ public final class DuelArena implements IArena {
         this.spawn1 = spawn1;
     }
 
+    /**
+     * Gets the schematic file used to build this arena.
+     *
+     * @return the File pointing to the arena's schematic
+     */
     public File getSchematic() {
         return schematic;
     }
 
+    /**
+     * Provides the list of locations that have been modified in this arena.
+     *
+     * The returned list is the internal, mutable list used to track modified locations.
+     *
+     * @return the internal mutable List of modified Location objects
+     */
     public List<Location> getModifiedLocations() {
         return modifiedLocations;
     }

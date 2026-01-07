@@ -194,6 +194,11 @@ public final class RedisCacheService implements GlobalCache {
         }, this.subServer);
     }
 
+    /**
+     * Deletes the given key from Redis.
+     *
+     * @return {@code true} if the key was removed, {@code false} otherwise.
+     */
     @Override
     public CompletableFuture<Boolean> remove(
             final String key
@@ -207,6 +212,18 @@ public final class RedisCacheService implements GlobalCache {
         }, this.subServer);
     }
 
+    /**
+     * Removes occurrences of the given object from a Redis list stored under the specified key.
+     *
+     * The object is serialized to JSON before comparison; matching list entries equal to that JSON
+     * representation are removed according to Redis `LREM` semantics.
+     *
+     * @param key   the Redis list key
+     * @param t     the object to remove (matched by its JSON serialization)
+     * @param count number of occurrences to remove: >0 removes from head to tail up to `count`,
+     *              <0 removes from tail to head up to `|count|`, 0 removes all occurrences
+     * @throws RuntimeException if serialization or Redis access fails
+     */
     @Override
     public <T> void removeFromList(
             final String key,

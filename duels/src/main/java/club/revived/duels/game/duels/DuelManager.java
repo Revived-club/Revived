@@ -41,12 +41,13 @@ public final class DuelManager {
     }
 
     /**
-     * Initiates a duel from a DuelStart message: reserves an arena, creates and registers the Duel,
-     * prepares and teleports participants, loads their kits, pushes the duel to the global cache,
-     * and starts the duel countdown task.
+     * Initiates a duel using the provided DuelStart message.
+     *
+     * Reserves an arena, creates and registersthe Duel, prepares and teleports participants,
+     * loads their edited kits, heals players, and begins the duel countdown.
      *
      * @param duelStart message containing the blue and red team UUID lists, the number of rounds,
-     *                  and the kit type used to configure the duel
+     *                  and the kit type to use for the duel
      */
     private void startDuel(final DuelStart duelStart) {
         final List<UUID> blueTeam = duelStart.blueTeam();
@@ -118,6 +119,16 @@ public final class DuelManager {
         });
     }
 
+    /**
+     * Finalizes a duel: transitions it to the ending state, removes all participants from the active-duel registry,
+     * heals each participant, and notifies the lobby service of the duel result.
+     *
+     * The lobby notification includes winner and loser UUIDs, rounds, final scores, and the duel's kit type.
+     *
+     * @param duel   the duel to finalize
+     * @param winner the team that won the duel
+     * @param loser  the team that lost the duel
+     */
     public void endDuel(
             final Duel duel,
             final DuelTeam winner,
@@ -143,6 +154,11 @@ public final class DuelManager {
                 ));
     }
 
+    /**
+     * Initiates the next round for the provided duel. Currently a placeholder and performs no action.
+     *
+     * @param duel the duel to start a new round for
+     */
     public void startNewRound(final Duel duel) {
 
     }
@@ -164,29 +180,53 @@ public final class DuelManager {
         });
     }
 
+    /**
+     * Checks whether the given player is currently participating in an active duel.
+     *
+     * @param player the player to check
+     * @return `true` if the player is currently in an active duel, `false` otherwise
+     */
     public boolean isDueling(final Player player) {
         return this.isDueling(player.getUniqueId());
     }
 
+    /**
+     * Determines whether the player identified by the given UUID is currently in an active duel.
+     *
+     * @param uuid the player's UUID to check
+     * @return `true` if the player with the given UUID is in an active duel, `false` otherwise
+     */
     public boolean isDueling(final UUID uuid) {
         return this.runningDuels.containsKey(uuid);
     }
 
+    /**
+     * Retrieve the duel the given player is currently participating in, if any.
+     *
+     * @param player the player whose duel to retrieve
+     * @return the player's active {@link Duel}, or `null` if the player is not in a duel
+     */
     @Nullable
     public Duel getDuel(final Player player) {
         return this.getDuel(player.getUniqueId());
     }
 
+    /**
+     * Retrieve the active duel for a participant by UUID.
+     *
+     * @param uuid the participant's UUID
+     * @return the Duel the participant is currently in, or {@code null} if none
+     */
     @Nullable
     public Duel getDuel(final UUID uuid) {
         return this.runningDuels.get(uuid);
     }
 
     /**
-     * Retrieve the registry of active duels keyed by participant UUID.
-     * <p>
+     * Get the live registry of active duels keyed by participant UUID.
+     *
      * The returned map associates each participant's UUID with the Duel they are currently in.
-     * This is the live internal registry and may be modified by callers.
+     * Modifying this map will modify the manager's internal state.
      *
      * @return the map from player UUID to their active Duel
      */
@@ -194,6 +234,11 @@ public final class DuelManager {
         return runningDuels;
     }
 
+    /**
+     * Provides the singleton DuelManager instance, creating and initializing it if none exists.
+     *
+     * @return the singleton DuelManager instance
+     */
     public static DuelManager getInstance() {
         if (instance == null) {
             return new DuelManager();

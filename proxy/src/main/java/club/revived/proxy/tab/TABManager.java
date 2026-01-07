@@ -109,10 +109,10 @@ public final class TABManager {
     }
 
     /**
-     * Schedules a recurring task that updates the tab list header and footer for every online player.
+     * Schedules a recurring task that updates each online player's tab list header and footer.
      *
-     * The header displays a branded banner; the footer shows the player's current server name,
-     * the online player count, a simple max-online estimate, and the player's ping.
+     * The header shows a branded banner; the footer displays the player's current server name,
+     * the network-wide online count, a simple max-online estimate (online + 1), and the player's ping.
      */
     public void startUpdateTask() {
         this.proxyServer.getScheduler().buildTask(ProxyPlugin.getInstance(), () -> {

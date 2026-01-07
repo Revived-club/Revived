@@ -9,6 +9,13 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 
 public final class MessageCommand {
 
+    /**
+     * Registers the "msg" chat command which delivers a private message and records message metadata for sender and recipient.
+     *
+     * <p>The command accepts a target {@code NetworkPlayer} and a message string. When executed by a player, it sends a formatted
+     * private message to the target and caches a {@code MessageInfo} on both the recipient and the sender containing the
+     * counterpart's UUID, the message text, and the current timestamp. The command tree is registered under the name "revived".</p>
+     */
     public MessageCommand() {
         new CommandTree("msg")
                 .then(NetworkPlayerArgument.networkPlayer("target")

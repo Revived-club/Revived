@@ -32,12 +32,15 @@ public final class Duel {
     private Game game;
 
     /**
-     * Constructs a Duel for the specified blue and red teams with the given number of rounds and kit type, and assigns a generated unique identifier.
+     * Creates a Duel for the given blue and red team members using the specified rounds, kit, and arena.
+     *
+     * Also generates a unique duel identifier and initializes the backing Game instance.
      *
      * @param blueTeam list of UUIDs for blue team members
      * @param redTeam  list of UUIDs for red team members
-     * @param rounds   the number of rounds for the duel
-     * @param kitType  the kit configuration used in the duel
+     * @param rounds   total number of rounds for the duel
+     * @param kitType  kit configuration to use for the duel
+     * @param arena    arena where the duel will take place
      */
     public Duel(
             final List<UUID> blueTeam,
@@ -82,9 +85,7 @@ public final class Duel {
     }
 
     /**
-     * Get online Player objects for members of the red team.
-     * <p>
-     * Converts stored red-team UUIDs to Player instances and excludes members who are not currently online.
+     * Gets the online players who are members of the red team.
      *
      * @return a list of online players who are members of the red team; offline or unknown players are omitted
      */
@@ -111,11 +112,21 @@ public final class Duel {
                 .toList();
     }
 
+    /**
+     * Determines whether the duel has completed because either team reached the configured number of rounds.
+     *
+     * @return {@code true} if either team's score equals the duel's rounds, {@code false} otherwise.
+     */
     public boolean isOver() {
         return this.redTeam.getScore() == this.getRounds() ||
                 this.blueTeam.getScore() == this.getRounds();
     }
 
+    /**
+     * Get all participant UUIDs for this duel.
+     *
+     * @return a new list containing all participant UUIDs; red team UUIDs appear first followed by blue team UUIDs.
+     */
     @NotNull
     public List<UUID> getUUIDs() {
         // TODO: Replace, there's probably a better way to do this
@@ -125,16 +136,36 @@ public final class Duel {
         return uuids;
     }
 
+    /**
+     * Resolve which duel team the specified player belongs to.
+     *
+     * @param player the player to locate within the duel
+     * @return the DuelTeam the player belongs to
+     * @throws UnsupportedOperationException if the player is not a member of either team
+     */
     @NotNull
     public DuelTeam getTeam(final Player player) {
         return this.getTeam(player.getUniqueId());
     }
 
+    /**
+     * Get the opposing DuelTeam for the provided team.
+     *
+     * @param team the team whose opponent to retrieve
+     * @return `blueTeam` if the provided team's type is `BLUE`, otherwise `redTeam`
+     */
     @NotNull
     public DuelTeam getOpposing(final DuelTeam team) {
         return team.getType() == DuelTeamType.BLUE ? this.blueTeam : this.redTeam;
     }
 
+    /**
+     * Determine which duel team contains the specified player UUID.
+     *
+     * @param uuid the player's UUID to resolve to a team
+     * @return the red team if the UUID belongs to the red team, the blue team otherwise
+     * @throws UnsupportedOperationException if the UUID is not a member of either team
+     */
     @NotNull
     public DuelTeam getTeam(final UUID uuid) {
         if (!this.redTeam.getUuids().contains(uuid) &&
@@ -145,6 +176,9 @@ public final class Duel {
         return this.redTeam.getUuids().contains(uuid) ? this.redTeam : this.blueTeam;
     }
 
+    /**
+     * Removes the duel's current Game instance from the cluster-wide "games" global cache.
+     */
     public void discard() {
         Cluster.getInstance().getGlobalCache().removeFromList(
                 "games",
@@ -154,6 +188,13 @@ public final class Duel {
     }
 
 
+    /**
+     * Refreshes the Duel's Game instance and synchronizes it with the global cache.
+     *
+     * Removes the current game entry from the global cache (if present), builds a new
+     * Game using the duel's current teams, rounds, kit, game state, and id, assigns it
+     * to the duel, and pushes the new Game into the global cache.
+     */
     private void updateGame() {
         Cluster.getInstance().getGlobalCache().removeFromList(
                 "games",
@@ -177,18 +218,18 @@ public final class Duel {
     }
 
     /**
-     * Returns the UUIDs of players assigned to the blue team.
+     * Get the blue team for this duel.
      *
-     * @return a list of UUIDs representing the blue team members
+     * @return the DuelTeam representing the blue side of the duel
      */
     public DuelTeam getBlueTeam() {
         return blueTeam;
     }
 
     /**
-     * Retrieve the red team's member UUIDs.
+     * Get the red team for this duel.
      *
-     * @return the list of UUIDs representing players on the red team
+     * @return the DuelTeam representing the red side of the duel
      */
     public DuelTeam getRedTeam() {
         return redTeam;
@@ -231,9 +272,9 @@ public final class Duel {
     }
 
     /**
-     * Set the duel's current game state.
+     * Update the duel's current game state and refresh the registered Game.
      *
-     * @param gameState the new state for this duel
+     * @param gameState the new GameState for this duel
      */
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
@@ -241,10 +282,20 @@ public final class Duel {
         this.updateGame();
     }
 
+    /**
+     * Accesses the Game instance that represents this duel.
+     *
+     * @return the current Game backing this Duel
+     */
     public Game getGame() {
         return game;
     }
 
+    /**
+     * Get the arena associated with this duel.
+     *
+     * @return the {@link IArena} where the duel takes place
+     */
     public IArena getArena() {
         return arena;
     }

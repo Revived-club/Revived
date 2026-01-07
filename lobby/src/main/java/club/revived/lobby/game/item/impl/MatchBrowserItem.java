@@ -18,6 +18,11 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class MatchBrowserItem implements ExecutableItem {
 
+    /**
+     * Opens the match browser menu for the given player using cached games.
+     *
+     * @param player the player for whom the match browser will be displayed
+     */
     @Override
     public void execute(final Player player) {
         Cluster.getInstance().getGlobalCache()
@@ -25,6 +30,11 @@ public final class MatchBrowserItem implements ExecutableItem {
                 .thenAccept(cachedDuels -> new MatchBrowserMenu(cachedDuels, player));
     }
 
+    /**
+     * Creates the Bukkit ItemStack used to represent this executable item in inventories.
+     *
+     * @return the ItemStack used to represent this item — a slime ball with the display name "Match Browser"
+     */
     @Override
     public ItemStack toBukkitItem() {
         return ItemBuilder.item(Material.SLIME_BALL)
@@ -32,11 +42,21 @@ public final class MatchBrowserItem implements ExecutableItem {
                 .build();
     }
 
+    /**
+     * Unique identifier for this executable item.
+     *
+     * @return the identifier {@code "match_browser"}.
+     */
     @Override
     public String id() {
         return "match_browser";
     }
 
+    /**
+     * Identifies this executable item as the match browser type.
+     *
+     * @return the `ExecutableItemType.MATCH_BROWSER` constant
+     */
     @Override
     public ExecutableItemType type() {
         return ExecutableItemType.MATCH_BROWSER;
