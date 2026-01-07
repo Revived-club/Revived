@@ -9,6 +9,8 @@ import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.game.command.PingCommand;
 import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
+import club.revived.lobby.game.item.ExecutableItemRegistry;
+import club.revived.lobby.game.item.impl.MatchBrowserItem;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -66,6 +68,8 @@ public final class Lobby extends JavaPlugin {
         new PlayerChatListener();
         new MessageCommand();
         new ReplyCommand();
+
+        ExecutableItemRegistry.register(new MatchBrowserItem());
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }

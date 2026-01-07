@@ -68,7 +68,14 @@ public final class DuelManager {
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
 
-            Cluster.getInstance().getGlobalCache().push("games", duel);
+            Cluster.getInstance().getGlobalCache().push("games", new Game(
+                    blueTeam,
+                    redTeam,
+                    rounds,
+                    kitType,
+                    GameState.STARTING,
+                    duel.getId()
+            ));
 
             PlayerJoinTracker.of(Duels.getInstance(), uuids, players -> {
                 for (final var player : players) {
@@ -114,7 +121,7 @@ public final class DuelManager {
 
     /**
      * Restore a player's health, hunger, exhaustion, potion effects, and extinguish fire.
-     *
+     * <p>
      * The restoration is performed on the server's main thread.
      *
      * @param player the Bukkit player to restore
@@ -131,7 +138,7 @@ public final class DuelManager {
 
     /**
      * Retrieve the registry of active duels keyed by participant UUID.
-     *
+     * <p>
      * The returned map associates each participant's UUID with the Duel they are currently in.
      * This is the live internal registry and may be modified by callers.
      *

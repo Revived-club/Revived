@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -143,5 +145,55 @@ public final class RedisCacheService implements GlobalCache {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Appends the JSON-serialized form of the given object to the end of the Redis list stored at the specified key.
+     *
+     * @param key the Redis list key
+     * @param t   the object to serialize and append to the list
+     * @throws RuntimeException if serialization or the Redis operation fails
+     */
+    @Override
+    public <T> void push(
+            final String key,
+            final T t
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.rpush(key, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Retrieve and deserialize all elements of the Redis list at the given key.
+     *
+     * @param key   the Redis list key to read
+     * @param clazz the target class to deserialize each list element into
+     * @return a list of deserialized elements in list order (head to tail); empty if the key does not exist or has no elements
+     * @throws RuntimeException if a Redis access or JSON deserialization error occurs
+     */
+    @Override
+    public <T> CompletableFuture<List<T>> getAll(
+            final String key,
+            final Class<T> clazz
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            final var list = new ArrayList<T>();
+
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var jsonList = jedis.lrange(key, 0, -1);
+
+                for (final var json : jsonList) {
+                    list.add(this.gson.fromJson(json, clazz));
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return list;
+        }, this.subServer);
     }
 }

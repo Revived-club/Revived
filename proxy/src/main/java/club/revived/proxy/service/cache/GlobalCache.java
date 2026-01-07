@@ -1,5 +1,6 @@
 package club.revived.proxy.service.cache;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -29,6 +30,29 @@ public interface GlobalCache {
     <T> void set(
             final String key,
             final T t
+    );
+
+    /**
+     * Adds the given value to the cache entry identified by the specified key, preserving any existing entries (for example, appending to a collection stored at that key).
+     *
+     * @param key the cache key under which the value will be added
+     * @param t   the value to add to the cache entry
+     */
+    <T> void push(
+            final String key,
+            final T t
+    );
+
+    /**
+     * Retrieve all values stored under the given cache key as a list of the specified type.
+     *
+     * @param key   the cache key whose associated values should be returned
+     * @param clazz the class of the elements to decode or cast the stored values to
+     * @return      a list of values of type `T`; empty if no values are associated with the key
+     */
+    <T> CompletableFuture<List<T>> getAll(
+            final String key,
+            final Class<T> clazz
     );
 
     /**

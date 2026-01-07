@@ -173,24 +173,24 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if a Redis access or JSON deserialization error occurs
      */
     @Override
-    public <T> List<T> getAll(
+    public <T> CompletableFuture<List<T>> getAll(
             final String key,
             final Class<T> clazz
     ) {
-        final var list = new ArrayList<T>();
+        return CompletableFuture.supplyAsync(() -> {
+            final var list = new ArrayList<T>();
 
-        try (final var jedis = this.jedisPool.getResource()) {
-            final List<String> jsonList = jedis.lrange(key, 0, -1);
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var jsonList = jedis.lrange(key, 0, -1);
 
-            for (final var json : jsonList) {
-                final var t = this.gson.fromJson(json, clazz);
-                list.add(t);
+                for (final var json : jsonList) {
+                    list.add(this.gson.fromJson(json, clazz));
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
             }
 
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return list;
+            return list;
+        }, this.subServer);
     }
 }
