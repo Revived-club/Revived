@@ -1,4 +1,4 @@
-package club.revived.duels.game.duels;
+package club.revived.lobby.game.duel;
 
 /**
  * GameState
@@ -12,5 +12,6 @@ public enum GameState {
     STARTING,
     RUNNING,
     ENDING,
+    COMPLETED,
     DISCARDED
 }

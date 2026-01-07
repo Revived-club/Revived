@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -108,10 +110,10 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     /**
-     * Store a value in Redis under the given key with an expiration.
+     * Stores the given value at the specified Redis key and sets its expiration.
      *
-     * @param key     the Redis key to set
-     * @param t       the value to serialize and store
+     * @param key     the Redis key under which to store the value
+     * @param t       the value to store
      * @param seconds expiration time in seconds
      * @throws RuntimeException if serialization or the Redis operation fails
      */
@@ -124,6 +126,101 @@ public final class RedisCacheService implements GlobalCache {
         try (final var jedis = this.jedisPool.getResource()) {
             final var json = this.gson.toJson(t);
             jedis.setex(key, seconds, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Appends the JSON-serialized form of the given object to the end of the Redis list stored at the specified key.
+     *
+     * @param key the Redis list key
+     * @param t   the object to serialize and append to the list
+     * @throws RuntimeException if serialization or the Redis operation fails
+     */
+    @Override
+    public <T> void push(
+            final String key,
+            final T t
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.rpush(key, json);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Retrieve and deserialize all elements of the Redis list at the given key.
+     *
+     * @param key   the Redis list key to read
+     * @param clazz the target class to deserialize each list element into
+     * @return a list of deserialized elements in list order (head to tail); empty if the key does not exist or has no elements
+     * @throws RuntimeException if a Redis access or JSON deserialization error occurs
+     */
+    @Override
+    public <T> CompletableFuture<List<T>> getAll(
+            final String key,
+            final Class<T> clazz
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            final var list = new ArrayList<T>();
+
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var jsonList = jedis.lrange(key, 0, -1);
+
+                for (final var json : jsonList) {
+                    list.add(this.gson.fromJson(json, clazz));
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return list;
+        }, this.subServer);
+    }
+
+    /**
+     * Deletes the value stored at the given Redis key from the cache.
+     *
+     * @param key the cache key to delete
+     * @return `true` if the key was removed, `false` otherwise
+     */
+    @Override
+    public CompletableFuture<Boolean> remove(
+            final String key
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                return jedis.del(key) > 0;
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    /**
+     * Removes occurrences of the JSON-serialized value from the Redis list stored at the given key.
+     *
+     * The `count` parameter controls removal:
+     * - `count > 0`: remove up to `count` occurrences from head to tail.
+     * - `count < 0`: remove up to `|count|` occurrences from tail to head.
+     * - `count == 0`: remove all occurrences.
+     *
+     * @param key   the Redis list key
+     * @param t     the value to serialize and remove from the list
+     * @param count the number and direction of occurrences to remove (see description)
+     */
+    @Override
+    public <T> void removeFromList(
+            final String key,
+            final T t,
+            final long count
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.lrem(key, count, json);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }

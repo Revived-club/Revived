@@ -2,11 +2,15 @@ package club.revived.lobby;
 
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
+import club.revived.lobby.game.chat.command.MessageCommand;
+import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
 import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.game.command.PingCommand;
 import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
+import club.revived.lobby.game.item.ExecutableItemRegistry;
+import club.revived.lobby.game.item.impl.MatchBrowserItem;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -34,20 +38,8 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Called when the plugin is disabled.
-     *
-     * <p>Currently this implementation performs no actions.</p>
-     */
-    @Override
-    public void onDisable() {
-
-    }
-
-    /**
-     * Performs plugin startup: sets the singleton instance and runs startup initialization.
-     *
-     * <p>Establishes the static plugin instance, then initializes the database connection,
-     * registers commands, and configures cluster services.</p>
+     * Initialize the plugin: set the singleton instance, register inventory and runtime components,
+     * connect to the database, register commands and cluster services, and mark the cluster as available.
      */
     @Override
     public void onEnable() {
@@ -62,10 +54,23 @@ public final class Lobby extends JavaPlugin {
         new PlayerManager();
         new DuelManager();
         new PlayerChatListener();
+        new MessageCommand();
+        new ReplyCommand();
+
+        ExecutableItemRegistry.register(new MatchBrowserItem());
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
 
+    /**
+     * Perform shutdown tasks for the plugin.
+     *
+     * Updates the cluster status to ServiceStatus.SHUTTING_DOWN so other services are informed that this plugin is stopping.
+     */
+    @Override
+    public void onDisable() {
+        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+    }
 
     /**
      * Initializes and registers the plugin's command handlers for the lobby.

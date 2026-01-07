@@ -109,14 +109,15 @@ public final class TABManager {
     }
 
     /**
-     * Schedules a recurring task that updates the tab list header and footer for every online player.
+     * Schedules a recurring task that updates each online player's tab list header and footer.
      *
-     * The header displays a branded banner; the footer shows the player's current server name,
-     * the online player count, a simple max-online estimate, and the player's ping.
+     * The header shows a branded banner; the footer displays the player's current server name,
+     * the network-wide online count, a simple max-online estimate (online + 1), and the player's ping.
      */
     public void startUpdateTask() {
         this.proxyServer.getScheduler().buildTask(ProxyPlugin.getInstance(), () -> {
                     final var players = this.proxyServer.getAllPlayers();
+                    final var networkPlayers = PlayerManager.getInstance().getNetworkPlayers().size();
 
                     for (final Player player : players) {
                         final Optional<ServerConnection> serverOpt = player.getCurrentServer();
@@ -137,8 +138,8 @@ public final class TABManager {
                                         <white>                                                        <white>
                                         <#6aa2fc><strikethrough>                                            </strikethrough></#6aa2fc>"""
                                         .replace("<server>", serverId)
-                                        .replace("<online>", String.valueOf(players.size()))
-                                        .replace("<max-online>", String.valueOf(players.size() + 1))
+                                        .replace("<online>", String.valueOf(networkPlayers))
+                                        .replace("<max-online>", String.valueOf(networkPlayers + 1))
                                         .replace("<ping>", String.valueOf(player.getPing()))
                                 ));
                     }

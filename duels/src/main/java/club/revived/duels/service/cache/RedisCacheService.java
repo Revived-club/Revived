@@ -173,24 +173,68 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if a Redis access or JSON deserialization error occurs
      */
     @Override
-    public <T> List<T> getAll(
+    public <T> CompletableFuture<List<T>> getAll(
             final String key,
             final Class<T> clazz
     ) {
-        final var list = new ArrayList<T>();
+        return CompletableFuture.supplyAsync(() -> {
+            final var list = new ArrayList<T>();
 
-        try (final var jedis = this.jedisPool.getResource()) {
-            final List<String> jsonList = jedis.lrange(key, 0, -1);
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var jsonList = jedis.lrange(key, 0, -1);
 
-            for (final var json : jsonList) {
-                final var t = this.gson.fromJson(json, clazz);
-                list.add(t);
+                for (final var json : jsonList) {
+                    list.add(this.gson.fromJson(json, clazz));
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
             }
 
+            return list;
+        }, this.subServer);
+    }
+
+    /**
+     * Deletes the given key from Redis.
+     *
+     * @return {@code true} if the key was removed, {@code false} otherwise.
+     */
+    @Override
+    public CompletableFuture<Boolean> remove(
+            final String key
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                return jedis.del(key) > 0;
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    /**
+     * Removes occurrences of the given object from a Redis list stored under the specified key.
+     *
+     * The object is serialized to JSON before comparison; matching list entries equal to that JSON
+     * representation are removed according to Redis `LREM` semantics.
+     *
+     * @param key   the Redis list key
+     * @param t     the object to remove (matched by its JSON serialization)
+     * @param count number of occurrences to remove: >0 removes from head to tail up to `count`,
+     *              <0 removes from tail to head up to `|count|`, 0 removes all occurrences
+     * @throws RuntimeException if serialization or Redis access fails
+     */
+    @Override
+    public <T> void removeFromList(
+            final String key,
+            final T t,
+            final long count
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final var json = this.gson.toJson(t);
+            jedis.lrem(key, count, json);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-
-        return list;
     }
 }

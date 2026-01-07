@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DuelArena
@@ -28,6 +30,8 @@ public final class DuelArena implements IArena {
     private Location spawn2;
 
     private final File schematic;
+
+    private final List<Location> modifiedLocations = new ArrayList<>();
 
     /**
      * Creates a DuelArena with an auto-generated identifier and the specified corners, arena type, and schematic.
@@ -164,5 +168,25 @@ public final class DuelArena implements IArena {
      */
     public void setSpawn1(Location spawn1) {
         this.spawn1 = spawn1;
+    }
+
+    /**
+     * Gets the schematic file used to build this arena.
+     *
+     * @return the File pointing to the arena's schematic
+     */
+    public File getSchematic() {
+        return schematic;
+    }
+
+    /**
+     * Provides the list of locations that have been modified in this arena.
+     *
+     * The returned list is the internal, mutable list used to track modified locations.
+     *
+     * @return the internal mutable List of modified Location objects
+     */
+    public List<Location> getModifiedLocations() {
+        return modifiedLocations;
     }
 }
