@@ -18,6 +18,12 @@ import java.util.List;
  */
 public final class MatchBrowserMenu {
 
+    /**
+     * Creates and opens a "Match Browser" inventory populated with the provided matches for the given player.
+     *
+     * @param cachedDuels a list of Game instances to display as menu items
+     * @param player the player who will be shown the menu
+     */
     public MatchBrowserMenu(
             final List<Game> cachedDuels,
             final Player player
@@ -27,6 +33,15 @@ public final class MatchBrowserMenu {
                 .open(player);
     }
 
+    /**
+     * Builds menu item representations for the provided matches.
+     *
+     * Each item uses the match's kit material and beautified kit name, and includes lore lines for
+     * the match id, kit name, game state, max rounds, and team composition.
+     *
+     * @param matches the list of matches to convert into menu items
+     * @return a list of ItemBuilder objects representing the given matches
+     */
     @NotNull
     private List<ItemBuilder> matchItems(final List<Game> matches) {
         final var itemBuilders = new ArrayList<ItemBuilder>();

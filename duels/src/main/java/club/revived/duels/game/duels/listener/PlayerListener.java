@@ -33,10 +33,21 @@ public final class PlayerListener implements Listener {
 
     private final static List<KitType> saturatedKits = List.of(KitType.AXE, KitType.SWORD, KitType.SMP, KitType.NETHERITE_POTION, KitType.DIAMOND_POTION, KitType.MACE, KitType.SPLEEF);
 
+    /**
+     * Creates a PlayerListener and registers it with the Bukkit plugin manager so it receives Duels-related events.
+     */
     public PlayerListener() {
         Bukkit.getServer().getPluginManager().registerEvents(this, Duels.getInstance());
     }
 
+    /**
+     * Prevents hunger level changes for players participating in duels that use kits requiring saturated hunger.
+     *
+     * If the event's entity is a player who is currently in a duel and the duel's kit type is listed in
+     * {@code saturatedKits}, the event is cancelled to stop hunger changes.
+     *
+     * @param event the food level change event to evaluate and possibly cancel
+     */
     @EventHandler
     public void onHunger(FoodLevelChangeEvent event) {
         final Entity entity = event.getEntity();
@@ -56,11 +67,21 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Prevents any item drops from explosions by setting the explosion yield to zero.
+     *
+     * @param event the explosion event whose yield is cleared
+     */
     @EventHandler
     public void handle(EntityExplodeEvent event) {
         event.setYield(0);
     }
 
+    /**
+     * Prevents any item drops from block explosions by setting the explosion yield to zero.
+     *
+     * @param event the BlockExplodeEvent whose block drop yield will be set to 0
+     */
     @EventHandler
     public void handle(BlockExplodeEvent event) {
         event.setYield(0);
@@ -130,15 +151,14 @@ public final class PlayerListener implements Listener {
     }
 
     /**
-     * Handle a player quitting: clear per-player cached data, suppress the quit message, and resolve any active duel state.
-     *
-     * <p>If the player is part of an ongoing duel, this will determine whether their team is fully eliminated; if so,
-     * it increments the winning team's score, marks the duel as ending, displays match results, and ends the duel.
-     * If the team is not fully eliminated, it notifies remaining duel participants that the player quit and was removed
-     * from the duel.</p>
-     *
-     * @param event the PlayerQuitEvent triggered when a player disconnects
-     */
+         * Resolve duel state when a player disconnects and suppress the quit message.
+         *
+         * <p>If the player is participating in an active duel, determines the player's team. If that team is fully
+         * eliminated, awards a point to the opposing team, marks the duel as ending, displays match results, and ends
+         * the duel. Otherwise, notifies remaining duel participants that the player quit and was removed.</p>
+         *
+         * @param event the PlayerQuitEvent for the disconnecting player
+         */
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
         final Player player = event.getPlayer();
@@ -172,6 +192,15 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Consumes a custom "golden head" item when the player right-clicks it, grants short-term combat buffs, and applies a cooldown.
+     *
+     * If the held item has the persistent data key `_uhc` with value `"golden_head"`, the interaction is cancelled, one item is
+     * consumed (if not on cooldown), a 30-second cooldown is applied to that item, and the player receives absorption (120s, amp 1),
+     * regeneration (20s, amp 1), and speed (10s, amp 1) potion effects. Sends a confirmation message to the player.
+     *
+     * @param event the PlayerInteractEvent that triggered the interaction
+     */
     @EventHandler
     public void onGoldenHead(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
@@ -200,6 +229,15 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Handle a player's death during an active duel: suppress the death message, set the player to
+     * spectator, notify all duel participants of the death, and resolve the round or match if the
+     * player's team has been fully eliminated.
+     *
+     * <p>If the victim's team is completely eliminated this method awards a point to the opposing
+     * team, transitions the duel to the ENDING state, displays end-of-match titles to participants,
+     * and either ends the duel (if the match is over) or schedules the next round shortly thereafter.
+     */
     @EventHandler
     public void onDeath(@NotNull PlayerDeathEvent event) {
         final Player player = event.getPlayer();
@@ -236,11 +274,21 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Suppresses the in-game advancement message when a player completes an advancement.
+     *
+     * @param event the advancement completion event whose broadcast message will be cleared
+     */
     @EventHandler
     public void onAchievement(final PlayerAdvancementDoneEvent event) {
         event.message(null);
     }
 
+    /**
+     * Handles player join events by suppressing the join message and ensuring a dead player is respawned.
+     *
+     * @param event the join event; its join message will be cleared and the joining player will be respawned if they are dead
+     */
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
         event.joinMessage(null);
@@ -252,6 +300,13 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Removes snow blocks created by snowball impacts.
+     *
+     * If a snowball lands on a block that is a `SNOW_BLOCK`, that block is removed.
+     *
+     * @param event the projectile hit event containing the projectile and the hit block
+     */
     @EventHandler
     public void onProjectileLand(final ProjectileHitEvent event) {
         if (event.getEntity().getType() != EntityType.SNOWBALL) return;
@@ -263,6 +318,13 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Handles damage events for players in running SPLEEF duels, applying snowball-specific effects and preventing other damage.
+     *
+     * <p>If the damaged entity is a player participating in a duel whose state is RUNNING and whose kit is SPLEEF,
+     * this handler sets damage to 0.1 and restores the player's health to 20.0 when the damager is a snowball;
+     * for any other damager the event is cancelled.</p>
+     */
     @EventHandler
     public void onEntityHit(final EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof final Player player)) return;
@@ -281,6 +343,14 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Prevents fall damage for players in SPLEEF duels and cancels all damage for players when their duel is not in the RUNNING state.
+     *
+     * <p>If the event's entity is a player participating in a duel that is not RUNNING, the event is cancelled.
+     * If the duel is RUNNING and the damage cause is FALL while the duel's kit is SPLEEF, the fall damage is cancelled.</p>
+     *
+     * @param event the entity damage event to evaluate and possibly cancel
+     */
     @EventHandler
     public void onFallDamage(final EntityDamageEvent event) {
         if (!(event.getEntity() instanceof final Player player)) return;
@@ -300,6 +370,13 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Cancels a player's interaction if they are in a duel that is not in the RUNNING state.
+     *
+     * If the player is not dueling or the duel cannot be resolved, the interaction is not modified.
+     *
+     * @param event the player interaction event
+     */
     @EventHandler
     public void onInteract(final PlayerInteractEvent event) {
         final Player player = event.getPlayer();
@@ -313,6 +390,14 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Cancels damage for players who are currently in a duel that is not in the RUNNING state.
+     *
+     * If the damaged entity is a player participating in a duel and that duel's state is not RUNNING,
+     * the event is cancelled to prevent any damage from applying.
+     *
+     * @param event the damage event to evaluate and potentially cancel
+     */
     @EventHandler
     public void onGenericDamage(final EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -326,6 +411,13 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Prevents players from dropping items while they are in a duel that is not running.
+     *
+     * Cancels the provided PlayerDropItemEvent when the event's player is currently in a duel whose game state is not RUNNING.
+     *
+     * @param event the drop event to evaluate and potentially cancel
+     */
     @EventHandler
     public void onDrop(final PlayerDropItemEvent event) {
         final Player player = event.getPlayer();
@@ -339,6 +431,11 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Cancels an item pickup when the player's active duel is ending.
+     *
+     * @param event the player-attempt-pickup-item event; cancelled if the player's duel is in the ENDING state
+     */
     @EventHandler
     public void onPickUp(final PlayerAttemptPickupItemEvent event) {
         final Player player = event.getPlayer();
@@ -352,6 +449,13 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Handles block placement during duels, restricting placement based on duel state and arena type and recording placed blocks for non-interactive duel arenas.
+     *
+     * If the player is not in a duel this handler does nothing. Placement is cancelled when the duel is STARTING or ENDING. Placement is allowed without tracking in arenas of type INTERACTIVE. For arenas that are instances of DuelArena, the placed block's location is added to the arena's modifiedLocations set for later restoration or tracking.
+     *
+     * @param event the BlockPlaceEvent representing the attempted block placement
+     */
     @EventHandler
     public void onBlockPlace(final BlockPlaceEvent event) {
         final var player = event.getPlayer();
@@ -383,6 +487,14 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Enforces duel-specific block-breaking rules by cancelling unauthorized breaks inside duels.
+     *
+     * Cancels the event when the breaker is participating in a duel that is STARTING or ENDING,
+     * or when the arena is a DuelArena and the broken block's location is not recorded as a modified location.
+     *
+     * @param event the BlockBreakEvent to evaluate and possibly cancel
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         final Player player = event.getPlayer();
@@ -412,6 +524,14 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Registers the destination location as a modified arena block when a block flow results in certain solid block types.
+     *
+     * Evaluates the event's destination block and, if its resulting material is COBBLESTONE, STONE, OBSIDIAN, or BASALT,
+     * records the block location so arena modifications can be tracked/restored.
+     *
+     * @param event the block-from-to event describing a block changing position/state due to fluid flow
+     */
     @EventHandler
     public void onBlockFromTo(final BlockFromToEvent event) {
         final Block block = event.getToBlock();
@@ -422,11 +542,24 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Registers the location of a burned block as a modified block in the containing active duel arena.
+     *
+     * @param event the BlockBurnEvent whose block location should be tracked
+     */
     @EventHandler
     public void onBlockBurn(final BlockBurnEvent event) {
         trackModifiedBlockInArena(event.getBlock().getLocation());
     }
 
+    /**
+     * Records a block location as modified when a block spreads into fire inside an active duel arena.
+     *
+     * This ensures fire spread changes are tracked for the first matching running DuelArena so they can
+     * be restored or handled by arena cleanup logic.
+     *
+     * @param event the BlockSpreadEvent to inspect for fire formation
+     */
     @EventHandler
     public void onBlockSpread(final BlockSpreadEvent event) {
         if (event.getNewState().getType() == Material.FIRE) {
@@ -434,11 +567,23 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    /**
+     * Marks the location of a newly formed block as modified within the containing active duel arena.
+     *
+     * This ensures the block change is tracked so arena state can be restored or otherwise managed after the duel.
+     *
+     * @param event the block formation event whose block location should be recorded as a modification
+     */
     @EventHandler
     public void onBlockForm(final BlockFormEvent event) {
         trackModifiedBlockInArena(event.getBlock().getLocation());
     }
 
+    /**
+     * Records the location of a block that has faded so it is tracked as a modification inside an active duel arena.
+     *
+     * @param event the BlockFadeEvent representing a block changing state (for example ice or snow melting)
+     */
     @EventHandler
     public void onBlockFade(final BlockFadeEvent event) {
         trackModifiedBlockInArena(event.getBlock().getLocation());
@@ -447,14 +592,13 @@ public final class PlayerListener implements Listener {
     // TODO: Implement & fix the below methods (event handlers)
 
     /**
-     * Cancels a block ignite event when the ignition occurs inside an active duel arena
-     * unless the arena's type is EXPLOSIVE or MINI_GAME.
-     * <p></p>
-     * Iterates ongoing duels and ignores duels that are starting or have ended. If the
-     * ignition location is contained within any such duel's arena region, the event is
-     * cancelled.
+     * Cancel block ignition that occurs inside the region of any active duel arena.
      *
-     * @param event the block ignite event to evaluate and potentially cancel
+     * Ignores duels in the STARTING or ENDING state; if the ignition location is contained
+     * within an active duel's arena region, the event is cancelled and no further arenas
+     * are checked.
+     *
+     * @param event the BlockIgniteEvent to evaluate and potentially cancel
      */
     @EventHandler
     public void onFireSpawn(final BlockIgniteEvent event) {
@@ -477,11 +621,11 @@ public final class PlayerListener implements Listener {
     }
 
     /**
-     * Registers the given world location as a modified block in the first matching ongoing duel arena that contains it.
-     * <p></p>
-     * Iterates ongoing duels, skipping those that are starting or already ended. Only arenas of type Arena are considered;
-     * arenas with ArenaType.EXPLOSIVE or ArenaType.MINI_GAME are ignored. If the location falls inside an arena's cuboid
-     * region, the corresponding block position is added to that arena's modified-block tracking and iteration stops.
+     * Records a world location as a modified block in the first active duel arena whose region contains it.
+     *
+     * <p>Skips duels that are in STARTING or ENDING states. Only arenas of type DuelArena are considered; when a DuelArena
+     * contains the provided location (at block precision), that location is added to the arena's modified-locations and no
+     * further duels are checked.</p>
      *
      * @param location the world location to record (evaluated at block precision)
      */
@@ -508,13 +652,11 @@ public final class PlayerListener implements Listener {
     }
 
     /**
-     * Display end-of-match titles and play corresponding sounds for winners, losers, and spectators.
+     * Displays end-of-match titles to participants: a victory title to all players on the winning team
+     * and a defeat title to all players on the defeated team, each including the final team scores.
      *
-     * <p>Shows a victory title and sound to all players on the winning team, a defeat title and sound
-     * to all players on the defeated team, and an end-match summary title to spectators observing the duel.</p>
-     *
-     * @param victimTeam the team that lost the match
-     * @param winnerTeam the team that won the match
+     * @param victimTeam the team that lost the match (shown the defeat title)
+     * @param winnerTeam the team that won the match (shown the victory title)
      */
     private void showResults(
             final DuelTeam victimTeam,
@@ -531,13 +673,13 @@ public final class PlayerListener implements Listener {
 
 
     /**
-     * Determine whether a team has no active participants remaining.
+     * Determine whether the team has no active participants remaining.
      *
-     * <p>Teams are considered inactive if they contain exactly one player or if every player
-     * is null, dead, offline, or in spectator mode.</p>
+     * A team is considered inactive if it contains exactly one member or if every member
+     * is null, dead, offline, or in spectator game mode.
      *
      * @param team the team to evaluate
-     * @return `true` if the team has exactly one player or all players are null, dead, offline,
+     * @return `true` if the team has exactly one player or every player is null, dead, offline,
      *         or in spectator mode; `false` otherwise
      */
     private boolean isWholeTeamDead(final DuelTeam team) {

@@ -73,6 +73,13 @@ public final class PlayerListener {
         TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
     }
 
+    /**
+     * Update the server list ping to reflect the current network player counts.
+     *
+     * Sets the ping's onlinePlayers to the current network size and maximumPlayers to one greater.
+     *
+     * @param event the ProxyPingEvent whose ServerPing will be modified
+     */
     @Subscribe
     public void onPing(final ProxyPingEvent event) {
         final var networkPlayers = PlayerManager.getInstance().getNetworkPlayers().size();

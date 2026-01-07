@@ -22,9 +22,10 @@ public final class DuelStartTask extends BukkitRunnable {
     private final Duel duel;
 
     /**
-     * Creates and schedules a duel start countdown task for the given duel.
-     * <p></p>
-     * Initializes the task with the provided countdown, captures the duel's players, schedules the task to run once per second, and transitions the duel's game state to STARTING.
+     * Initializes and schedules a countdown task that prepares and starts the given duel.
+     *
+     * The constructor stores the provided countdown value (in seconds), captures the duel's players,
+     * schedules the task to run once per second, and sets the duel's game state to STARTING.
      *
      * @param cooldown the starting countdown value in seconds before the duel begins
      * @param duel the Duel instance this task will manage
@@ -42,13 +43,13 @@ public final class DuelStartTask extends BukkitRunnable {
     }
 
     /**
-     * Advances the duel start countdown: updates player titles and action-bar messages each second,
-     * transitions the duel to RUNNING when the countdown completes, and cancels the task if the duel ends.
+     * Advances the duel start countdown by one tick, updating players' titles and action-bar messages and
+     * handling state transitions when the countdown finishes or the duel ends.
      *
-     * <p>Each tick this updates participating players' titles and action bar with the remaining time.
-     * If the duel's state is ENDING or COMPLETED the task cancels immediately. When the countdown reaches
-     * zero a final "Fight" title is shown to all players, an optional registered callback is executed on
-     * the main server thread, the duel's state is set to RUNNING, and the task cancels.</p>
+     * <p>If the duel's game state is ENDING or DISCARDED the task cancels immediately. When the countdown
+     * reaches zero a final "Fight" title is shown to all participating players, the duel's state is set
+     * to RUNNING, and the task cancels. Otherwise the remaining seconds are shown to players and the
+     * countdown value is decremented.</p>
      */
     @Override
     public void run() {

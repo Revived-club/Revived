@@ -110,10 +110,10 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     /**
-     * Store a value in Redis under the given key with an expiration.
+     * Stores the given value at the specified Redis key and sets its expiration.
      *
-     * @param key     the Redis key to set
-     * @param t       the value to serialize and store
+     * @param key     the Redis key under which to store the value
+     * @param t       the value to store
      * @param seconds expiration time in seconds
      * @throws RuntimeException if serialization or the Redis operation fails
      */
@@ -181,6 +181,12 @@ public final class RedisCacheService implements GlobalCache {
         }, this.subServer);
     }
 
+    /**
+     * Deletes the value stored at the given Redis key from the cache.
+     *
+     * @param key the cache key to delete
+     * @return `true` if the key was removed, `false` otherwise
+     */
     @Override
     public CompletableFuture<Boolean> remove(
             final String key
@@ -194,6 +200,18 @@ public final class RedisCacheService implements GlobalCache {
         }, this.subServer);
     }
 
+    /**
+     * Removes occurrences of the JSON-serialized value from the Redis list stored at the given key.
+     *
+     * The `count` parameter controls removal:
+     * - `count > 0`: remove up to `count` occurrences from head to tail.
+     * - `count < 0`: remove up to `|count|` occurrences from tail to head.
+     * - `count == 0`: remove all occurrences.
+     *
+     * @param key   the Redis list key
+     * @param t     the value to serialize and remove from the list
+     * @param count the number and direction of occurrences to remove (see description)
+     */
     @Override
     public <T> void removeFromList(
             final String key,

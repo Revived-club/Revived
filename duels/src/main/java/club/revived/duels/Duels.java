@@ -24,10 +24,11 @@ public final class Duels extends JavaPlugin {
 
 
     /**
-     * Perform startup initialization for the plugin.
+     * Initialize plugin components when the plugin is enabled.
      *
-     * Sets the singleton instance, registers the inventory manager, configures cluster and database connections,
-     * initializes player management and chat listener, and marks the cluster as available.
+     * Sets the singleton instance, registers the inventory manager, sets up cluster and database
+     * connections, instantiates player listener/manager/chat listener components, and marks the
+     * cluster status as available.
      */
     @Override
     public void onEnable() {
@@ -54,9 +55,9 @@ public final class Duels extends JavaPlugin {
     }
 
     /**
-     * Called when the plugin is disabled.
+     * Marks the cluster as shutting down when the plugin is disabled.
      *
-     * <p>Currently this implementation performs no actions.</p>
+     * <p>Sets Cluster.STATUS to ServiceStatus.SHUTTING_DOWN.</p>
      */
     @Override
     public void onDisable() {

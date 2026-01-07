@@ -15,10 +15,18 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public final class ItemPlayerListener implements Listener {
 
+    /**
+     * Creates and registers this listener with the server plugin manager so it begins receiving player interaction events.
+     */
     public ItemPlayerListener() {
         Bukkit.getServer().getPluginManager().registerEvents(this, Lobby.getInstance());
     }
 
+    /**
+     * Handles a player interaction and, if the item in the player's main hand is executable, executes its action.
+     *
+     * @param event the player interaction event that triggered this handler
+     */
     @EventHandler
     public void onPlayerInteract(final PlayerInteractEvent event) {
         final var player = event.getPlayer();

@@ -38,10 +38,8 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Performs plugin startup: sets the singleton instance and runs startup initialization.
-     *
-     * <p>Establishes the static plugin instance, then initializes the database connection,
-     * registers commands, and configures cluster services.</p>
+     * Initialize the plugin: set the singleton instance, register inventory and runtime components,
+     * connect to the database, register commands and cluster services, and mark the cluster as available.
      */
     @Override
     public void onEnable() {
@@ -65,9 +63,9 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Called when the plugin is disabled.
+     * Perform shutdown tasks for the plugin.
      *
-     * <p>Currently this implementation performs no actions.</p>
+     * Updates the cluster status to ServiceStatus.SHUTTING_DOWN so other services are informed that this plugin is stopping.
      */
     @Override
     public void onDisable() {

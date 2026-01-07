@@ -33,11 +33,11 @@ public interface GlobalCache {
     );
 
     /**
-     * Stores a value in the global cache under the specified key and sets an expiration time.
+     * Store a value under the specified key with a time-to-live.
      *
-     * @param key     the cache key under which the value will be stored
+     * @param key     the cache key to store the value under
      * @param t       the value to store
-     * @param seconds the time-to-live for the stored value, in seconds
+     * @param seconds the time-to-live in seconds after which the entry expires
      */
     <T> void setEx(
             final String key,
@@ -60,8 +60,8 @@ public interface GlobalCache {
      * Retrieve all values stored under the given cache key as a list of the specified type.
      *
      * @param key   the cache key whose associated values should be returned
-     * @param clazz the class of the elements to decode or cast the stored values to
-     * @return a list of values of type `T`; empty if no values are associated with the key
+     * @param clazz the class of elements to decode or cast the stored values to
+     * @return a list of values of type T; an empty list if no values are associated with the key
      */
     <T> CompletableFuture<List<T>> getAll(
             final String key,
@@ -87,18 +87,18 @@ public interface GlobalCache {
      * Removes the given key and its associated value(s) from the cache.
      *
      * @param key the cache key to remove
-     * @return a future resolving to true if the key was removed, false if it did not exist
+     * @return `true` if the key was removed, `false` otherwise
      */
     CompletableFuture<Boolean> remove(
             final String key
     );
 
     /**
-     * Removes occurrences of the given value from a list stored at the specified key.
+     * Removes occurrences of a value from the list stored at the specified key.
      *
-     * @param key the list key
-     * @param t   the value to remove
-     * @param count number of occurrences to remove (0 = all)
+     * @param key   the list key
+     * @param t     the value to remove
+     * @param count the number of occurrences to remove; 0 removes all occurrences
      */
     <T> void removeFromList(
             final String key,
