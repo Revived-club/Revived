@@ -5,6 +5,7 @@ import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.player.NetworkPlayer;
+import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
 import club.revived.lobby.service.status.StatusRequest;
 import club.revived.lobby.service.status.StatusResponse;
@@ -30,7 +31,7 @@ public final class DuelManager {
 
     /**
      * Accepts a pending duel request for the given player and initiates the duel on an available duel service.
-     *
+     * <p></p>
      * If the player has no pending request, the player is notified and no further action is taken. If the resolved
      * duel service reports a status other than AVAILABLE, the player is notified and a {@link ServiceUnavailableException}
      * is thrown.
@@ -52,6 +53,11 @@ public final class DuelManager {
                     networkPlayer.sendMessage("<red>Service is not available");
                     throw new ServiceUnavailableException("requested service is not available");
                 }
+
+                networkPlayer.sendMessage("<green>Starting duel...");
+
+                final var sender = PlayerManager.getInstance().fromBukkitPlayer(duelRequest.sender());
+                sender.sendMessage("<green>Starting duel...");
 
                 service.sendMessage(new DuelStart(
                         List.of(duelRequest.receiver()),
