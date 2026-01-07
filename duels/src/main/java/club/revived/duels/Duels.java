@@ -58,7 +58,7 @@ public final class Duels extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-
+        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
     }
 
     /**

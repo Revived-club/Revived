@@ -2,6 +2,8 @@ package club.revived.lobby;
 
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
+import club.revived.lobby.game.chat.command.MessageCommand;
+import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
 import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.game.command.PingCommand;
@@ -40,7 +42,7 @@ public final class Lobby extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-
+        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
     }
 
     /**
@@ -62,6 +64,8 @@ public final class Lobby extends JavaPlugin {
         new PlayerManager();
         new DuelManager();
         new PlayerChatListener();
+        new MessageCommand();
+        new ReplyCommand();
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
     }
