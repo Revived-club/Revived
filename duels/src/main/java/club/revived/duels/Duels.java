@@ -3,6 +3,7 @@ package club.revived.duels;
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.duels.database.DatabaseManager;
 import club.revived.duels.game.chat.listener.PlayerChatListener;
+import club.revived.duels.game.duels.listener.PlayerListener;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
 import club.revived.duels.service.cluster.Cluster;
@@ -37,6 +38,7 @@ public final class Duels extends JavaPlugin {
         this.setupCluster();
         this.connectDatabase();
 
+        new PlayerListener();
         new PlayerManager();
         new PlayerChatListener();
 
