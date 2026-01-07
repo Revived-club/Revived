@@ -7,7 +7,7 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 
 public final class ReplyCommand {
     
-    private final PlayerManager playerManager = this.playerManager;
+    private final PlayerManager playerManager = PlayerManager.getInstance();
 
     /**
      * Registers the "reply" (alias "r") chat command which sends a private message to the last conversation partner.
