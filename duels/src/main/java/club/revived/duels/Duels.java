@@ -78,7 +78,7 @@ public final class Duels extends JavaPlugin {
         new Cluster(
                 new RedisBroker(host, port, ""),
                 new RedisCacheService(host, port, ""),
-                ServiceType.LOBBY,
+                ServiceType.DUEL,
                 hostName
         );
     }
