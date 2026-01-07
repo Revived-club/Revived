@@ -40,14 +40,17 @@ public final class ReplyCommand {
 
                                 final var target = this.playerManager.fromBukkitPlayer(messageInfo.sender());
 
-                                final var sentMessage = String.format(
+                                target.sendMessage(String.format(
                                         "<#3B82F6>✉ <dark_grey>[<#3B82F6>%s → You<dark_grey>] <white>%s",
                                         player.getName(),
                                         message
-                                );
+                                ));
 
-                                target.sendMessage(sentMessage);
-                                player.sendRichMessage(sentMessage);
+                                player.sendRichMessage(String.format(
+                                        "<#3B82F6>✉ <dark_grey>[<#3B82F6>You → %s<dark_grey>] <white>%s",
+                                        player.getName(),
+                                        message
+                                ));
 
                                 target.cacheValue(MessageInfo.class, new MessageInfo(
                                         player.getUniqueId(),
