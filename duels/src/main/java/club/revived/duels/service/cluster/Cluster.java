@@ -3,7 +3,6 @@ package club.revived.duels.service.cluster;
 import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.cache.GlobalCache;
 import club.revived.duels.service.heartbeat.HeartbeatService;
-import club.revived.duels.service.messaging.Message;
 import club.revived.duels.service.messaging.MessagingService;
 import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.status.ServiceStatus;

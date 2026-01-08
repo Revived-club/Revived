@@ -6,7 +6,6 @@ import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.game.kit.Kit;
 import club.revived.lobby.game.kit.KitHolder;
-import club.revived.lobby.game.kit.KitRoomPage;
 import club.revived.lobby.game.kit.KitRoomPageType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
