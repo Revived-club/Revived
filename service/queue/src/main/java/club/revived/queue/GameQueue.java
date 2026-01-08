@@ -76,40 +76,42 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                 for (final KitType kit : KitType.values()) {
                     for (final QueueType type : QueueType.values()) {
 
-                        final Deque<QueueEntry> queued =
-                                queue.get(kit).get(type);
+                        final Deque<QueueEntry> queued = queue.get(kit).get(type);
 
                         for (final var entry : queued) {
                             if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
-                                System.out.println("not in the list");
+                                System.out.println("Removing disconnected player from queue");
                                 queued.remove(entry);
                                 continue;
                             }
 
-                            System.out.println("Actionbar");
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
                             networkPlayer.sendActionbar("<red>You are in queue...");
                         }
 
                         final int required = type.totalPlayers();
 
+                        if (queued.size() < required) {
+                            continue;
+                        }
+
                         final List<QueueEntry> entries = new ArrayList<>(required);
 
                         for (int i = 0; i < required; i++) {
                             final QueueEntry entry = queued.pollFirst();
 
-                            System.out.println("hit");
-
                             if (entry == null) {
                                 entries.forEach(queued::addFirst);
-                                return;
+                                break;
                             }
 
                             entries.add(entry);
                         }
 
-                        pop(entries.toArray(new QueueEntry[0]));
-
+                        if (entries.size() == required) {
+                            System.out.println("Starting match for " + kit + " " + type);
+                            pop(entries.toArray(new QueueEntry[0]));
+                        }
                     }
                 }
             } catch (final Exception e) {
