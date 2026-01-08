@@ -6,6 +6,7 @@ import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.exception.UnregisteredPlayerException;
 import club.revived.lobby.service.messaging.impl.Connect;
+import club.revived.lobby.service.messaging.impl.SendActionbar;
 import club.revived.lobby.service.messaging.impl.SendMessage;
 import club.revived.lobby.service.status.ServiceStatus;
 import club.revived.lobby.service.status.StatusRequest;
@@ -134,6 +135,18 @@ public final class NetworkPlayer {
             }
 
             service.sendMessage(new SendMessage(this.uuid, message));
+        });
+    }
+
+    public void sendActionbar(final String message) {
+        this.whereIs().thenAccept(service -> {
+            System.out.println("Sending chat message to " + this.username);
+
+            if (service == null) {
+                throw new UnregisteredPlayerException("service player is on is not registered");
+            }
+
+            service.sendMessage(new SendActionbar(this.uuid, message));
         });
     }
 

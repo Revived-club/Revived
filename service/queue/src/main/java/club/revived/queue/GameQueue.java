@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
  */
 public final class GameQueue {
 
-    private final Map<KitType, LinkedList<NetworkPlayer>> queued = new ConcurrentHashMap<>();
+    private final Map<KitType, LinkedList<UUID>> queued = new ConcurrentHashMap<>();
     private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
     /**
-     * Initializes per-kit player queues, registers message handlers, and starts the periodic matchmaking task.
+     * <p>Initializes per-kit player queues, registers message handlers, and starts the periodic matchmaking task.</p>
      *
      * Populates the internal map with an empty LinkedList for every KitType, sets up message handling for queue
      * updates, and begins the scheduled task that pairs players and dispatches duels.
@@ -43,7 +43,7 @@ public final class GameQueue {
     }
 
     /**
-     * Registers messaging handlers required by the queue system.
+     * <p>Registers messaging handlers required by the queue system.</p>
      *
      * Specifically, sets up a handler for `QueuePlayer` messages that converts the sender's UUID
      * to a `NetworkPlayer` and adds that player to the appropriate kit queue.
@@ -51,7 +51,17 @@ public final class GameQueue {
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(QueuePlayer.class, queuePlayer -> {
+                    final var values = this.queued.values();
                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(queuePlayer.uuid());
+
+                    for (final var players : values) {
+                        if (players.contains(queuePlayer.uuid())) {
+                            networkPlayer.sendActionbar("<red>You left the queue!");
+                            players.remove(queuePlayer.uuid());
+                            return;
+                        }
+                    }
+
                     this.addPlayer(queuePlayer.kitType(), networkPlayer);
                 });
     }
@@ -63,11 +73,11 @@ public final class GameQueue {
      * @param player the player to enqueue
      */
     private void addPlayer(KitType kitType, NetworkPlayer player) {
-        queued.get(kitType).add(player);
+        queued.get(kitType).add(player.getUuid());
     }
 
     /**
-     * Schedules a recurring task that pairs queued players by kit and initiates duels on available sub-servers.
+     * <p>Schedules a recurring task that pairs queued players by kit and initiates duels on available sub-servers.</p>
      *
      * The task runs once per second and, for each kit queue, repeatedly removes pairs of players and attempts to start
      * a duel on a suitable sub-server. If the chosen service is not available, the two players are reinserted at the
@@ -77,20 +87,31 @@ public final class GameQueue {
         subServer.scheduleAtFixedRate(() -> {
 
             for (final KitType kitType : queued.keySet()) {
-                final LinkedList<NetworkPlayer> inQueue = queued.get(kitType);
+                final LinkedList<UUID> inQueue = queued.get(kitType);
+
+                inQueue.forEach(uuid -> {
+                    if (PlayerManager.getInstance().getNetworkPlayers().containsKey(uuid)) {
+                        PlayerManager.getInstance().fromBukkitPlayer(uuid).sendActionbar("<green>In Queue...");
+                    } else {
+                        inQueue.remove(uuid);
+                    }
+                });
 
                 while (inQueue.size() >= 2) {
-                    final NetworkPlayer player1 = inQueue.removeFirst();
-                    final NetworkPlayer player2 = inQueue.removeFirst();
+                    final var uuid1 = inQueue.removeFirst();
+                    final var uuid2 = inQueue.removeFirst();
 
                     final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.DUEL);
+
+                    final var player1 = PlayerManager.getInstance().fromBukkitPlayer(uuid1);
+                    final var player2 = PlayerManager.getInstance().fromBukkitPlayer(uuid2);
 
                     service.sendRequest(new StatusRequest(), StatusResponse.class)
                             .thenAccept(statusResponse -> {
                                 if (statusResponse.status() != ServiceStatus.AVAILABLE) {
                                     synchronized (inQueue) {
-                                        inQueue.addFirst(player2);
-                                        inQueue.addFirst(player1);
+                                        inQueue.addFirst(player2.getUuid());
+                                        inQueue.addFirst(player1.getUuid());
                                     }
 
                                     return;

@@ -4,6 +4,7 @@ import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.messaging.impl.DuelStart;
+import club.revived.lobby.service.messaging.impl.QueuePlayer;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
@@ -106,6 +107,14 @@ public final class DuelManager {
                 request,
                 120
         );
+    }
+
+    public void queue(
+            final NetworkPlayer networkPlayer,
+            final KitType kitType
+    ) {
+        Cluster.getInstance().getMessagingService()
+                .sendMessage("queue-service", new QueuePlayer(networkPlayer.getUuid(), kitType));
     }
 
     /**

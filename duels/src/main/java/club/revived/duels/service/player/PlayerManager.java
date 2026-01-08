@@ -1,8 +1,10 @@
 package club.revived.duels.service.player;
 
+import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.exception.UnregisteredPlayerException;
 import club.revived.duels.service.messaging.impl.BroadcastMessage;
+import club.revived.duels.service.messaging.impl.SendActionbar;
 import club.revived.duels.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -104,6 +106,19 @@ public final class PlayerManager {
                     for (final var player : Bukkit.getOnlinePlayers()) {
                         player.sendRichMessage(message.message());
                     }
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(SendActionbar.class, sendActionbar -> {
+
+                    final var uuid = sendActionbar.uuid();
+                    final var player = Bukkit.getPlayer(uuid);
+
+                    if (player == null) {
+                        throw new UnregisteredPlayerException("tried to message unregistered player");
+                    }
+
+                    player.sendActionBar(ColorUtils.parse(sendActionbar.message()));
                 });
     }
 
