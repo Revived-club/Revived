@@ -27,6 +27,12 @@ public final class GameQueue {
     private final Map<KitType, LinkedList<NetworkPlayer>> queued = new ConcurrentHashMap<>();
     private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Initializes per-kit player queues, registers message handlers, and starts the periodic matchmaking task.
+     *
+     * Populates the internal map with an empty LinkedList for every KitType, sets up message handling for queue
+     * updates, and begins the scheduled task that pairs players and dispatches duels.
+     */
     public GameQueue() {
         for (final KitType kit : KitType.values()) {
             queued.put(kit, new LinkedList<>());
@@ -36,6 +42,12 @@ public final class GameQueue {
         this.startTask();
     }
 
+    /**
+     * Registers messaging handlers required by the queue system.
+     *
+     * Specifically, sets up a handler for `QueuePlayer` messages that converts the sender's UUID
+     * to a `NetworkPlayer` and adds that player to the appropriate kit queue.
+     */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(QueuePlayer.class, queuePlayer -> {
@@ -44,10 +56,23 @@ public final class GameQueue {
                 });
     }
 
+    /**
+     * Enqueues a player into the queue for the specified kit type.
+     *
+     * @param kitType the kit category whose queue the player will be added to
+     * @param player the player to enqueue
+     */
     private void addPlayer(KitType kitType, NetworkPlayer player) {
         queued.get(kitType).add(player);
     }
 
+    /**
+     * Schedules a recurring task that pairs queued players by kit and initiates duels on available sub-servers.
+     *
+     * The task runs once per second and, for each kit queue, repeatedly removes pairs of players and attempts to start
+     * a duel on a suitable sub-server. If the chosen service is not available, the two players are reinserted at the
+     * front of their queue in original order so they can be retried later.
+     */
     private void startTask() {
         subServer.scheduleAtFixedRate(() -> {
 

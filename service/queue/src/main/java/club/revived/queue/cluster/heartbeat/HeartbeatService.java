@@ -49,13 +49,11 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-     * Start a recurring task that publishes this service's heartbeat and performs timeout checks.
-     * <p></p>
-     * Schedules a fixed-rate task with an initial delay of 0 and period of INTERVAL milliseconds.
-     * Each execution publishes a Heartbeat to the "service:heartbeat" topic containing the current
-     * timestamp, this service's type and id, the online player count, a list of OnlinePlayer entries,
-     * and the cluster IP. After publishing, it iterates the recorded last-seen timestamps and logs an
-     * error for any service whose elapsed time since last seen is less than TIMEOUT.
+     * Starts the scheduled background task that monitors service last-seen timestamps.
+     *
+     * Schedules a fixed-rate task with no initial delay that runs every INTERVAL milliseconds.
+     * On each run it iterates the recorded last-seen timestamps and logs an error for any
+     * service whose elapsed time since its last seen timestamp is less than TIMEOUT.
      */
     public void startTask() {
         subServer.scheduleAtFixedRate(() -> {

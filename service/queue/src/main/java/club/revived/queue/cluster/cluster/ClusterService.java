@@ -58,13 +58,13 @@ public final class ClusterService {
 
 
     /**
-     * Sends a request to this cluster service and obtains the corresponding response.
-     *
-     * @param request      the request to send to the remote service
-     * @param responseType the expected response class used to deserialize the reply
-     * @param <T>          the response type
-     * @return the response of type `T`
-     */
+         * Send a request to this cluster service and obtain its response.
+         *
+         * @param request      the request to send to the remote service
+         * @param responseType the expected response class used to deserialize the reply
+         * @param <T>          the response type
+         * @return the response of type {@code T} from the remote service
+         */
     @NotNull
     public <T extends Response> CompletableFuture<T> sendRequest(
             final Request request,
@@ -87,11 +87,11 @@ public final class ClusterService {
     }
 
     /**
-     * Handles an incoming cluster message.
+     * Hook invoked when a message is received from this cluster service.
      *
-     * Default implementation does nothing; subclasses may override to react to specific message types.
+     * Default implementation is a no-op; subclasses should override to handle specific message types.
      *
-     * @param message the received message to handle
+     * @param message the incoming message to handle; implementations may inspect and act on its concrete type
      */
     public <T> void on(final T message) {
 
@@ -134,9 +134,9 @@ public final class ClusterService {
     }
 
     /**
-     * Gets the timestamp when the service was last seen.
+     * Timestamp (milliseconds since epoch) when the service was last observed.
      *
-     * @return the timestamp when the service was last seen
+     * @return the millisecond timestamp since the Unix epoch representing when the service was last seen
      */
     public long getLastSeen() {
         return lastSeen;

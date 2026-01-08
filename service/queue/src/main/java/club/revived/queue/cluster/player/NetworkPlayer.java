@@ -56,9 +56,9 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Locate the cluster proxy service responsible for this player.
+     * Resolve the cluster proxy service responsible for this player.
      *
-     * @return the ClusterService responsible for this player, or null if the player is not currently assigned to a proxy
+     * @return the ClusterService responsible for this player, or {@code null} if the player is not currently assigned to a proxy
      */
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
@@ -76,11 +76,12 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Cache the given object for this player in the cluster-wide global cache with an expiration.
+     * Store a per-player value in the cluster-wide global cache with an expiration.
      *
-     * The entry is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
+     * The entry is stored under the key "<uuid>:<clazzSimpleNameLowercased>" where the suffix
+     * is the simple name of {@code clazz} converted to lower case.
      *
-     * @param clazz   class whose simple name (lowercased) is used as the cache key suffix
+     * @param clazz   the class whose simple name (lowercased) is used as the cache key suffix
      * @param obj     the object to store for this player
      * @param seconds expiration time in seconds for the cached entry
      */
@@ -99,12 +100,12 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Caches an object for this player in the cluster-wide global cache.
+     * Store a per-player value in the cluster-wide global cache.
      *
      * The value is stored under the key "<playerUuid>:<clazzSimpleNameLowercased>".
      *
      * @param clazz the class whose simple name (lowercased) is used as the cache key suffix
-     * @param obj   the object to store for this player
+     * @param obj   the value to store for this player
      */
     public <T> void cacheValue(
             final Class<T> clazz,
@@ -221,18 +222,18 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Identifier of the server the player is currently on.
+     * Identifier of the server where the player is currently connected.
      *
-     * @return the identifier of the server the player is currently on
+     * @return the identifier of the current server
      */
     public @NotNull String getCurrentServer() {
         return currentServer;
     }
 
     /**
-     * Obtain the proxy service currently handling this player.
+     * Access the proxy ClusterService currently handling this player.
      *
-     * @return a CompletableFuture that completes with the proxy ClusterService for this player, or `null` if no proxy is assigned
+     * @return the proxy ClusterService for this player, or `null` if no proxy is assigned
      */
     public @NotNull CompletableFuture<ClusterService> getCurrentProxy() {
         return currentProxy;

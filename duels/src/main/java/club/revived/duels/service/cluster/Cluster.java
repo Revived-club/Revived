@@ -71,11 +71,8 @@ public final class Cluster {
     }
 
     /**
-     * Creates and initializes a Cluster for the given service identity, wiring messaging,
-     * heartbeat/status subsystems and registering request handlers.
-     * <p>
-     * This constructor sets the singleton instance for the process, computes the service IP,
-     * instantiates the MessagingService, starts background services, and registers request handlers.
+     * Initialize a Cluster for the given service identity and wire messaging, heartbeat, and
+     * discovery subsystems for this process instance.
      *
      * @param broker      the MessageBroker used for inter-service publish/subscribe
      * @param cache       the shared GlobalCache instance
