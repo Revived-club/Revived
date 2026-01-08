@@ -3,7 +3,7 @@ package club.revived.lobby.game.duel;
 import java.util.UUID;
 
 /**
- * DuelRequest
+ * Request to fight another player.
  *
  * @author yyuh
  * @since 03.01.26

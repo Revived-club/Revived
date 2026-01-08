@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * DuelRequestMenu
+ * Menu for sending duel requests. Let's you change the kit & the amount of rounds
  *
  * @author yyuh
  * @since 03.01.26

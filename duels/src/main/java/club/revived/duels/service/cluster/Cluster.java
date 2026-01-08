@@ -3,6 +3,7 @@ package club.revived.duels.service.cluster;
 import club.revived.duels.service.broker.MessageBroker;
 import club.revived.duels.service.cache.GlobalCache;
 import club.revived.duels.service.heartbeat.HeartbeatService;
+import club.revived.duels.service.messaging.Message;
 import club.revived.duels.service.messaging.MessagingService;
 import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.status.ServiceStatus;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -72,14 +74,14 @@ public final class Cluster {
     /**
      * Creates and initializes a Cluster for the given service identity, wiring messaging,
      * heartbeat/status subsystems and registering request handlers.
-     *
+     * <p>
      * This constructor sets the singleton instance for the process, computes the service IP,
      * instantiates the MessagingService, starts background services, and registers request handlers.
      *
-     * @param broker the MessageBroker used for inter-service publish/subscribe
-     * @param cache  the shared GlobalCache instance
+     * @param broker      the MessageBroker used for inter-service publish/subscribe
+     * @param cache       the shared GlobalCache instance
      * @param serviceType the type of this service
-     * @param id     the unique identifier for this service instance
+     * @param id          the unique identifier for this service instance
      * @throws IllegalStateException if the local service IP cannot be determined
      */
     public Cluster(
@@ -104,7 +106,7 @@ public final class Cluster {
 
     /**
      * Initializes and starts the cluster background services required for operation.
-     *
+     * <p>
      * Starts the heartbeat service and the status service so the cluster can broadcast liveness
      * and report status to other components.
      */
@@ -120,17 +122,20 @@ public final class Cluster {
      * message types so they can be serialized and dispatched across the cluster.</p>
      */
     private void registerMessageTypes() {
-        this.messagingService.register(BotDuelStart.class);
-        this.messagingService.register(Connect.class);
-        this.messagingService.register(DuelStart.class);
-        this.messagingService.register(SendMessage.class);
-        this.messagingService.register(WhereIsProxyResponse.class);
-        this.messagingService.register(WhereIsProxyRequest.class);
-        this.messagingService.register(WhereIsRequest.class);
-        this.messagingService.register(WhereIsResponse.class);
-        this.messagingService.register(StatusRequest.class);
-        this.messagingService.register(StatusResponse.class);
-        this.messagingService.register(DuelEnd.class);
+        List.of(
+                BotDuelStart.class,
+                Connect.class,
+                DuelStart.class,
+                SendMessage.class,
+                WhereIsProxyResponse.class,
+                WhereIsProxyRequest.class,
+                WhereIsRequest.class,
+                WhereIsResponse.class,
+                StatusRequest.class,
+                StatusResponse.class,
+                MigrateGame.class,
+                DuelEnd.class
+        ).forEach(this.messagingService::register);
     }
 
     /**

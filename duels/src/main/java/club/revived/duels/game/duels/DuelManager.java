@@ -43,10 +43,10 @@ public final class DuelManager {
     }
 
     private void migrateGame(final MigrateGame game) {
-        final List<UUID> blueTeam = game.blueTeam();
-        final List<UUID> redTeam = game.redTeam();
-        final int maxRounds = game.maxRounds();
-        final KitType kitType = game.kitType();
+        final var blueTeam = game.blueTeam();
+        final var redTeam = game.redTeam();
+        final var maxRounds = game.maxRounds();
+        final var kitType = game.kitType();
 
         final int blueScore = game.blueScore();
         final int redScore = game.redScore();
@@ -96,9 +96,9 @@ public final class DuelManager {
 
                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
 
-                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> {
-                        player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]));
-                    });
+                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit ->
+                            player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]))
+                    );
 
                     this.runningDuels.put(player.getUniqueId(), duel);
                 }
@@ -198,7 +198,7 @@ public final class DuelManager {
     /**
      * Finalizes a duel: transitions it to the ending state, removes all participants from the active-duel registry,
      * heals each participant, and notifies the lobby service of the duel result.
-     *
+     * <p>
      * The lobby notification includes winner and loser UUIDs, rounds, final scores, and the duel's kit type.
      *
      * @param duel   the duel to finalize
@@ -300,7 +300,7 @@ public final class DuelManager {
 
     /**
      * Get the live registry of active duels keyed by participant UUID.
-     *
+     * <p>
      * The returned map associates each participant's UUID with the Duel they are currently in.
      * Modifying this map will modify the manager's internal state.
      *
