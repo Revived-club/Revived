@@ -114,7 +114,7 @@ public final class DuelManager {
             final KitType kitType
     ) {
         Cluster.getInstance().getMessagingService()
-                .sendMessage("queue-service", new AddToQueue(networkPlayer.getUuid(), kitType));
+                .sendMessage("queue-service", new AddToQueue(networkPlayer.getUuid(), QueueType.SOLO, kitType));
     }
 
     /**
