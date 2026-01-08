@@ -135,10 +135,11 @@ public final class Cluster {
     }
 
     /**
-     * Registers messaging handlers for cluster requests.
+     * Register handlers for cluster request messages.
      *
-     * <p>Registers a handler for WhereIsRequest that returns a WhereIsResponse containing this
-     * service's ID when the requested player is currently online, or `null` when the player is not found.
+     * <p>Registers a handler for WhereIsRequest that responds with a WhereIsResponse containing this
+     * service's ID when the requested player is online, or a WhereIsResponse with a null service ID
+     * when the player is not found.
      */
     private void registerRequestHandlers() {
 
@@ -176,10 +177,9 @@ public final class Cluster {
     }
 
     /**
-     * Resolve which ClusterService is acting as the proxy for the given player UUID.
+     * Locate the ClusterService acting as the proxy for the given player UUID.
      *
-     * @param uuid the player's unique identifier to locate
-     * @return the ClusterService hosting the player's proxy, or `null` if no proxy is known for the UUID
+     * @return the ClusterService hosting the player's proxy, or {@code null} if no proxy is known for the UUID
      */
     @NotNull
     public CompletableFuture<ClusterService> whereIsProxy(final UUID uuid) {
@@ -208,10 +208,10 @@ public final class Cluster {
     }
 
     /**
-     * Constructs the local service address string in the form "ip:port".
+     * Returns the local service address in the form "ip:port".
      *
-     * @return the local IP address concatenated with the Bukkit port, e.g. "192.168.1.2:25565"
-     * @throws IllegalStateException if the local host address or Bukkit port cannot be determined
+     * @return the local IP address and port (e.g. "192.168.1.2:3000")
+     * @throws IllegalStateException if the local host address cannot be determined
      */
     @NotNull
     private String serviceIp() {
@@ -280,7 +280,7 @@ public final class Cluster {
     }
 
     /**
-     * Returns the unique identifier for this service instance.
+     * Retrieve the unique identifier for this service instance.
      *
      * @return the service instance's unique identifier
      */
@@ -289,7 +289,7 @@ public final class Cluster {
     }
 
     /**
-     * Get the registered Cluster singleton instance.
+     * Retrieve the process-wide Cluster singleton.
      *
      * @return the registered Cluster instance
      * @throws UnsupportedOperationException if no Cluster instance has been registered

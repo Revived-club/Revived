@@ -673,14 +673,14 @@ public final class PlayerListener implements Listener {
 
 
     /**
-     * Determine whether the team has no active participants remaining.
-     * <p></p>
-     * A team is considered inactive if it contains exactly one member or if every member
-     * is null, dead, offline, or in spectator game mode.
+     * Check whether a duel team has no active participants remaining.
+     *
+     * A team is treated as having no active participants if it contains exactly one player
+     * or every member is `null`, dead, offline, or in `SPECTATOR` game mode.
      *
      * @param team the team to evaluate
-     * @return `true` if the team has exactly one player or every player is null, dead, offline,
-     * or in spectator mode; `false` otherwise
+     * @return `true` if the team has no active participants (team size is one or every member is
+     *         `null`, dead, offline, or in `SPECTATOR` mode), `false` otherwise
      */
     private boolean isWholeTeamDead(final DuelTeam team) {
         if (team.getUuids().size() == 1) {

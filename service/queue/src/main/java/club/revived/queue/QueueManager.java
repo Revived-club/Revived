@@ -12,16 +12,22 @@ import club.revived.queue.cluster.cluster.Cluster;
  */
 public final class QueueManager {
 
+    /**
+     * Initializes cluster integration and creates the game queue.
+     *
+     * <p>Configures the Redis-backed cluster and cache service using environment
+     * variables and then instantiates the GameQueue.
+     */
     public QueueManager() {
         this.setupCluster();
         new GameQueue();
     }
 
     /**
-     * Initializes the application's Cluster integration using Redis and environment configuration.
-     * <p></p>
-     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and constructs a
-     * Cluster configured with a Redis broker and Redis cache service for ServiceType.LOBBY.
+     * Initializes the application's cluster using Redis and environment configuration.
+     *
+     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and configures a
+     * Cluster backed by a Redis broker and a Redis cache service for ServiceType.LOBBY.
      */
     private void setupCluster() {
         final String hostName = System.getenv("HOSTNAME");

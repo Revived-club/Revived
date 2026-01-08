@@ -33,9 +33,9 @@ public final class PlayerManager {
     }
 
     /**
-     * Create a NetworkPlayer for the given identity and register it in the manager.
+     * Create and register a NetworkPlayer for the given identity.
      *
-     * @param uuid the player's unique UUID
+     * @param uuid the player's UUID
      * @param username the player's username
      * @param currentServer the name of the server the player is currently connected to
      */
@@ -86,11 +86,11 @@ public final class PlayerManager {
     }
 
     /**
-     * Resolve the NetworkPlayer for a Bukkit player's UUID.
+     * Resolve the NetworkPlayer mapped to the given Bukkit player UUID.
      *
-     * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
-     * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
-     * @throws UnregisteredPlayerException if the internal registry already contains the given UUID
+     * @param uuid the Bukkit player's UUID to look up
+     * @return the registered NetworkPlayer for the UUID
+     * @throws UnregisteredPlayerException if no NetworkPlayer is registered for the UUID
      */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final UUID uuid) {
@@ -102,10 +102,10 @@ public final class PlayerManager {
     }
 
     /**
-     * Locate a registered NetworkPlayer by username using a case-insensitive match.
+     * Finds a registered NetworkPlayer whose username matches the given name using a case-insensitive comparison.
      *
-     * @param name the username to search for (case-insensitive)
-     * @return the first matching NetworkPlayer, or `null` if no registered player matches
+     * @param name the username to search for
+     * @return the first matching NetworkPlayer if present, `null` otherwise
      */
     @Nullable
     public NetworkPlayer withName(final String name) {

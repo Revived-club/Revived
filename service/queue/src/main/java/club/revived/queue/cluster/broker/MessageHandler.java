@@ -9,9 +9,9 @@ package club.revived.queue.cluster.broker;
 @FunctionalInterface
 public interface MessageHandler<T> {
     /**
- * Handle a message of type T.
+ * Process a message of type T.
  *
- * @param message the message to be processed by this handler
+ * @param message the message to process
  */
 void handle(T message);
 }

@@ -31,9 +31,9 @@ public final class DuelManager {
     private static DuelManager instance;
 
     /**
-     * Initializes a DuelManager and registers a handler to start duels when a DuelStart message is received.
+     * Initializes the DuelManager singleton and registers message handlers for duel lifecycle messages.
      *
-     * <p>As a side effect, a message handler for DuelStart events is registered with the cluster messaging service.</p>
+     * Sets the static instance reference and registers handlers for DuelStart and MigrateGame with the cluster messaging service.
      */
     public DuelManager() {
         instance = this;
@@ -42,6 +42,17 @@ public final class DuelManager {
         this.cluster.getMessagingService().registerMessageHandler(MigrateGame.class, this::migrateGame);
     }
 
+    /**
+     * Reconstructs and launches a duel from a migrated game state.
+     *
+     * <p>Creates a Duel from the migration payload, restores team scores, moves each participant
+     * to the current service, applies saved inventories (EditedDuelKit), teleports players to
+     * arena spawns, registers participants in the active-duel registry, and initiates the duel
+     * start countdown.
+     *
+     * @param game the migration payload containing team compositions, scores, kit type, rounds,
+     *             and source server identifier
+     */
     private void migrateGame(final MigrateGame game) {
         final var blueTeam = game.blueTeam();
         final var redTeam = game.redTeam();
@@ -196,15 +207,16 @@ public final class DuelManager {
     }
 
     /**
-     * Finalizes a duel: transitions it to the ending state, removes all participants from the active-duel registry,
-     * heals each participant, and notifies the lobby service of the duel result.
-     * <p>
-     * The lobby notification includes winner and loser UUIDs, rounds, final scores, and the duel's kit type.
-     *
-     * @param duel   the duel to finalize
-     * @param winner the team that won the duel
-     * @param loser  the team that lost the duel
-     */
+         * Finalizes a duel and notifies the lobby of its outcome.
+         *
+         * Sets the duel state to ENDING, removes all participants from the active-duel registry and heals them,
+         * then sends a DuelEnd message to the least-loaded lobby service containing winner and loser UUIDs,
+         * rounds, final scores, and the duel's kit type.
+         *
+         * @param duel   the duel to finalize
+         * @param winner the team that won the duel
+         * @param loser  the team that lost the duel
+         */
     public void endDuel(
             final Duel duel,
             final DuelTeam winner,

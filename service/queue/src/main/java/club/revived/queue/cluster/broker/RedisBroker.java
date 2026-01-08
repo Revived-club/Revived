@@ -21,13 +21,11 @@ public final class RedisBroker implements MessageBroker {
     private final Gson gson = new Gson();
 
     /**
-     * Create a RedisBroker connected to the specified Redis instance.
+     * Creates a RedisBroker connected to the specified Redis instance.
      *
-     * Initializes the broker's internal JedisPool using the provided connection parameters.
-     *
-     * @param host     the Redis server hostname or IP address
-     * @param port     the Redis server port
-     * @param password the Redis authentication password; use an empty string if no password is required
+     * @param host the Redis server hostname or IP address
+     * @param port the Redis server port
+     * @param password the Redis authentication password; empty string if no password is required
      */
     public RedisBroker(
             final String host,
@@ -51,12 +49,12 @@ public final class RedisBroker implements MessageBroker {
     }
 
     /**
-     * Create and return a configured JedisPool connected to the specified Redis instance.
+     * Creates and returns a configured JedisPool for the specified Redis instance.
      *
      * @param host     the Redis server host
      * @param port     the Redis server port
-     * @param password the password for authentication; provide an empty string for no password
-     * @return         a configured {@link JedisPool} connected to the given host and port
+     * @param password the password for authentication; empty string disables authentication
+     * @return         a configured {@link JedisPool} connected to the specified host and port
      */
     @Override
     public JedisPool connect(
@@ -114,6 +112,15 @@ public final class RedisBroker implements MessageBroker {
         subServer.submit(() -> {
             try (final var jedis = jedisPool.getResource()) {
                 jedis.subscribe(new JedisPubSub() {
+                    /**
+                     * Processes a message received on a Redis channel by deserializing its JSON payload to the expected type
+                     * and dispatching it to the configured message handler.
+                     *
+                     * @param channel the Redis channel from which the message was received
+                     * @param message the JSON-serialized message payload
+                     * 
+                     * Note: Exceptions thrown during deserialization or handler execution are caught and suppressed. 
+                     */
                     @Override
                     public void onMessage(
                             final String channel,
