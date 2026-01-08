@@ -3,19 +3,13 @@ package club.revived.queue;
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
-import club.revived.queue.cluster.messaging.impl.AddToQueue;
-import club.revived.queue.cluster.messaging.impl.RemoveFromQueue;
-import club.revived.queue.cluster.player.NetworkPlayer;
-import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
 import club.revived.queue.cluster.status.StatusResponse;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * GameQueue - matches players for duels and sends them to sub-servers.
@@ -23,131 +17,100 @@ import java.util.concurrent.TimeUnit;
  * @author yyuh
  * @since 1/8/26
  */
-public final class GameQueue {
+public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
-    private final Map<KitType, LinkedList<UUID>> queued = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
+    private final Map<KitType, Map<QueueType, Deque<QueueEntry>>> queue = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    /**
-     * <p>Initializes per-kit player queues, registers message handlers, and starts the periodic matchmaking task.</p>
-     * <p>
-     * Populates the internal map with an empty LinkedList for every KitType, sets up message handling for queue
-     * updates, and begins the scheduled task that pairs players and dispatches duels.
-     */
     public GameQueue() {
         for (final KitType kit : KitType.values()) {
-            queued.put(kit, new LinkedList<>());
-        }
+            final Map<QueueType, Deque<QueueEntry>> map = new EnumMap<>(QueueType.class);
 
-        this.registerMessageHandlers();
-        this.startTask();
+            for (final QueueType type : QueueType.values()) {
+                map.put(type, new ConcurrentLinkedDeque<>());
+            }
+
+            queue.put(kit, map);
+        }
     }
 
-    /**
-     * <p>Registers messaging handlers required by the queue system.</p>
-     * <p>
-     * Specifically, sets up a handler for `QueuePlayer` messages that converts the sender's UUID
-     * to a `NetworkPlayer` and adds that player to the appropriate kit queue.
-     */
-    private void registerMessageHandlers() {
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(AddToQueue.class, queuePlayer -> {
-                    final var values = this.queued.values();
-                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(queuePlayer.uuid());
 
-                    for (final var players : values) {
-                        if (players.contains(queuePlayer.uuid())) {
-                            networkPlayer.sendActionbar("<red>You left the queue!");
-                            players.remove(queuePlayer.uuid());
-                            return;
+    @Override
+    public void startTask() {
+        executorService.scheduleAtFixedRate(() -> {
+
+            for (final KitType kit : KitType.values()) {
+                for (final QueueType type : QueueType.values()) {
+
+                    final Deque<QueueEntry> queued =
+                            queue.get(kit).get(type);
+
+                    final int required = type.totalPlayers();
+
+                    while (queued.size() >= required) {
+                        final List<QueueEntry> entries = new ArrayList<>(required);
+
+                        for (int i = 0; i < required; i++) {
+                            entries.add(queued.removeFirst());
                         }
+
+                        pop(entries.toArray(new QueueEntry[0]));
                     }
-
-                    this.addPlayer(queuePlayer.kitType(), networkPlayer);
-                });
-
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(RemoveFromQueue.class, removeFromQueue -> {
-                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(removeFromQueue.uuid());
-                    this.removePlayer(networkPlayer);
-                });
-    }
-
-    /**
-     * Enqueues a player into the queue for the specified kit type.
-     *
-     * @param kitType the kit category whose queue the player will be added to
-     * @param player  the player to enqueue
-     */
-    private void addPlayer(
-            final KitType kitType,
-            final NetworkPlayer player
-    ) {
-        queued.get(kitType).add(player.getUuid());
-    }
-
-    private void removePlayer(final NetworkPlayer player) {
-        for (final KitType kitType : queued.keySet()) {
-            final LinkedList<UUID> inQueue = queued.get(kitType);
-
-            inQueue.forEach(uuid -> {
-                if (uuid.equals(player.getUuid())) {
-                    inQueue.remove(uuid);
-                }
-            });
-        }
-    }
-
-    /**
-     * <p>Schedules a recurring task that pairs queued players by kit and initiates duels on available sub-servers.</p>
-     * <p>
-     * The task runs once per second and, for each kit queue, repeatedly removes pairs of players and attempts to start
-     * a duel on a suitable sub-server. If the chosen service is not available, the two players are reinserted at the
-     * front of their queue in original order so they can be retried later.
-     */
-    private void startTask() {
-        subServer.scheduleAtFixedRate(() -> {
-
-            for (final KitType kitType : queued.keySet()) {
-                final LinkedList<UUID> inQueue = queued.get(kitType);
-
-                inQueue.forEach(uuid -> {
-                    if (PlayerManager.getInstance().getNetworkPlayers().containsKey(uuid)) {
-                        PlayerManager.getInstance().fromBukkitPlayer(uuid).sendActionbar("<green>In Queue...");
-                    } else {
-                        inQueue.remove(uuid);
-                    }
-                });
-
-                while (inQueue.size() >= 2) {
-                    final var uuid1 = inQueue.removeFirst();
-                    final var uuid2 = inQueue.removeFirst();
-
-                    final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.DUEL);
-
-                    final var player1 = PlayerManager.getInstance().fromBukkitPlayer(uuid1);
-                    final var player2 = PlayerManager.getInstance().fromBukkitPlayer(uuid2);
-
-                    service.sendRequest(new StatusRequest(), StatusResponse.class)
-                            .thenAccept(statusResponse -> {
-                                if (statusResponse.status() != ServiceStatus.AVAILABLE) {
-                                    synchronized (inQueue) {
-                                        inQueue.addFirst(player2.getUuid());
-                                        inQueue.addFirst(player1.getUuid());
-                                    }
-
-                                    return;
-                                }
-
-                                service.sendMessage(new DuelStart(
-                                        List.of(player1.getUuid()),
-                                        List.of(player2.getUuid()),
-                                        1,
-                                        kitType
-                                ));
-                            });
                 }
             }
+
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+
+    @Override
+    public void push(final QueueEntry entry) {
+        queue.get(entry.kitType())
+                .get(entry.queueType())
+                .add(entry);
+    }
+
+    @Override
+    public void pop(final QueueEntry... entries) {
+        final QueueType type = entries[0].queueType();
+
+        final List<QueueEntry> blue = Arrays.stream(entries)
+                .limit(type.teamSize())
+                .toList();
+
+        final List<QueueEntry> red = Arrays.stream(entries)
+                .skip(type.teamSize())
+                .limit(type.teamSize())
+                .toList();
+
+        final DuelStart duelStart = new DuelStart(
+                blue.stream().map(QueueEntry::uuid).toList(),
+                red.stream().map(QueueEntry::uuid).toList(),
+                type.teamSize(),
+                entries[0].kitType()
+        );
+
+        final var service = Cluster.getInstance()
+                .getLeastLoadedService(ServiceType.DUEL);
+
+        service.sendRequest(new StatusRequest(), StatusResponse.class)
+                .thenAccept(status -> {
+                    if (status.status() == ServiceStatus.AVAILABLE) {
+                        service.sendMessage(duelStart);
+                    }
+                });
+    }
+
+
+    @Override
+    public void remove(final UUID uuid) {
+        this.queue.forEach((_, queueEntries) ->
+                queueEntries.values().forEach(entries ->
+                        entries.removeIf(queueEntry -> queueEntry.uuid().equals(uuid))));
+    }
+
+    @Override
+    public @NotNull List<QueueEntry> queued() {
+        return List.of();
     }
 }

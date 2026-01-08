@@ -25,7 +25,7 @@ public final class QueueManager {
 
     /**
      * Initializes the application's cluster using Redis and environment configuration.
-     *
+     * <p></p>
      * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and configures a
      * Cluster backed by a Redis broker and a Redis cache service for ServiceType.LOBBY.
      */

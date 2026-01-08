@@ -5,7 +5,7 @@ import club.revived.queue.QueueManager;
 public final class Main {
 
     /**
-     * Application entry point that starts the queue manager.
+     * <p>Application entry point that starts the queue manager.</p>
      *
      * Prints a startup message and constructs the {@code QueueManager}.
      *
