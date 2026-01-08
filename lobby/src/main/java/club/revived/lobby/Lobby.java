@@ -7,6 +7,7 @@ import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
 import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.game.command.PingCommand;
+import club.revived.lobby.game.command.QueueCommand;
 import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
@@ -81,6 +82,7 @@ public final class Lobby extends JavaPlugin {
         new DuelCommand();
         new WhereIsCommand();
         new PingCommand();
+        new QueueCommand();
     }
 
 

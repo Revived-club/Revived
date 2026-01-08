@@ -3,6 +3,7 @@ package club.revived.queue;
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
+import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
 import club.revived.queue.cluster.status.StatusResponse;
@@ -44,6 +45,15 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                     final Deque<QueueEntry> queued =
                             queue.get(kit).get(type);
+
+                    for (final var entry : queued) {
+                        if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
+                            continue;
+                        }
+
+                        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
+                        networkPlayer.sendActionbar("<red>You are in queue...");
+                    }
 
                     final int required = type.totalPlayers();
 
