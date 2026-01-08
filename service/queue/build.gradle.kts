@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    alias(libs.plugins.shadow)
 }
 
 group = "club.revived.queue"
@@ -11,6 +12,7 @@ repositories {
 
 dependencies {
     implementation(libs.jedis)
+    implementation(libs.jetbrainsannotations)
 }
 
 tasks.test {
