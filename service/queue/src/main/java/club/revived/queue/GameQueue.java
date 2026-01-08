@@ -81,6 +81,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                     for (final var entry : queued) {
                         if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
+                            queued.remove(entry);
                             continue;
                         }
 
@@ -90,15 +91,21 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                     final int required = type.totalPlayers();
 
-                    while (queued.size() >= required) {
-                        final List<QueueEntry> entries = new ArrayList<>(required);
+                    final List<QueueEntry> entries = new ArrayList<>(required);
 
-                        for (int i = 0; i < required; i++) {
-                            entries.add(queued.removeFirst());
+                    for (int i = 0; i < required; i++) {
+                        final QueueEntry entry = queued.pollFirst();
+
+                        if (entry == null) {
+                            entries.forEach(queued::addFirst);
+                            return;
                         }
 
-                        pop(entries.toArray(new QueueEntry[0]));
+                        entries.add(entry);
                     }
+
+                    pop(entries.toArray(new QueueEntry[0]));
+
                 }
             }
 

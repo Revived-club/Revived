@@ -5,6 +5,7 @@ import club.revived.queue.cluster.cache.GlobalCache;
 import club.revived.queue.cluster.heartbeat.HeartbeatService;
 import club.revived.queue.cluster.messaging.MessagingService;
 import club.revived.queue.cluster.messaging.impl.*;
+import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
 import club.revived.queue.cluster.status.StatusResponse;
@@ -100,6 +101,7 @@ public final class Cluster {
         this.startServices();
         this.registerRequestHandlers();
         this.registerMessageTypes();
+        new PlayerManager();
     }
 
     /**
