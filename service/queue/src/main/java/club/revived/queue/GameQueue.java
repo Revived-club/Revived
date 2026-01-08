@@ -49,6 +49,8 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(AddToQueue.class, addToQueue -> {
+                    System.out.printf("Adding %s to the queue!%n", addToQueue.uuid().toString());
+
                     final var queueEntry = new QueueEntry(
                             addToQueue.uuid(),
                             addToQueue.queueType(),
