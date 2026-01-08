@@ -9,6 +9,7 @@ anvilgui = "1.10.11-SNAPSHOT"
 worldguard = "7.0.10"
 velocity = "3.4.0-SNAPSHOT"
 kubernetes = "7.3.1"
+jetbrainsannotations = "26.0.2-1"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -19,6 +20,7 @@ anvilgui = { module = "net.wesjd:anvilgui", version.ref = "anvilgui" }
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 kubernetes = { module = "io.fabric8:kubernetes-client", version.ref = "kubernetes" }
+jetbrainsannotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsannotations" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
