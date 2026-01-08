@@ -25,7 +25,7 @@ public interface GlobalCache {
     );
 
     /**
-     * Stores a value in the global cache under the specified key.
+     * Store a value in the global cache under the specified key, replacing any existing entry.
      *
      * @param key the cache key to associate with the value
      * @param t   the value to store
@@ -36,7 +36,8 @@ public interface GlobalCache {
     );
 
     /**
-     * Adds the given value to the cache entry identified by the specified key, preserving any existing entries (for example, appending to a collection stored at that key).
+     * Adds a value to the cache entry identified by the given key while preserving any existing entries.
+     * For example, if the entry is a collection, the value will be appended to that collection.
      *
      * @param key the cache key under which the value will be added
      * @param t   the value to add to the cache entry
@@ -47,21 +48,21 @@ public interface GlobalCache {
     );
 
     /**
-     * Remove the specified key and its associated value(s) from the cache.
+     * Remove the entry for the given cache key.
      *
      * @param key the cache key to remove
-     * @return `true` if the key existed and was removed, `false` otherwise
+     * @return {@code true} if the key existed and was removed, {@code false} otherwise
      */
     CompletableFuture<Boolean> remove(
             final String key
     );
 
     /**
-     * Remove occurrences of a value from the list stored at the given cache key.
+     * Removes occurrences of a value from the list stored under the specified cache key.
      *
-     * @param key   the cache key holding a list
+     * @param key   the cache key containing a list
      * @param t     the value to remove from the list
-     * @param count the number of occurrences to remove; 0 means remove all occurrences
+     * @param count the maximum number of occurrences to remove; 0 removes all occurrences
      */
     <T> void removeFromList(
             final String key,
@@ -82,11 +83,12 @@ public interface GlobalCache {
     );
 
     /**
-     * Stores the given value under the specified key and sets its time-to-live.
+     * Store a value under the specified key with a time-to-live.
      *
+     * @param <T>     the type of the stored value
      * @param key     the cache key
      * @param t       the value to store
-     * @param seconds time-to-live in seconds; the entry will expire and be removed after this duration
+     * @param seconds time-to-live in seconds; the entry expires and is removed after this duration
      */
     <T>
 
@@ -97,14 +99,14 @@ public interface GlobalCache {
     );
 
     /**
-     * Establishes a connection to the cache service at the specified host and port using the provided password.
-     *
-     * @param host     the hostname or IP address of the cache service
-     * @param port     the TCP port of the cache service
-     * @param password the authentication password to use for the connection
-     * @param <P>      the type of the returned connection or client
-     * @return a connection or client instance of type P representing the established connection
-     */
+         * Open a connection to the cache service at the given host and port using the provided password.
+         *
+         * @param host     hostname or IP address of the cache service
+         * @param port     TCP port of the cache service
+         * @param password authentication password for the connection
+         * @param <P>      the connection or client implementation type returned
+         * @return the established connection or client instance
+         */
     <P> P connect(
             final String host,
             final int port,

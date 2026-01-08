@@ -78,12 +78,12 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     /**
-     * Retrieve and deserialize a value stored in Redis for the given key.
+     * Retrieve and deserialize the JSON value stored at the given Redis key.
      *
      * @param <T>   the expected return type
      * @param clazz the class to deserialize the stored JSON into
      * @param key   the Redis key to read the value from
-     * @return an instance of {@code clazz} deserialized from the stored JSON, or {@code null} if the key does not exist
+     * @return      an instance of {@code clazz} deserialized from the stored JSON, or {@code null} if the key does not exist
      * @throws RuntimeException if an error occurs while accessing Redis or deserializing the value
      */
     @Override

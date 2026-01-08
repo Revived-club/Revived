@@ -16,13 +16,12 @@ public interface MessageBroker {
 <T> void publish(String topic, T message);
 
     /**
- * Register a handler to receive messages published to the specified topic using the provided runtime payload type.
+ * Subscribes a handler to receive messages published to the given topic whose payloads are instances of the specified runtime type.
  *
- * The handler will be invoked for messages whose payloads match the given `type`.
- *
+ * @param <T> the expected payload type for delivered messages
  * @param topic the topic to subscribe to
- * @param type  the runtime class of the expected message payload
- * @param handler the handler that processes incoming messages of type `T`
+ * @param type the runtime class of the expected message payload
+ * @param handler the handler that processes incoming messages of type T
  */
 <T> void subscribe(String topic, Class<T> type, MessageHandler<T> handler);
 
