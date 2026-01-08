@@ -3,7 +3,9 @@ package club.revived.queue;
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
+import club.revived.queue.cluster.messaging.impl.QueuePlayer;
 import club.revived.queue.cluster.player.NetworkPlayer;
+import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
 import club.revived.queue.cluster.status.StatusResponse;
@@ -30,10 +32,19 @@ public final class GameQueue {
             queued.put(kit, new LinkedList<>());
         }
 
+        this.registerMessageHandlers();
         this.startTask();
     }
 
-    public void addPlayer(KitType kitType, NetworkPlayer player) {
+    private void registerMessageHandlers() {
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(QueuePlayer.class, queuePlayer -> {
+                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(queuePlayer.uuid());
+                    this.addPlayer(queuePlayer.kitType(), networkPlayer);
+                });
+    }
+
+    private void addPlayer(KitType kitType, NetworkPlayer player) {
         queued.get(kitType).add(player);
     }
 
