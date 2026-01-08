@@ -1,7 +1,7 @@
 package club.revived.lobby.game.duel;
 
 /**
- * GameState
+ * State a game is in
  *
  * @author yyuh
  * @since 04.01.26

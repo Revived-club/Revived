@@ -13,7 +13,7 @@ import club.revived.lobby.service.status.StatusResponse;
 import java.util.List;
 
 /**
- * DuelManager
+ * Handles duels-related things on lobby servers e.g. accepting & sending duel requests.
  *
  * @author yyuh
  * @since 03.01.26

@@ -3,7 +3,7 @@ package club.revived.lobby.game.duel;
 import org.bukkit.Material;
 
 /**
- * KItType
+ * Different Kits mostly mctiers kits.
  *
  * @author yyuh
  * @since 03.01.26

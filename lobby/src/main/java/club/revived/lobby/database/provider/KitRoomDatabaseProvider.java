@@ -2,7 +2,6 @@ package club.revived.lobby.database.provider;
 
 import club.revived.commons.adapter.ItemStackTypeAdapter;
 import club.revived.lobby.database.DatabaseProvider;
-import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

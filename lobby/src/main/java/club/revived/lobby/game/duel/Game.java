@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * CachedDuel
+ * The simplified representation of a duel. Used for caching in redis.
  *
  * @author yyuh
  * @since 07.01.26
@@ -16,5 +16,4 @@ public record Game(
         KitType kitType,
         GameState gameState,
         String id
-) {
-}
+) {}

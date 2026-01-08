@@ -1,6 +1,5 @@
 package club.revived.lobby.service.messaging.impl;
 
-import club.revived.lobby.service.messaging.Message;
 import club.revived.lobby.service.messaging.Request;
 
 /**

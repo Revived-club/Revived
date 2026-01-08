@@ -1,7 +1,6 @@
 package club.revived.proxy.service.status;
 
 import club.revived.proxy.service.messaging.Response;
-import club.revived.proxy.service.status.ServiceStatus;
 
 /**
  * This is an interesting Class

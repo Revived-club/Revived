@@ -42,7 +42,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Prevents hunger level changes for players participating in duels that use kits requiring saturated hunger.
-     *
+     * <p></p>
      * If the event's entity is a player who is currently in a duel and the duel's kit type is listed in
      * {@code saturatedKits}, the event is cancelled to stop hunger changes.
      *
@@ -151,14 +151,14 @@ public final class PlayerListener implements Listener {
     }
 
     /**
-         * Resolve duel state when a player disconnects and suppress the quit message.
-         *
-         * <p>If the player is participating in an active duel, determines the player's team. If that team is fully
-         * eliminated, awards a point to the opposing team, marks the duel as ending, displays match results, and ends
-         * the duel. Otherwise, notifies remaining duel participants that the player quit and was removed.</p>
-         *
-         * @param event the PlayerQuitEvent for the disconnecting player
-         */
+     * Resolve duel state when a player disconnects and suppress the quit message.
+     *
+     * <p>If the player is participating in an active duel, determines the player's team. If that team is fully
+     * eliminated, awards a point to the opposing team, marks the duel as ending, displays match results, and ends
+     * the duel. Otherwise, notifies remaining duel participants that the player quit and was removed.</p>
+     *
+     * @param event the PlayerQuitEvent for the disconnecting player
+     */
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
         final Player player = event.getPlayer();
@@ -194,7 +194,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Consumes a custom "golden head" item when the player right-clicks it, grants short-term combat buffs, and applies a cooldown.
-     *
+     * <p></p>
      * If the held item has the persistent data key `_uhc` with value `"golden_head"`, the interaction is cancelled, one item is
      * consumed (if not on cooldown), a 30-second cooldown is applied to that item, and the player receives absorption (120s, amp 1),
      * regeneration (20s, amp 1), and speed (10s, amp 1) potion effects. Sends a confirmation message to the player.
@@ -302,7 +302,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Removes snow blocks created by snowball impacts.
-     *
+     * <p></p>
      * If a snowball lands on a block that is a `SNOW_BLOCK`, that block is removed.
      *
      * @param event the projectile hit event containing the projectile and the hit block
@@ -372,7 +372,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Cancels a player's interaction if they are in a duel that is not in the RUNNING state.
-     *
+     * <p></p>
      * If the player is not dueling or the duel cannot be resolved, the interaction is not modified.
      *
      * @param event the player interaction event
@@ -392,7 +392,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Cancels damage for players who are currently in a duel that is not in the RUNNING state.
-     *
+     * <p></p>
      * If the damaged entity is a player participating in a duel and that duel's state is not RUNNING,
      * the event is cancelled to prevent any damage from applying.
      *
@@ -413,7 +413,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Prevents players from dropping items while they are in a duel that is not running.
-     *
+     * <p></p>
      * Cancels the provided PlayerDropItemEvent when the event's player is currently in a duel whose game state is not RUNNING.
      *
      * @param event the drop event to evaluate and potentially cancel
@@ -451,7 +451,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Handles block placement during duels, restricting placement based on duel state and arena type and recording placed blocks for non-interactive duel arenas.
-     *
+     * <p></p>
      * If the player is not in a duel this handler does nothing. Placement is cancelled when the duel is STARTING or ENDING. Placement is allowed without tracking in arenas of type INTERACTIVE. For arenas that are instances of DuelArena, the placed block's location is added to the arena's modifiedLocations set for later restoration or tracking.
      *
      * @param event the BlockPlaceEvent representing the attempted block placement
@@ -489,7 +489,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Enforces duel-specific block-breaking rules by cancelling unauthorized breaks inside duels.
-     *
+     * <p></p>
      * Cancels the event when the breaker is participating in a duel that is STARTING or ENDING,
      * or when the arena is a DuelArena and the broken block's location is not recorded as a modified location.
      *
@@ -526,7 +526,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Registers the destination location as a modified arena block when a block flow results in certain solid block types.
-     *
+     * <p></p>
      * Evaluates the event's destination block and, if its resulting material is COBBLESTONE, STONE, OBSIDIAN, or BASALT,
      * records the block location so arena modifications can be tracked/restored.
      *
@@ -554,7 +554,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Records a block location as modified when a block spreads into fire inside an active duel arena.
-     *
+     * <p></p>
      * This ensures fire spread changes are tracked for the first matching running DuelArena so they can
      * be restored or handled by arena cleanup logic.
      *
@@ -569,7 +569,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Marks the location of a newly formed block as modified within the containing active duel arena.
-     *
+     * <p></p>
      * This ensures the block change is tracked so arena state can be restored or otherwise managed after the duel.
      *
      * @param event the block formation event whose block location should be recorded as a modification
@@ -593,7 +593,7 @@ public final class PlayerListener implements Listener {
 
     /**
      * Cancel block ignition that occurs inside the region of any active duel arena.
-     *
+     * <p></p>
      * Ignores duels in the STARTING or ENDING state; if the ignition location is contained
      * within an active duel's arena region, the event is cancelled and no further arenas
      * are checked.
@@ -673,14 +673,14 @@ public final class PlayerListener implements Listener {
 
 
     /**
-     * Determine whether the team has no active participants remaining.
+     * Check whether a duel team has no active participants remaining.
      *
-     * A team is considered inactive if it contains exactly one member or if every member
-     * is null, dead, offline, or in spectator game mode.
+     * A team is treated as having no active participants if it contains exactly one player
+     * or every member is `null`, dead, offline, or in `SPECTATOR` game mode.
      *
      * @param team the team to evaluate
-     * @return `true` if the team has exactly one player or every player is null, dead, offline,
-     *         or in spectator mode; `false` otherwise
+     * @return `true` if the team has no active participants (team size is one or every member is
+     *         `null`, dead, offline, or in `SPECTATOR` mode), `false` otherwise
      */
     private boolean isWholeTeamDead(final DuelTeam team) {
         if (team.getUuids().size() == 1) {

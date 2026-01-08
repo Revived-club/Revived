@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * DuelRequestHolder
+ * Holder for all DuelRequests a player has open
  *
  * @author yyuh
  * @since 03.01.26

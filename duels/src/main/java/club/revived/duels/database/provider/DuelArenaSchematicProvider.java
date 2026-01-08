@@ -1,10 +1,8 @@
 package club.revived.duels.database.provider;
 
 import club.revived.commons.adapter.LocationTypeAdapter;
-import club.revived.duels.Duels;
 import club.revived.duels.database.DatabaseProvider;
 import club.revived.duels.game.arena.schematic.DuelArenaSchematic;
-import club.revived.duels.game.arena.schematic.WorldeditSchematic;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
@@ -12,12 +10,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
-import org.bson.types.Binary;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

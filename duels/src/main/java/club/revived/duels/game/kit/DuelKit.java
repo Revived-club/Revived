@@ -4,7 +4,6 @@ import club.revived.duels.game.duels.KitType;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * DuelKit

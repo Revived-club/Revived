@@ -181,7 +181,7 @@ public final class DuelArena implements IArena {
 
     /**
      * Provides the list of locations that have been modified in this arena.
-     *
+     * <p></p>
      * The returned list is the internal, mutable list used to track modified locations.
      *
      * @return the internal mutable List of modified Location objects

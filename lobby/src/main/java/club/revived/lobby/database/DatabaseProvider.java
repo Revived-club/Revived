@@ -3,7 +3,6 @@ package club.revived.lobby.database;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * This is an interesting Class
