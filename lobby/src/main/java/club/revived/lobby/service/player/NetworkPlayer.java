@@ -121,10 +121,10 @@ public final class NetworkPlayer {
     }
 
     /**
-     * Sends a chat message to this player's current proxy service.
+     * Sends a chat message to the player's current proxy service.
      *
-     * @param message the text to send to the player
-     * @throws UnregisteredPlayerException if the player's proxy service cannot be located
+     * @param message the message text to deliver to the player
+     * @throws UnregisteredPlayerException if no proxy service is registered for this player
      */
     public void sendMessage(final String message) {
         this.whereIs().thenAccept(service -> {
@@ -138,6 +138,12 @@ public final class NetworkPlayer {
         });
     }
 
+    /**
+     * Sends an action bar message to the player's current proxy service.
+     *
+     * @param message the message to display in the action bar
+     * @throws UnregisteredPlayerException if the player is not associated with a proxy service
+     */
     public void sendActionbar(final String message) {
         this.whereIs().thenAccept(service -> {
             System.out.println("Sending chat message to " + this.username);
@@ -150,6 +156,15 @@ public final class NetworkPlayer {
         });
     }
 
+    /**
+     * Initiates a connection request for this player to the specified cluster service through the player's proxy.
+     *
+     * Sends a StatusRequest to the target service and, if the service reports AVAILABLE, forwards a Connect payload
+     * containing this player's UUID and the target service ID to the player's current proxy.
+     *
+     * @param clusterService the target cluster service to connect the player to
+     * @throws ServiceUnavailableException if the target service reports a status other than AVAILABLE
+     */
     public void connect(final ClusterService clusterService) {
         clusterService.sendRequest(new StatusRequest(), StatusResponse.class)
                 .thenAccept(statusResponse -> {

@@ -73,10 +73,10 @@ public final class DuelManager {
     }
 
     /**
-     * Store a duel request for the receiver and notify them with a clickable, hoverable acceptance message.
+     * Creates and stores a duel request for the receiver and notifies them with a clickable, hoverable acceptance message.
      *
-     * <p>The request is saved in the receiver's per-player cache for 120 seconds. The notification includes a clickable
-     * action to accept the duel and hover text showing the configured rounds and kit.
+     * <p>The request is cached on the receiver for 120 seconds. The notification contains a click action to accept the duel
+     * and hover text that displays the configured rounds and kit.
      *
      * @param sender   the player who initiated the duel request
      * @param receiver the player who will receive the duel request
@@ -109,6 +109,13 @@ public final class DuelManager {
         );
     }
 
+    /**
+     * Adds the given player to the matchmaking queue for the specified kit and queue type.
+     *
+     * @param networkPlayer the player to add to the queue
+     * @param kitType the kit type to queue for
+     * @param queueType the queue category to join
+     */
     public void queue(
             final NetworkPlayer networkPlayer,
             final KitType kitType,

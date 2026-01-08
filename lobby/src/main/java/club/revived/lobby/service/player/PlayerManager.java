@@ -58,14 +58,14 @@ public final class PlayerManager {
     }
 
     /**
-     * Installs messaging handlers to deliver chat messages to players.
+     * Installs messaging handlers to deliver player-targeted and broadcast chat and action-bar messages.
      *
-     * <p>Registers a handler for SendMessage that resolves the target player by UUID and delivers
-     * the provided rich message to that player; if no player is found for the UUID, an
-     * UnregisteredPlayerException is thrown. Also registers a handler for BroadcastMessage that
-     * delivers the provided rich message to every currently online player.
+     * <p>Registers three handlers on the cluster messaging service:
+     * - A SendMessage handler that resolves the target player by UUID and delivers the provided rich chat message.
+     * - A BroadcastMessage handler that delivers the provided rich chat message to every currently online player.
+     * - A SendActionbar handler that resolves the target player by UUID and sends the provided message to the player's action bar after parsing.
      *
-     * @throws UnregisteredPlayerException if a SendMessage targets a UUID with no corresponding online player
+     * @throws UnregisteredPlayerException if a SendMessage or SendActionbar targets a UUID with no corresponding online player
      */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
