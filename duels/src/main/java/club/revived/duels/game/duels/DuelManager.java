@@ -8,6 +8,7 @@ import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.messaging.impl.DuelEnd;
 import club.revived.duels.service.messaging.impl.DuelStart;
+import club.revived.duels.service.messaging.impl.MigrateGame;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ import java.util.*;
 public final class DuelManager {
 
     private final Map<UUID, Duel> runningDuels = new HashMap<>();
+    private final Cluster cluster = Cluster.getInstance();
 
     private static DuelManager instance;
 
@@ -36,14 +38,88 @@ public final class DuelManager {
     public DuelManager() {
         instance = this;
 
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(DuelStart.class, this::startDuel);
+        this.cluster.getMessagingService().registerMessageHandler(DuelStart.class, this::startDuel);
+        this.cluster.getMessagingService().registerMessageHandler(MigrateGame.class, this::migrateGame);
+    }
+
+    private void migrateGame(final MigrateGame game) {
+        final List<UUID> blueTeam = game.blueTeam();
+        final List<UUID> redTeam = game.redTeam();
+        final int maxRounds = game.maxRounds();
+        final KitType kitType = game.kitType();
+
+        final int blueScore = game.blueScore();
+        final int redScore = game.redScore();
+
+        // TODO: Implement pasting from arena Id
+        ArenaPoolManager.getInstance().getArena(kitType).thenAccept(arena -> {
+            final var duel = new Duel(
+                    blueTeam,
+                    redTeam,
+                    maxRounds,
+                    kitType,
+                    arena
+            );
+
+            duel.getBlueTeam().setScore(blueScore);
+            duel.getRedTeam().setScore(redScore);
+
+            final var networkPlayers = duel.getUUIDs().stream()
+                    .map(uuid -> PlayerManager.getInstance().fromBukkitPlayer(uuid))
+                    .toList();
+
+            networkPlayers.forEach(networkPlayer -> {
+                networkPlayer.sendMessage("<red>There has been an issue with " + game.gameServerId());
+                networkPlayer.connect(this.cluster.getServiceId());
+                this.runningDuels.put(networkPlayer.getUuid(), duel);
+            });
+
+            PlayerJoinTracker.of(Duels.getInstance(), duel.getUUIDs(), players -> {
+                for (final var player : players) {
+                    player.sendRichMessage("""
+                            
+                            <#3B82F6><bold>Duel Info<reset>
+                            <white>First To: <#3B82F6><to>
+                            <white>Duel Kit: <#3B82F6><kit>
+                            <white>Players: <#3B82F6><players>
+                            
+                            """
+                            .replace("<kit>", kitType.getBeautifiedName())
+                            .replace("<to>", String.valueOf(maxRounds))
+                            .replace("<players>", String.join(", ", players
+                                    .stream()
+                                    .map(Player::getName)
+                                    .toArray(String[]::new)))
+                    );
+
+                    this.healPlayer(player);
+
+                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> {
+                        player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]));
+                    });
+
+                    this.runningDuels.put(player.getUniqueId(), duel);
+                }
+
+                for (final Player redPlayer : duel.getRedPlayers()) {
+                    redPlayer.teleportAsync(arena.getSpawn1().add(0, 1, 0));
+                }
+
+                for (final Player bluePlayer : duel.getBluePlayers()) {
+                    bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
+                }
+
+                new DuelStartTask(3, duel);
+            });
+        });
     }
 
     /**
      * Initiates a duel using the provided DuelStart message.
-     *
-     * Reserves an arena, creates and registersthe Duel, prepares and teleports participants,
+     * <p></p>
+     * Reserves an arena, creates and registers the Duel, prepares and teleports participants,
      * loads their edited kits, heals players, and begins the duel countdown.
      *
      * @param duelStart message containing the blue and red team UUID lists, the number of rounds,
@@ -73,7 +149,7 @@ public final class DuelManager {
                     .toList();
 
             networkPlayers.forEach(networkPlayer -> {
-                networkPlayer.connect(Cluster.getInstance().getServiceId());
+                networkPlayer.connect(this.cluster.getServiceId());
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
 
@@ -142,7 +218,7 @@ public final class DuelManager {
             this.healPlayer(player);
         }
 
-        Cluster.getInstance().getLeastLoadedService(ServiceType.LOBBY)
+        this.cluster.getLeastLoadedService(ServiceType.LOBBY)
                 .sendMessage(new DuelEnd(
                         winner.getUuids(),
                         loser.getUuids(),

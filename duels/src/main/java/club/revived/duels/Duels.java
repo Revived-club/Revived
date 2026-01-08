@@ -25,7 +25,7 @@ public final class Duels extends JavaPlugin {
 
     /**
      * Initialize plugin components when the plugin is enabled.
-     *
+     * <p></p>
      * Sets the singleton instance, registers the inventory manager, sets up cluster and database
      * connections, instantiates player listener/manager/chat listener components, and marks the
      * cluster status as available.
