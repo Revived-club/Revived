@@ -7,6 +7,7 @@ import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.exception.ServiceUnavailableException;
 import club.revived.duels.service.exception.UnregisteredPlayerException;
 import club.revived.duels.service.messaging.impl.Connect;
+import club.revived.duels.service.messaging.impl.SendActionbar;
 import club.revived.duels.service.messaging.impl.SendMessage;
 import club.revived.duels.service.status.ServiceStatus;
 import club.revived.duels.service.status.StatusRequest;
@@ -171,6 +172,24 @@ public final class NetworkPlayer {
             }
 
             service.sendMessage(new SendMessage(this.uuid, message));
+        });
+    }
+
+    /**
+     * Sends an action bar message to the player's current proxy service.
+     *
+     * @param message the action bar text to send
+     * @throws UnregisteredPlayerException if the player's proxy service is not registered
+     */
+    public void sendActionbar(final String message) {
+        this.whereIs().thenAccept(service -> {
+            System.out.println("Sending chat message to " + this.username);
+
+            if (service == null) {
+                throw new UnregisteredPlayerException("service player is on is not registered");
+            }
+
+            service.sendMessage(new SendActionbar(this.uuid, message));
         });
     }
 

@@ -1,8 +1,10 @@
 package club.revived.lobby.service.player;
 
+import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.exception.UnregisteredPlayerException;
 import club.revived.lobby.service.messaging.impl.BroadcastMessage;
+import club.revived.lobby.service.messaging.impl.SendActionbar;
 import club.revived.lobby.service.messaging.impl.SendMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -56,14 +58,14 @@ public final class PlayerManager {
     }
 
     /**
-     * Installs messaging handlers to deliver chat messages to players.
+     * Installs messaging handlers to deliver player-targeted and broadcast chat and action-bar messages.
      *
-     * <p>Registers a handler for SendMessage that resolves the target player by UUID and delivers
-     * the provided rich message to that player; if no player is found for the UUID, an
-     * UnregisteredPlayerException is thrown. Also registers a handler for BroadcastMessage that
-     * delivers the provided rich message to every currently online player.
+     * <p>Registers three handlers on the cluster messaging service:
+     * - A SendMessage handler that resolves the target player by UUID and delivers the provided rich chat message.
+     * - A BroadcastMessage handler that delivers the provided rich chat message to every currently online player.
+     * - A SendActionbar handler that resolves the target player by UUID and sends the provided message to the player's action bar after parsing.
      *
-     * @throws UnregisteredPlayerException if a SendMessage targets a UUID with no corresponding online player
+     * @throws UnregisteredPlayerException if a SendMessage or SendActionbar targets a UUID with no corresponding online player
      */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
@@ -85,6 +87,19 @@ public final class PlayerManager {
                     for (final var player : Bukkit.getOnlinePlayers()) {
                         player.sendRichMessage(message.message());
                     }
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(SendActionbar.class, sendActionbar -> {
+
+                    final var uuid = sendActionbar.uuid();
+                    final var player = Bukkit.getPlayer(uuid);
+
+                    if (player == null) {
+                        throw new UnregisteredPlayerException("tried to message unregistered player");
+                    }
+
+                    player.sendActionBar(ColorUtils.parse(sendActionbar.message()));
                 });
     }
 

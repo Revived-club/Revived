@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation(libs.jedis)
     implementation(libs.jetbrainsannotations)
+    implementation(project(":commons"))
 }
 
 tasks.test {

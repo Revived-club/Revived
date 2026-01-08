@@ -7,6 +7,7 @@ import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
 import club.revived.lobby.game.command.DuelCommand;
 import club.revived.lobby.game.command.PingCommand;
+import club.revived.lobby.game.command.QueueCommand;
 import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
@@ -73,14 +74,15 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes and registers the plugin's command handlers for the lobby.
+     * Initialize and register lobby command handlers.
      *
-     * Specifically instantiates and registers the DuelCommand. 
+     * Instantiates and registers the DuelCommand, WhereIsCommand, PingCommand, and QueueCommand handlers.
      */
     private void setupCommands() {
         new DuelCommand();
         new WhereIsCommand();
         new PingCommand();
+        new QueueCommand();
     }
 
 
