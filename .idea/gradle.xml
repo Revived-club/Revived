@@ -13,6 +13,8 @@
             <option value="$PROJECT_DIR$/duels" />
             <option value="$PROJECT_DIR$/lobby" />
             <option value="$PROJECT_DIR$/proxy" />
+            <option value="$PROJECT_DIR$/service" />
+            <option value="$PROJECT_DIR$/service/queue" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="true" />
