@@ -35,7 +35,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        run: ./gradlew :queue:shadowJar
+        run: ./gradlew :service:queue:shadowJar
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
