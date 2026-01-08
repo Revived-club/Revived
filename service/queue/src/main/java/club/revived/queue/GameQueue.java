@@ -23,6 +23,11 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     private final Map<KitType, Map<QueueType, Deque<QueueEntry>>> queue = new ConcurrentHashMap<>();
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Initializes the GameQueue and populates its internal data structure for all kit and queue types.
+     *
+     * <p>For each KitType, creates an EnumMap that maps every QueueType to a new ConcurrentLinkedDeque to hold QueueEntry instances.
+     */
     public GameQueue() {
         for (final KitType kit : KitType.values()) {
             final Map<QueueType, Deque<QueueEntry>> map = new EnumMap<>(QueueType.class);
@@ -36,6 +41,13 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     }
 
 
+    /**
+     * Starts the recurring task that processes all kit and queue-type queues.
+     *
+     * Every second it notifies players who are currently present in a queue with an action
+     * bar message and, when a queue has at least the required number of entries for a
+     * QueueType, removes that many entries and dispatches them to be matched via {@code pop(...)}.
+     */
     @Override
     public void startTask() {
         executorService.scheduleAtFixedRate(() -> {
@@ -73,6 +85,11 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     }
 
 
+    /**
+     * Enqueues the given entry into the queue corresponding to its kit and queue type.
+     *
+     * @param entry the QueueEntry that identifies the player, kit, and queue type to add
+     */
     @Override
     public void push(final QueueEntry entry) {
         queue.get(entry.kitType())
@@ -80,6 +97,17 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                 .add(entry);
     }
 
+    /**
+     * Creates a DuelStart from the provided queue entries and submits it to an available duel service.
+     *
+     * The first entry determines the queue type and kit. The method groups the entries into two teams:
+     * the first `teamSize` entries as the blue team and the next `teamSize` entries as the red team,
+     * builds a DuelStart with their UUIDs and the kit, and sends it to a duel service if one reports
+     * AVAILABLE status.
+     *
+     * @param entries an array of queue entries representing players to form the match; must contain
+     *                exactly `2 * teamSize` entries where `teamSize` is taken from `entries[0].queueType()`
+     */
     @Override
     public void pop(final QueueEntry... entries) {
         final QueueType type = entries[0].queueType();
@@ -112,6 +140,11 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     }
 
 
+    /**
+     * Removes any queue entries with the given player UUID from all kit and queue-type queues.
+     *
+     * @param uuid the player's UUID whose entries should be removed
+     */
     @Override
     public void remove(final UUID uuid) {
         this.queue.forEach((_, queueEntries) ->
@@ -119,6 +152,11 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                         entries.removeIf(queueEntry -> queueEntry.uuid().equals(uuid))));
     }
 
+    /**
+     * Retrieve the current queued entries across all kits and queue types (currently always empty).
+     *
+     * @return a list containing all queued `QueueEntry` objects; currently an empty list
+     */
     @Override
     public @NotNull List<QueueEntry> queued() {
         return List.of();

@@ -24,10 +24,10 @@ public final class QueueManager {
     }
 
     /**
-     * Initializes the application's cluster using Redis and environment configuration.
-     * <p></p>
-     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and configures a
-     * Cluster backed by a Redis broker and a Redis cache service for ServiceType.LOBBY.
+     * Initializes the application's Cluster using Redis configuration from environment variables.
+     *
+     * Reads REDIS_HOST and REDIS_PORT and configures a Redis-backed broker and cache, registering
+     * the service under the name "queue-service".
      */
     private void setupCluster() {
         final String host = System.getenv("REDIS_HOST");

@@ -15,6 +15,10 @@ import dev.jorel.commandapi.CommandTree;
  */
 public final class QueueCommand {
 
+    /**
+     * Registers the "queue" command (alias "revived") and sets its player execution handler to enqueue
+     * the invoking player for a solo Sword kit match.
+     */
     public QueueCommand() {
         new CommandTree("queue")
                 .executesPlayer(((sender, args) -> {

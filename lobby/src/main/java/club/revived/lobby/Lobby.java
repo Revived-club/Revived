@@ -74,9 +74,9 @@ public final class Lobby extends JavaPlugin {
     }
 
     /**
-     * Initializes and registers the plugin's command handlers for the lobby.
+     * Initialize and register lobby command handlers.
      *
-     * Specifically instantiates and registers the DuelCommand. 
+     * Instantiates and registers the DuelCommand, WhereIsCommand, PingCommand, and QueueCommand handlers.
      */
     private void setupCommands() {
         new DuelCommand();

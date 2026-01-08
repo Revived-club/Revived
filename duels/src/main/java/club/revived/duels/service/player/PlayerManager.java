@@ -78,15 +78,14 @@ public final class PlayerManager {
     }
 
     /**
-     * Registers message handlers that deliver inter-server chat payloads to Bukkit players.
+     * Installs cluster message handlers that deliver inter-server chat payloads to Bukkit players.
      *
-     * <p>Installs two handlers on the cluster messaging service:
+     * <p>Registers handlers for:
      * <ul>
-     *   <li>SendMessage — resolves the target by UUID and sends the message to that player as a rich chat message.</li>
-     *   <li>BroadcastMessage — sends the message as a rich chat message to every online player.</li>
+     *   <li>`SendMessage` — resolves a target by UUID and delivers a rich chat message to that player.</li>
+     *   <li>`BroadcastMessage` — delivers a rich chat message to every online player.</li>
+     *   <li>`SendActionbar` — resolves a target by UUID and delivers a parsed action bar message to that player.</li>
      * </ul>
-     *
-     * @throws UnregisteredPlayerException if a SendMessage target UUID does not correspond to an online Bukkit player
      */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()

@@ -150,6 +150,12 @@ public final class NetworkPlayer {
         });
     }
 
+    /**
+     * Sends an actionbar message to the player's current proxy service.
+     *
+     * @param message the actionbar text to send
+     * @throws UnregisteredPlayerException if the player is not assigned to a proxy service
+     */
     public void sendActionbar(final String message) {
         this.whereIs().thenAccept(service -> {
             System.out.println("Sending chat message to " + this.username);
