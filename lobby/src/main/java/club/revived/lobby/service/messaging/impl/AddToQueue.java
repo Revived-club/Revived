@@ -11,7 +11,7 @@ import java.util.UUID;
  * @author yyuh - DL
  * @since 1/8/26
  */
-public record QueuePlayer(
+public record AddToQueue(
         UUID uuid,
         KitType kitType
 ) implements Message {

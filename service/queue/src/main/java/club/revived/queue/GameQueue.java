@@ -3,7 +3,8 @@ package club.revived.queue;
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
-import club.revived.queue.cluster.messaging.impl.QueuePlayer;
+import club.revived.queue.cluster.messaging.impl.AddToQueue;
+import club.revived.queue.cluster.messaging.impl.RemoveFromQueue;
 import club.revived.queue.cluster.player.NetworkPlayer;
 import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
@@ -29,7 +30,7 @@ public final class GameQueue {
 
     /**
      * <p>Initializes per-kit player queues, registers message handlers, and starts the periodic matchmaking task.</p>
-     *
+     * <p>
      * Populates the internal map with an empty LinkedList for every KitType, sets up message handling for queue
      * updates, and begins the scheduled task that pairs players and dispatches duels.
      */
@@ -44,13 +45,13 @@ public final class GameQueue {
 
     /**
      * <p>Registers messaging handlers required by the queue system.</p>
-     *
+     * <p>
      * Specifically, sets up a handler for `QueuePlayer` messages that converts the sender's UUID
      * to a `NetworkPlayer` and adds that player to the appropriate kit queue.
      */
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(QueuePlayer.class, queuePlayer -> {
+                .registerMessageHandler(AddToQueue.class, queuePlayer -> {
                     final var values = this.queued.values();
                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(queuePlayer.uuid());
 
@@ -64,21 +65,42 @@ public final class GameQueue {
 
                     this.addPlayer(queuePlayer.kitType(), networkPlayer);
                 });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(RemoveFromQueue.class, removeFromQueue -> {
+                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(removeFromQueue.uuid());
+                    this.removePlayer(networkPlayer);
+                });
     }
 
     /**
      * Enqueues a player into the queue for the specified kit type.
      *
      * @param kitType the kit category whose queue the player will be added to
-     * @param player the player to enqueue
+     * @param player  the player to enqueue
      */
-    private void addPlayer(KitType kitType, NetworkPlayer player) {
+    private void addPlayer(
+            final KitType kitType,
+            final NetworkPlayer player
+    ) {
         queued.get(kitType).add(player.getUuid());
+    }
+
+    private void removePlayer(final NetworkPlayer player) {
+        for (final KitType kitType : queued.keySet()) {
+            final LinkedList<UUID> inQueue = queued.get(kitType);
+
+            inQueue.forEach(uuid -> {
+                if (uuid.equals(player.getUuid())) {
+                    inQueue.remove(uuid);
+                }
+            });
+        }
     }
 
     /**
      * <p>Schedules a recurring task that pairs queued players by kit and initiates duels on available sub-servers.</p>
-     *
+     * <p>
      * The task runs once per second and, for each kit queue, repeatedly removes pairs of players and attempts to start
      * a duel on a suitable sub-server. If the chosen service is not available, the two players are reinserted at the
      * front of their queue in original order so they can be retried later.
