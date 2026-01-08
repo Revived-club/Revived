@@ -81,10 +81,12 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                         for (final var entry : queued) {
                             if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
+                                System.out.println("not in the list");
                                 queued.remove(entry);
                                 continue;
                             }
 
+                            System.out.println("Actionbar");
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
                             networkPlayer.sendActionbar("<red>You are in queue...");
                         }
@@ -95,6 +97,8 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                         for (int i = 0; i < required; i++) {
                             final QueueEntry entry = queued.pollFirst();
+
+                            System.out.println("hit");
 
                             if (entry == null) {
                                 entries.forEach(queued::addFirst);
