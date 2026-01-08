@@ -41,6 +41,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
         }
 
         this.registerMessageHandlers();
+        this.startTask();
     }
 
     /**
