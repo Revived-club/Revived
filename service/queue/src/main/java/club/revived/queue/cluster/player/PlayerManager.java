@@ -1,11 +1,6 @@
 package club.revived.queue.cluster.player;
 
-import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.exception.UnregisteredPlayerException;
-import club.revived.queue.cluster.messaging.impl.BroadcastMessage;
-import club.revived.queue.cluster.messaging.impl.SendMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -87,36 +82,7 @@ public final class PlayerManager {
      * @throws UnregisteredPlayerException if a SendMessage target UUID does not correspond to an online Bukkit player
      */
     private void registerMessageHandlers() {
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(SendMessage.class, message -> {
-                    final var uuid = message.uuid();
-                    final var player = Bukkit.getPlayer(uuid);
 
-                    if (player == null) {
-                        throw new UnregisteredPlayerException("tried to message unregistered player");
-                    }
-
-                    player.sendRichMessage(message.message());
-                });
-
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(BroadcastMessage.class, message -> {
-                    for (final var player : Bukkit.getOnlinePlayers()) {
-                        player.sendRichMessage(message.message());
-                    }
-                });
-    }
-
-    /**
-     * Resolve the NetworkPlayer associated with the given Bukkit Player.
-     *
-     * @param player the Bukkit Player whose associated NetworkPlayer to retrieve
-     * @return the NetworkPlayer associated with the player's UUID
-     * @throws UnregisteredPlayerException if no NetworkPlayer is registered for the player's UUID
-     */
-    @NotNull
-    public NetworkPlayer fromBukkitPlayer(final Player player) {
-        return this.fromBukkitPlayer(player.getUniqueId());
     }
 
     /**
