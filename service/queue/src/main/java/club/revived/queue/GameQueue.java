@@ -2,6 +2,7 @@ package club.revived.queue;
 
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
+import club.revived.queue.cluster.messaging.impl.AddToQueue;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
 import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
@@ -38,12 +39,29 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
             queue.put(kit, map);
         }
+
+        this.registerMessageHandlers();
     }
 
+    /**
+     * Registers message handlers for the queue
+     */
+    private void registerMessageHandlers() {
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(AddToQueue.class, addToQueue -> {
+                    final var queueEntry = new QueueEntry(
+                            addToQueue.uuid(),
+                            addToQueue.queueType(),
+                            addToQueue.kitType()
+                    );
+
+                    this.push(queueEntry);
+                });
+    }
 
     /**
      * Starts the recurring task that processes all kit and queue-type queues.
-     *
+     * <p>
      * Every second it notifies players who are currently present in a queue with an action
      * bar message and, when a queue has at least the required number of entries for a
      * QueueType, removes that many entries and dispatches them to be matched via {@code pop(...)}.
@@ -99,7 +117,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
     /**
      * Creates a DuelStart from the provided queue entries and submits it to an available duel service.
-     *
+     * <p>
      * The first entry determines the queue type and kit. The method groups the entries into two teams:
      * the first `teamSize` entries as the blue team and the next `teamSize` entries as the red team,
      * builds a DuelStart with their UUIDs and the kit, and sends it to a duel service if one reports
