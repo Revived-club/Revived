@@ -1,7 +1,11 @@
 package club.revived.lobby.database;
 
+import club.revived.commons.location.SerializedLocation;
+import club.revived.lobby.database.provider.BillboardDatabaseProvider;
 import club.revived.lobby.database.provider.KitDatabaseProvider;
 import club.revived.lobby.database.provider.KitRoomDatabaseProvider;
+import club.revived.lobby.database.provider.LocationDatabaseProvider;
+import club.revived.lobby.game.billboard.QueueBillboardLocation;
 import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
 import com.mongodb.ConnectionString;
@@ -134,6 +138,8 @@ public final class DatabaseManager {
     private void register() {
         this.providers.put(KitHolder.class, new KitDatabaseProvider(this.database));
         this.providers.put(KitRoomPage.class, new KitRoomDatabaseProvider(this.database));
+        this.providers.put(SerializedLocation.class, new LocationDatabaseProvider(this.database));
+        this.providers.put(QueueBillboardLocation.class, new BillboardDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

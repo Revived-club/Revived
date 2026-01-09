@@ -1,4 +1,4 @@
-package club.revived.lobby.game.item.listener;
+package club.revived.lobby.game.listener;
 
 import club.revived.lobby.Lobby;
 import club.revived.lobby.game.item.ExecutableItemRegistry;

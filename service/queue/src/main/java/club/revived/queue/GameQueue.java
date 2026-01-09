@@ -178,6 +178,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
      */
     @Override
     public void pop(final QueueEntry... entries) {
+        System.out.println("Found match!");
         final QueueType type = entries[0].queueType();
 
         final List<QueueEntry> blue = Arrays.stream(entries)

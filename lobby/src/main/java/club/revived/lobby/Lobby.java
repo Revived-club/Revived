@@ -2,6 +2,7 @@ package club.revived.lobby;
 
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
+import club.revived.lobby.game.WarpLocation;
 import club.revived.lobby.game.chat.command.MessageCommand;
 import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
@@ -12,6 +13,8 @@ import club.revived.lobby.game.command.WhereIsCommand;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.impl.MatchBrowserItem;
+import club.revived.lobby.game.listener.ItemPlayerListener;
+import club.revived.lobby.game.listener.PlayerListener;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -51,10 +54,11 @@ public final class Lobby extends JavaPlugin {
         this.connectDatabase();
         this.setupCommands();
         this.setupCluster();
+        this.setLocations();
+        this.registerListeners();
 
         new PlayerManager();
         new DuelManager();
-        new PlayerChatListener();
         new MessageCommand();
         new ReplyCommand();
 
@@ -71,6 +75,24 @@ public final class Lobby extends JavaPlugin {
     @Override
     public void onDisable() {
         Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+    }
+
+    /**
+     * Initializes and refreshes all configured warp locations.
+     */
+    private void setLocations() {
+        for (final var location : WarpLocation.values()) {
+            location.update();
+        }
+    }
+
+    /**
+     * Initialize and register bukkit listeners
+     */
+    private void registerListeners() {
+        new PlayerChatListener();
+        new PlayerListener();
+        new ItemPlayerListener();
     }
 
     /**
