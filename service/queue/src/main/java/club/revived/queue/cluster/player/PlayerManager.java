@@ -1,6 +1,8 @@
 package club.revived.queue.cluster.player;
 
+import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.exception.UnregisteredPlayerException;
+import club.revived.queue.cluster.messaging.impl.Connect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -77,7 +79,6 @@ public final class PlayerManager {
      * @throws UnregisteredPlayerException if a SendMessage target UUID does not correspond to an online Bukkit player
      */
     private void registerMessageHandlers() {
-
     }
 
     /**

@@ -1,7 +1,6 @@
 package club.revived.lobby.game.billboard;
 
 import club.revived.commons.inventories.util.ColorUtils;
-import club.revived.lobby.Lobby;
 import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
@@ -15,7 +14,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.meta.EntityMeta;
 import me.tofaa.entitylib.meta.display.TextDisplayMeta;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -87,26 +85,24 @@ public final class BillboardManager {
                             new IsQueuedRequest(player.getUniqueId()),
                             IsQueuedResponse.class
                     ).thenAccept(isQueuedResponse -> {
-                        Bukkit.getScheduler().runTask(Lobby.getInstance(), () -> {
-                            if (isQueuedResponse.queued()) {
-                                meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
-                            } else {
-                                meta.setText(ColorUtils.parse("<green>Click Me</green>"));
-                            }
+                        if (isQueuedResponse.queued()) {
+                            meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
+                        } else {
+                            meta.setText(ColorUtils.parse("<green>Click Me</green>"));
+                        }
 
-                            final int hex = Integer.parseInt("8dfc98", 16);
-                            final int a = 0x40;
-                            final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
+                        final int hex = Integer.parseInt("8dfc98", 16);
+                        final int a = 0x40;
+                        final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
 
-                            meta.setBackgroundColor(color);
+                        meta.setBackgroundColor(color);
 
-                            final WrapperPlayServerEntityMetadata packet = meta.createPacket();
+                        final WrapperPlayServerEntityMetadata packet = meta.createPacket();
 
-                            EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
-                                    player,
-                                    packet
-                            );
-                        });
+                        EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
+                                player,
+                                packet
+                        );
                     });
                 });
     }

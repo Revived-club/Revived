@@ -1,6 +1,10 @@
 package club.revived.proxy.service.messaging;
 
 import club.revived.proxy.service.broker.MessageBroker;
+import club.revived.proxy.service.messaging.Message;
+import club.revived.proxy.service.messaging.MessageEnvelope;
+import club.revived.proxy.service.messaging.Request;
+import club.revived.proxy.service.messaging.Response;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 

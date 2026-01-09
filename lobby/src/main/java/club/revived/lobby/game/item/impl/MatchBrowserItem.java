@@ -7,7 +7,9 @@ import club.revived.lobby.game.item.ExecutableItem;
 import club.revived.lobby.game.item.ExecutableItemType;
 import club.revived.lobby.service.cluster.Cluster;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -39,6 +41,7 @@ public final class MatchBrowserItem implements ExecutableItem {
     public ItemStack toBukkitItem() {
         return ItemBuilder.item(Material.SLIME_BALL)
                 .name("Match Browser")
+                .addContainerValue("executable_item", this.id())
                 .build();
     }
 

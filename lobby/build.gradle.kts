@@ -12,6 +12,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.pvphub.me/tofaa")
     maven("https://repo.codemc.io/repository/maven-releases")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     implementation(libs.entitylib)
     compileOnly(libs.packetevents)
     compileOnly(libs.anvilgui)
+    compileOnly(libs.worldguard)
 }
 
 tasks.test {

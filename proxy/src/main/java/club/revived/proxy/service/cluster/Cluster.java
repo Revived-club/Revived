@@ -131,6 +131,8 @@ public final class Cluster {
         this.messagingService.registerHandler(WhereIsProxyRequest.class, whereIsProxyRequest -> {
             final var player = this.proxyServer.getPlayer(whereIsProxyRequest.uuid()).orElse(null);
 
+            System.out.println("Responding to WhereIsProxyRequest " + whereIsProxyRequest.uuid());
+
             if (player == null) {
                 return null;
             }

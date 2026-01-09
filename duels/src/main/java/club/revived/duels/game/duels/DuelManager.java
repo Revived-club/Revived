@@ -137,12 +137,15 @@ public final class DuelManager {
      *                  and the kit type to use for the duel
      */
     private void startDuel(final DuelStart duelStart) {
+        System.out.println("duel start");
         final List<UUID> blueTeam = duelStart.blueTeam();
         final List<UUID> redTeam = duelStart.redTeam();
         final int rounds = duelStart.rounds();
         final KitType kitType = duelStart.kitType();
 
         ArenaPoolManager.getInstance().getArena(kitType).thenAccept(arena -> {
+            System.out.println("arena");
+
             final var duel = new Duel(
                     blueTeam,
                     redTeam,

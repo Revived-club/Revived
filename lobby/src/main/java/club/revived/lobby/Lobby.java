@@ -32,6 +32,10 @@ import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 /**
  * This is an interesting Class
  *
@@ -73,6 +77,8 @@ public final class Lobby extends JavaPlugin {
 
         InventoryManager.register(this);
 
+        this.createDataFolder();
+        this.createDirs();
         this.connectDatabase();
         this.setupCommands();
         this.setupCluster();
@@ -92,7 +98,7 @@ public final class Lobby extends JavaPlugin {
 
     /**
      * Perform shutdown tasks for the plugin.
-     *
+     * <p>
      * Updates the cluster status to ServiceStatus.SHUTTING_DOWN so other services are informed that this plugin is stopping.
      */
     @Override
@@ -123,7 +129,7 @@ public final class Lobby extends JavaPlugin {
 
     /**
      * Initialize and register lobby command handlers.
-     *
+     * <p>
      * Instantiates and registers the DuelCommand, WhereIsCommand, PingCommand, and QueueCommand handlers.
      */
     private void setupCommands() {
@@ -133,12 +139,31 @@ public final class Lobby extends JavaPlugin {
         new PingCommand();
         new QueueCommand();
         new BillboardCommand();
+        new ArenaCommand();
+    }
+
+    private void createDataFolder() {
+        if (!this.getDataFolder().exists()) {
+            this.getDataFolder().mkdir();
+        }
+    }
+
+    private void createDirs() {
+        List.of(
+                "schem"
+        ).forEach(s -> {
+            final var file = new File(this.getDataFolder(), s);
+
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        });
     }
 
 
     /**
      * Initializes a MongoDB connection from environment-provided credentials and registers it with the DatabaseManager.
-     *
+     * <p>
      * Reads the environment variables `MONGODB_HOST`, `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_DATABASE`
      * and connects to the specified host on port 27017.
      */
@@ -159,7 +184,7 @@ public final class Lobby extends JavaPlugin {
 
     /**
      * Configures and instantiates the plugin Cluster from environment variables.
-     *
+     * <p>
      * Reads the following environment variables and uses them to create a Cluster:
      * HOSTNAME, REDIS_HOST, REDIS_PORT (REDIS_PORT is parsed as a base-10 integer).
      */

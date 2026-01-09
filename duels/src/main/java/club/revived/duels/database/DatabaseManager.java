@@ -15,6 +15,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -134,6 +135,15 @@ public final class DatabaseManager {
             return null;
         });
     }
+
+    public <T> CompletableFuture<List<T>> getAll(final Class<T> clazz) {
+        if (!isConnected) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return CompletableFuture.supplyAsync(() -> ((DatabaseProvider<T>) providers.get(clazz)).getAll());
+    }
+
 
     /**
      * Initializes the provider registry with database-backed providers for WorldeditSchematic,

@@ -1,7 +1,9 @@
 package club.revived.duels.game.arena.schematic;
 
+import club.revived.duels.database.DatabaseManager;
 import club.revived.duels.game.arena.ArenaType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,29 @@ public final class SchematicProvider {
      */
     public SchematicProvider() {
         schematicProvider = this;
+        DatabaseManager.getInstance().getAll(WorldeditSchematic.class)
+                .thenAccept(worldeditSchematics1 -> {
+                    for (final var schem : worldeditSchematics1) {
+                        this.worldeditSchematics.put(schem.id(), schem);
+                    }
+                });
+
+        DatabaseManager.getInstance().getAll(DuelArenaSchematic.class)
+                .thenAccept(arenaSchematics -> {
+                    final var restricted = new ArrayList<>(arenaSchematics)
+                            .stream()
+                            .filter(duelArenaSchematic -> duelArenaSchematic.arenaType() == ArenaType.RESTRICTED)
+                            .toList();
+
+                    this.schematics.put(ArenaType.RESTRICTED, restricted);
+
+                    final var interactive = new ArrayList<>(arenaSchematics)
+                            .stream()
+                            .filter(duelArenaSchematic -> duelArenaSchematic.arenaType() == ArenaType.INTERACTIVE)
+                            .toList();
+
+                    this.schematics.put(ArenaType.INTERACTIVE, interactive);
+                });
     }
 
     /**
@@ -49,7 +74,7 @@ public final class SchematicProvider {
 
     /**
      * Retrieves the singleton SchematicProvider instance, creating and storing one if none exists.
-     *
+     * <p>
      * Note: this method is not thread-safe.
      *
      * @return the shared SchematicProvider instance; created if it did not already exist

@@ -1,8 +1,8 @@
-package club.revived.duels.database.provider;
+package club.revived.lobby.database.provider;
 
 import club.revived.commons.adapter.LocationTypeAdapter;
-import club.revived.duels.database.DatabaseProvider;
-import club.revived.duels.game.arena.schematic.DuelArenaSchematic;
+import club.revived.lobby.database.DatabaseProvider;
+import club.revived.lobby.game.duel.schematic.DuelArenaSchematic;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;

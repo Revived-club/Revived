@@ -1,11 +1,10 @@
 package club.revived.lobby.database;
 
 import club.revived.commons.location.SerializedLocation;
-import club.revived.lobby.database.provider.BillboardDatabaseProvider;
-import club.revived.lobby.database.provider.KitDatabaseProvider;
-import club.revived.lobby.database.provider.KitRoomDatabaseProvider;
-import club.revived.lobby.database.provider.LocationDatabaseProvider;
+import club.revived.lobby.database.provider.*;
 import club.revived.lobby.game.billboard.QueueBillboardLocation;
+import club.revived.lobby.game.duel.schematic.DuelArenaSchematic;
+import club.revived.lobby.game.duel.schematic.WorldeditSchematic;
 import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
 import com.mongodb.ConnectionString;
@@ -149,6 +148,8 @@ public final class DatabaseManager {
         this.providers.put(KitRoomPage.class, new KitRoomDatabaseProvider(this.database));
         this.providers.put(SerializedLocation.class, new LocationDatabaseProvider(this.database));
         this.providers.put(QueueBillboardLocation.class, new BillboardDatabaseProvider(this.database));
+        this.providers.put(DuelArenaSchematic.class, new DuelArenaSchematicProvider(this.database));
+        this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

@@ -3,6 +3,7 @@ package club.revived.proxy.service.player;
 import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.exception.UnregisteredPlayerException;
+import club.revived.proxy.service.messaging.impl.Connect;
 import club.revived.proxy.service.messaging.impl.SendMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,18 +31,18 @@ public final class PlayerManager {
      * Initializes the PlayerManager singleton and registers message handlers for player-related messaging.
      */
     public PlayerManager() {
-        System.out.println( "Starting player manager...");
+        System.out.println("Starting player manager...");
         instance = this;
 
         this.registerMessageHandlers();
-        System.out.println( "Started player manager...");
+        System.out.println("Started player manager...");
     }
 
     /**
      * Registers a new NetworkPlayer for the given UUID, username, and current server.
      *
-     * @param uuid the player's UUID
-     * @param username the player's username
+     * @param uuid          the player's UUID
+     * @param username      the player's username
      * @param currentServer the name of the server the player is currently connected to
      */
     public void registerPlayer(
@@ -99,13 +100,13 @@ public final class PlayerManager {
 
     /**
      * Registers a handler that forwards incoming `SendMessage` messages to the corresponding Bukkit player.
-     *
+     * <p>
      * When a `SendMessage` is received the handler looks up the player by UUID and delivers the rich message.
      *
      * @throws UnregisteredPlayerException if a `SendMessage` targets a UUID with no registered player on this proxy
      */
     private void registerMessageHandlers() {
-        System.out.println( "Registering player message handlers...");
+        System.out.println("Registering player message handlers...");
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
                     final var uuid = message.uuid();
@@ -119,16 +120,31 @@ public final class PlayerManager {
                             });
                 });
 
-        System.out.println( "Registered player message handlers...");
+        Cluster.getInstance().getMessagingService().registerMessageHandler(Connect.class, connect -> {
+            final var uuid = connect.uuid();
+
+            ProxyPlugin.getInstance()
+                    .getServer()
+                    .getPlayer(uuid)
+                    .ifPresent(player -> ProxyPlugin.getInstance()
+                            .getServer()
+                            .getServer(connect.server())
+                            .ifPresentOrElse(server -> {
+                                        player.createConnectionRequest(server).fireAndForget();
+                                    }, () -> player.sendRichMessage("<red>Failed to connect to: " + connect.server())
+                            ));
+        });
+
+        System.out.println("Registered player message handlers...");
     }
 
     /**
-         * Retrieve the NetworkPlayer for a given Bukkit player's UUID.
-         *
-         * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
-         * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
-         * @throws UnregisteredPlayerException if the internal registry contains the given UUID
-         */
+     * Retrieve the NetworkPlayer for a given Bukkit player's UUID.
+     *
+     * @param uuid the Bukkit player's UUID used to look up the NetworkPlayer
+     * @return the NetworkPlayer mapped to the UUID, or {@code null} if no mapping exists
+     * @throws UnregisteredPlayerException if the internal registry contains the given UUID
+     */
     @NotNull
     public NetworkPlayer fromVelocityPlayer(final UUID uuid) {
         if (!this.networkPlayers.containsKey(uuid)) {

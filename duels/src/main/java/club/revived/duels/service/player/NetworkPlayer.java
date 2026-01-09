@@ -34,9 +34,6 @@ public final class NetworkPlayer {
     @NotNull
     private final String currentServer;
 
-    @NotNull
-    private final CompletableFuture<ClusterService> currentProxy;
-
     /**
      * Creates a NetworkPlayer for the given identity and current server and initiates resolution of the player's proxy service.
      *
@@ -54,7 +51,6 @@ public final class NetworkPlayer {
         this.uuid = uuid;
         this.username = username;
         this.currentServer = currentServer;
-        this.currentProxy = Cluster.getInstance().whereIsProxy(this.uuid);
     }
 
     /**
@@ -65,6 +61,11 @@ public final class NetworkPlayer {
     @NotNull
     private CompletableFuture<ClusterService> whereIs() {
         return Cluster.getInstance().whereIs(this.uuid);
+    }
+
+    @NotNull
+    private CompletableFuture<ClusterService> whereIsProxy() {
+        return Cluster.getInstance().whereIsProxy(this.uuid);
     }
 
     /**
@@ -207,7 +208,7 @@ public final class NetworkPlayer {
                         throw new ServiceUnavailableException("Trying to connect to a service that's not available");
                     }
 
-                    this.currentProxy.thenAccept(service -> {
+                    this.whereIsProxy().thenAccept(service -> {
                         service.sendMessage(new Connect(
                                 this.uuid,
                                 clusterService.getId()
@@ -238,7 +239,8 @@ public final class NetworkPlayer {
                         throw new ServiceUnavailableException("Trying to connect to a service that's not available");
                     }
 
-                    this.currentProxy.thenAccept(service -> {
+                    this.whereIsProxy().thenAccept(service -> {
+                        System.out.println(service.getId());
                         service.sendMessage(new Connect(
                                 this.uuid,
                                 clusterService.getId()
@@ -272,14 +274,5 @@ public final class NetworkPlayer {
      */
     public @NotNull String getCurrentServer() {
         return currentServer;
-    }
-
-    /**
-     * Obtain the proxy service currently handling this player.
-     *
-     * @return a CompletableFuture that completes with the proxy ClusterService for this player, or `null` if no proxy is assigned
-     */
-    public @NotNull CompletableFuture<ClusterService> getCurrentProxy() {
-        return currentProxy;
     }
 }
