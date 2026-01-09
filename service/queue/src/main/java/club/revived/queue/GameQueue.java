@@ -94,6 +94,8 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                 .registerHandler(IsQueuedRequest.class, isQueuedRequest -> {
                     final var uuid = isQueuedRequest.uuid();
 
+                    System.out.println("queue request");
+
                     final boolean alreadyQueued = this.queue.values().stream()
                             .flatMap(map -> map.values().stream())
                             .flatMap(Collection::stream)

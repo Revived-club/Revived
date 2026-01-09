@@ -45,6 +45,10 @@ public final class BillboardCommand {
 
                                     if (billboard == null) {
                                         BillboardManager.getInstance().build(kitType, location);
+                                        DatabaseManager.getInstance().save(QueueBillboardLocation.class, new QueueBillboardLocation(
+                                                kitType,
+                                                location
+                                        ));
                                         return;
                                     }
 

@@ -8,8 +8,10 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -102,5 +104,10 @@ public final class LocationDatabaseProvider implements DatabaseProvider<Serializ
         } catch (final Exception e) {
             throw new RuntimeException("Failed to deserialize location with id: " + id, e);
         }
+    }
+
+    @Override
+    public @NotNull List<SerializedLocation> getAll() {
+        return List.of();
     }
 }

@@ -21,10 +21,14 @@ dependencies {
     compileOnly(libs.commandapi)
     implementation(project(":commons"))
     implementation(libs.entitylib)
-    implementation(libs.packetevents)
+    compileOnly(libs.packetevents)
     compileOnly(libs.anvilgui)
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.shadowJar {
+    relocate("me.tofaa.entitylib", "dev.yyuh.libs.entitylib")
 }

@@ -13,6 +13,7 @@ import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -97,5 +98,10 @@ public final class KitRoomDatabaseProvider implements DatabaseProvider<KitRoomPa
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public @NotNull List<KitRoomPage> getAll() {
+        return List.of();
     }
 }

@@ -37,9 +37,9 @@ public interface DatabaseProvider<T> {
     @NotNull Optional<T> get(String key);
 
     /**
- * Retrieves all stored entities.
- *
- * @return a non-null List containing every stored entity, or an empty list if none are stored
- */
-@NotNull List<T> getAll();
+     * Retrieves all stored entities.
+     *
+     * @return a non-null List containing every stored entity, or an empty list if none are stored
+     */
+    @NotNull List<T> getAll();
 }

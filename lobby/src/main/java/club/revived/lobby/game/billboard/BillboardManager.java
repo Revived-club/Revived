@@ -1,6 +1,7 @@
 package club.revived.lobby.game.billboard;
 
 import club.revived.commons.inventories.util.ColorUtils;
+import club.revived.lobby.Lobby;
 import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
@@ -14,6 +15,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.meta.EntityMeta;
 import me.tofaa.entitylib.meta.display.TextDisplayMeta;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -42,17 +44,17 @@ public final class BillboardManager {
      * <p>Asynchronously retrieves persisted QueueBillboardLocation entries and instantiates billboards for them.</p>
      */
     public void setup() {
-//        DatabaseManager.getInstance().get()
-//        PersistentDataManager.getInstance().getAll(QueueBillboardLocation.class).thenAccept(queueBillboardLocations -> {
-//            for (final var billboardLoc : queueBillboardLocations) {
-//                build(billboardLoc.kitType(), billboardLoc.location());
-//            }
-//        });
+        DatabaseManager.getInstance().getAll(QueueBillboardLocation.class)
+                .thenAccept(queueBillboardLocations -> {
+                    for (final var billboardLoc : queueBillboardLocations) {
+                        build(billboardLoc.kitType(), billboardLoc.location());
+                    }
+                });
     }
 
     /**
      * Builds an interactive queue billboard for the given kit type at the specified location.
-     *
+     * <p>
      * When a player interacts with the created billboard, their queue membership is toggled:
      * if they are currently in a queue they will be removed and the billboard text becomes "Click Me";
      * otherwise they will be added to the SOLO queue for the specified kit and the billboard text becomes "Queueing...".
@@ -72,8 +74,6 @@ public final class BillboardManager {
                     meta.setNotifyAboutChanges(false);
                     player.playSound(player, Sound.BLOCK_LEVER_CLICK, 1, 1);
 
-                    meta.setText(ColorUtils.parse("<green>Loading..."));
-
                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
 
                     DuelManager.getInstance().queue(
@@ -92,20 +92,26 @@ public final class BillboardManager {
                         } else {
                             meta.setText(ColorUtils.parse("<green>Click Me</green>"));
                         }
+
+                        final int hex = Integer.parseInt("8dfc98", 16);
+                        final int a = 0x40;
+                        final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
+
+                        meta.setBackgroundColor(color);
+
+                        final WrapperPlayServerEntityMetadata packet = meta.createPacket();
+
+                        EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
+                                player,
+                                packet
+                        );
                     });
-
-                    final WrapperPlayServerEntityMetadata packet = meta.createPacket();
-
-                    EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
-                            player,
-                            packet
-                    );
                 });
     }
 
     /**
      * Update a text display entity's visible text and background color for a specific player based on their queue status.
-     *
+     * <p>
      * Sets the display text to "Queueing..." if the player is in a queue, otherwise "Click Me"; applies a semi‑transparent green background and sends the updated entity metadata to the player.
      *
      * @param player   the player who should receive the updated display

@@ -2,6 +2,13 @@ package club.revived.lobby.game.billboard;
 
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.lobby.Lobby;
+import club.revived.lobby.game.duel.DuelManager;
+import club.revived.lobby.game.duel.KitType;
+import club.revived.lobby.game.duel.QueueType;
+import club.revived.lobby.service.cluster.Cluster;
+import club.revived.lobby.service.messaging.impl.IsQueuedRequest;
+import club.revived.lobby.service.messaging.impl.IsQueuedResponse;
+import club.revived.lobby.service.player.PlayerManager;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
@@ -33,11 +40,11 @@ public final class ClickableBillboard {
     /**
      * Creates a ClickableBillboard that manages a main entity, its associated entities, visual builder, location, and interaction behavior.
      *
-     * @param entity         the main billboard entity wrapper
-     * @param associated     entities visually or functionally associated with the billboard (may be empty)
+     * @param entity           the main billboard entity wrapper
+     * @param associated       entities visually or functionally associated with the billboard (may be empty)
      * @param billboardBuilder builder responsible for producing the billboard's displayed content
-     * @param location       the world location at which the billboard is placed
-     * @param action         the action to execute when a player interacts with the billboard; receives the main entity and the interacting player
+     * @param location         the world location at which the billboard is placed
+     * @param action           the action to execute when a player interacts with the billboard; receives the main entity and the interacting player
      */
     public ClickableBillboard(
             WrapperEntity entity,
@@ -110,7 +117,7 @@ public final class ClickableBillboard {
 
         final float yaw = original.getYaw();
         final Vector3d right = shakeVector(yaw, 0.01);
-        final Vector3d left  = shakeVector(yaw, -0.01);
+        final Vector3d left = shakeVector(yaw, -0.01);
 
         Bukkit.getScheduler().runTaskLater(Lobby.getInstance(), () -> {
             sendTeleport(player, entity.getEntityId(),
@@ -143,7 +150,7 @@ public final class ClickableBillboard {
 
     /**
      * Plays a short client-side click animation for this billboard for the given player.
-     *
+     * <p>
      * Sends a metadata update and schedules two small, timed client-only teleports that
      * momentarily offset the billboard and then restore it to simulate a click.
      */
@@ -173,7 +180,7 @@ public final class ClickableBillboard {
 
     /**
      * Updates the billboard's text and background color for a specific player to reflect current queue status.
-     *
+     * <p>
      * Sets the TEXT_DISPLAY metadata (text: "Queueing..." or "Click Me") and a semi-transparent green background,
      * then sends the metadata packet only to the provided player.
      *
@@ -185,26 +192,32 @@ public final class ClickableBillboard {
 
         meta.setNotifyAboutChanges(false);
 
-        meta.setText(ColorUtils.parse("eokijaejnw"));
+        Cluster.getInstance().getMessagingService().sendRequest(
+                "queue-service",
+                new IsQueuedRequest(player.getUniqueId()),
+                IsQueuedResponse.class
+        ).thenAccept(isQueuedResponse -> {
 
-//        if (QueueManager.getInstance().isInQueue(player)) {
-//            meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
-//        } else {
-//            meta.setText(ColorUtils.parse("<green>Click Me</green>"));
-//        }
+            if (isQueuedResponse.queued()) {
+                meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
+            } else {
+                meta.setText(ColorUtils.parse("<green>Click Me</green>"));
+            }
 
-        final int hex = Integer.parseInt("8dfc98", 16);
-        final int a = 0x40;
-        final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
+            final int hex = Integer.parseInt("8dfc98", 16);
+            final int a = 0x40;
+            final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
 
-        meta.setBackgroundColor(color);
+            meta.setBackgroundColor(color);
 
-        final WrapperPlayServerEntityMetadata packet = meta.createPacket();
+            final WrapperPlayServerEntityMetadata packet = meta.createPacket();
 
-        EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
-                player,
-                packet
-        );
+            EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
+                    player,
+                    packet
+            );
+        });
+
     }
 
     /**
@@ -252,7 +265,7 @@ public final class ClickableBillboard {
 
     /**
      * Updates the billboard's yaw and applies that rotation to the main entity and all associated entities.
-     *
+     * <p>
      * Sets the provided yaw on the main entity, repositions the billboard to reflect the new orientation,
      * updates each associated entity's yaw and teleports them to their rotated locations, and stores the new location.
      *
@@ -305,10 +318,10 @@ public final class ClickableBillboard {
         this.location = SpigotConversionUtil.toBukkitLocation(world, loc);
     }
 
-     /**
+    /**
      * Compute a horizontal offset vector from a yaw angle and magnitude.
      *
-     * @param yaw the yaw angle in degrees (rotation around the vertical axis)
+     * @param yaw       the yaw angle in degrees (rotation around the vertical axis)
      * @param magnitude the distance/magnitude of the offset
      * @return a Vector3d representing the horizontal offset for the given yaw and magnitude; the y component is zero
      */
@@ -316,7 +329,7 @@ public final class ClickableBillboard {
     private Vector3d clickVector(
             final float yaw,
             final double magnitude
-     ) {
+    ) {
         final double radians = Math.toRadians(yaw);
         return new Vector3d(
                 -Math.sin(radians) * magnitude,
@@ -330,8 +343,8 @@ public final class ClickableBillboard {
      *
      * @param yaw       the yaw in degrees used to derive orientation
      * @param magnitude the desired length of the offset
-     * @return          a Vector3d with Y = 0 whose X/Z components form a vector of length `magnitude`
-     *                  oriented opposite the forward direction defined by `yaw`
+     * @return a Vector3d with Y = 0 whose X/Z components form a vector of length `magnitude`
+     * oriented opposite the forward direction defined by `yaw`
      */
     @NotNull
     private Vector3d shakeVector(

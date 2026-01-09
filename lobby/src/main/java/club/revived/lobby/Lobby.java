@@ -16,12 +16,20 @@ import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.impl.MatchBrowserItem;
 import club.revived.lobby.game.listener.ItemPlayerListener;
 import club.revived.lobby.game.listener.PlayerListener;
+import club.revived.lobby.game.listener.SpawnListener;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
+import com.github.retrooper.packetevents.PacketEvents;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIPaperConfig;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
+import me.tofaa.entitylib.APIConfig;
+import me.tofaa.entitylib.EntityLib;
+import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -39,7 +47,20 @@ public final class Lobby extends JavaPlugin {
      */
     @Override
     public void onLoad() {
-        super.onLoad();
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().getSettings()
+                .reEncodeByDefault(false)
+                .checkForUpdates(false);
+
+        PacketEvents.getAPI().load();
+
+        final SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(this);
+        final APIConfig settings = new APIConfig(PacketEvents.getAPI())
+                // .debugMode()
+                .tickTickables()
+                .usePlatformLogger();
+
+        EntityLib.init(platform, settings);
     }
 
     /**
@@ -62,7 +83,7 @@ public final class Lobby extends JavaPlugin {
         new DuelManager();
         new MessageCommand();
         new ReplyCommand();
-        BillboardManager.getInstance();
+        BillboardManager.getInstance().setup();
 
         ExecutableItemRegistry.register(new MatchBrowserItem());
 
@@ -97,6 +118,7 @@ public final class Lobby extends JavaPlugin {
         new ItemPlayerListener();
         new BillboardListener();
         new BillboardPacketListener();
+        new SpawnListener();
     }
 
     /**

@@ -1,17 +1,24 @@
 package club.revived.lobby.database.provider;
 
+import club.revived.commons.adapter.ItemStackTypeAdapter;
+import club.revived.commons.adapter.LocationTypeAdapter;
 import club.revived.commons.serialization.LocationSerializer;
 import club.revived.lobby.database.DatabaseProvider;
 import club.revived.lobby.game.billboard.QueueBillboardLocation;
 import club.revived.lobby.game.duel.KitType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,6 +43,11 @@ import java.util.Optional;
 public final class BillboardDatabaseProvider implements DatabaseProvider<QueueBillboardLocation> {
 
     private final MongoCollection<Document> collection;
+    private final Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .registerTypeAdapter(Location.class, new LocationTypeAdapter())
+            .create();
+
 
     /**
      * Constructs the provider and ensures the {@code queue_billboards} collection exists.
@@ -104,5 +116,23 @@ public final class BillboardDatabaseProvider implements DatabaseProvider<QueueBi
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    @Override
+    public @NotNull List<QueueBillboardLocation> getAll() {
+        final List<QueueBillboardLocation> result = new ArrayList<>();
+
+        for (final Document doc : this.collection.find()) {
+            try {
+                final KitType type = KitType.valueOf(doc.getString("type"));
+                final Location location = LocationSerializer.deserialize(doc.getString("location"));
+
+                result.add(new QueueBillboardLocation(type, location));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 }
