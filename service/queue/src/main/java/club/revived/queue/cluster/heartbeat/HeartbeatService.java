@@ -99,11 +99,14 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                 service
         );
 
-        message.onlinePlayers().forEach(onlinePlayer -> PlayerManager.getInstance().registerPlayer(
-                onlinePlayer.uuid(),
-                onlinePlayer.username(),
-                onlinePlayer.currentServer()
-        ));
+        message.onlinePlayers().forEach(onlinePlayer -> {
+            System.out.printf("Registering %s", onlinePlayer.username());
+            PlayerManager.getInstance().registerPlayer(
+                    onlinePlayer.uuid(),
+                    onlinePlayer.username(),
+                    onlinePlayer.currentServer()
+            );
+        });
 
         PlayerManager.getInstance().getNetworkPlayers()
                 .entrySet()
