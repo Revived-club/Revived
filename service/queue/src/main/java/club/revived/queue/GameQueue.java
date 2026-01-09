@@ -81,6 +81,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                         for (final var entry : queued) {
                             try {
                                 final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
+                                System.out.println("actionbar");
                                 networkPlayer.sendActionbar("<red>You are in queue...");
                             } catch (final Exception e) {
                                 queued.remove(entry);
