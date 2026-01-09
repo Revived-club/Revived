@@ -40,6 +40,21 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
             queue.put(kit, map);
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (final KitType kit : KitType.values()) {
+                for (final QueueType type : QueueType.values()) {
+                    final Deque<QueueEntry> queued = queue.get(kit).get(type);
+
+                    for (final var entry : queued) {
+                        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
+                        networkPlayer.sendMessage("<red>The queue service encountered an error. Please try again in 15–30 seconds.");
+                    }
+                }
+            }
+
+            this.queue.clear();
+        }));
+
         this.registerMessageHandlers();
         this.startTask();
     }
