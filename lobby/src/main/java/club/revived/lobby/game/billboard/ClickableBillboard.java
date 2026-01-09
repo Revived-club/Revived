@@ -197,25 +197,26 @@ public final class ClickableBillboard {
                 new IsQueuedRequest(player.getUniqueId()),
                 IsQueuedResponse.class
         ).thenAccept(isQueuedResponse -> {
+            Bukkit.getScheduler().runTask(Lobby.getInstance(), () -> {
+                if (isQueuedResponse.queued()) {
+                    meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
+                } else {
+                    meta.setText(ColorUtils.parse("<green>Click Me</green>"));
+                }
 
-            if (isQueuedResponse.queued()) {
-                meta.setText(ColorUtils.parse("<green>Queueing...</green>"));
-            } else {
-                meta.setText(ColorUtils.parse("<green>Click Me</green>"));
-            }
+                final int hex = Integer.parseInt("8dfc98", 16);
+                final int a = 0x40;
+                final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
 
-            final int hex = Integer.parseInt("8dfc98", 16);
-            final int a = 0x40;
-            final var color = Color.fromARGB(hex).setAlpha(a).asARGB();
+                meta.setBackgroundColor(color);
 
-            meta.setBackgroundColor(color);
+                final WrapperPlayServerEntityMetadata packet = meta.createPacket();
 
-            final WrapperPlayServerEntityMetadata packet = meta.createPacket();
-
-            EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
-                    player,
-                    packet
-            );
+                EntityLib.getApi().getPacketEvents().getPlayerManager().sendPacket(
+                        player,
+                        packet
+                );
+            });
         });
 
     }
