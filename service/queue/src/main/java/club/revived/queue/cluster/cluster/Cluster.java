@@ -201,9 +201,9 @@ public final class Cluster {
      */
     @NotNull
     public CompletableFuture<ClusterService> whereIs(final UUID uuid) {
-        return this.messagingService.sendRequest("global", new WhereIsRequest(uuid), WhereIsResponse.class)
+        return this.messagingService.sendGlobalRequest(new WhereIsRequest(uuid), WhereIsResponse.class)
                 .thenApply(whereIsResponse -> {
-                    final var id = whereIsResponse.server();
+                    final var id = whereIsResponse.getFirst().server();
 
                     return this.services.get(id);
                 });
