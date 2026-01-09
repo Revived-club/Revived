@@ -78,6 +78,8 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                         final Deque<QueueEntry> queued = queue.get(kit).get(type);
 
+                        System.out.println(PlayerManager.getInstance().getNetworkPlayers());
+
                         for (final var entry : queued) {
                             try {
                                 final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
