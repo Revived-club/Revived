@@ -158,8 +158,6 @@ public final class NetworkPlayer {
      */
     public void sendActionbar(final String message) {
         this.whereIs().thenAccept(service -> {
-            System.out.println("Sending chat message to " + this.username);
-
             if (service == null) {
                 throw new UnregisteredPlayerException("service player is on is not registered");
             }

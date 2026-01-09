@@ -50,10 +50,22 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(AddToQueue.class, addToQueue -> {
-                    System.out.printf("Adding %s to the queue!%n", addToQueue.uuid().toString());
+                    final UUID uuid = addToQueue.uuid();
+
+                    final boolean alreadyQueued = this.queue.values().stream()
+                            .flatMap(map -> map.values().stream())
+                            .flatMap(Collection::stream)
+                            .anyMatch(entry -> entry.uuid().equals(uuid));
+
+                    if (alreadyQueued) {
+                        this.remove(uuid);
+                        return;
+                    }
+
+                    System.out.printf("Adding %s to the queue!%n", uuid);
 
                     final var queueEntry = new QueueEntry(
-                            addToQueue.uuid(),
+                            uuid,
                             addToQueue.queueType(),
                             addToQueue.kitType()
                     );
@@ -61,6 +73,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                     this.push(queueEntry);
                 });
     }
+
 
     /**
      * Starts the recurring task that processes all kit and queue-type queues.

@@ -59,8 +59,6 @@ public final class PlayerManager {
      * @param networkPlayer the NetworkPlayer to register; its UUID is used as the registry key
      */
     public void registerPlayer(final NetworkPlayer networkPlayer) {
-        System.out.printf("Registered player %s - %s", networkPlayer.getUsername(), networkPlayer.getUuid());
-
         this.networkPlayers.put(
                 networkPlayer.getUuid(),
                 networkPlayer
