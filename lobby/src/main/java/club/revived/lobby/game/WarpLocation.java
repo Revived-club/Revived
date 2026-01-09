@@ -7,6 +7,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 /**
  * Represents a fixed, named warp point within the lobby.
  *
@@ -128,5 +130,25 @@ public enum WarpLocation {
     @NotNull
     public Location getLocation() {
         return location;
+    }
+
+    /**
+     * Returns an array containing the persistent identifiers of all defined warp locations.
+     *
+     * @return an array of warp identifier strings
+     */
+    @NotNull
+    public static String[] toStringArray() {
+        return Arrays.stream(WarpLocation.values())
+                .map(WarpLocation::getId)
+                .toArray(String[]::new);
+    }
+
+    @NotNull
+    public static WarpLocation fromId(final String id) {
+        return Arrays.stream(WarpLocation.values())
+                .filter(warpLocation -> warpLocation.getId().equals(id))
+                .toList()
+                .getFirst();
     }
 }
