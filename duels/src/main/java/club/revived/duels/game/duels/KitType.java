@@ -47,14 +47,14 @@ public enum KitType {
     ),
 
     NETHERITE_POTION(
-            "Netherite Potion",
+            "Nethpot",
             false,
             Material.NETHERITE_CHESTPLATE,
             ArenaType.RESTRICTED
     ),
 
     DIAMOND_POTION(
-            "Diamond Potion",
+            "Diapot",
             false,
             Material.DIAMOND_CHESTPLATE,
             ArenaType.RESTRICTED
@@ -96,7 +96,7 @@ public enum KitType {
             ArenaType.INTERACTIVE
     ),
 
-    EVAL("Evaluation",
+    EVAL("Eval",
             false,
             Material.END_CRYSTAL,
             ArenaType.INTERACTIVE

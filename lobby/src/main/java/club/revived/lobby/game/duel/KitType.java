@@ -41,13 +41,13 @@ public enum KitType {
     ),
 
     NETHERITE_POTION(
-            "Netherite Potion",
+            "Nethpot",
             false,
             Material.NETHERITE_CHESTPLATE
     ),
 
     DIAMOND_POTION(
-            "Diamond Potion",
+            "Diapot",
             false,
             Material.DIAMOND_CHESTPLATE
     ),
