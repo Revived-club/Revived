@@ -3,6 +3,10 @@ package club.revived.lobby;
 import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.game.WarpLocation;
+import club.revived.lobby.game.billboard.BillboardManager;
+import club.revived.lobby.game.billboard.command.BillboardCommand;
+import club.revived.lobby.game.billboard.listener.BillboardListener;
+import club.revived.lobby.game.billboard.listener.BillboardPacketListener;
 import club.revived.lobby.game.chat.command.MessageCommand;
 import club.revived.lobby.game.chat.command.ReplyCommand;
 import club.revived.lobby.game.chat.listener.PlayerChatListener;
@@ -58,6 +62,7 @@ public final class Lobby extends JavaPlugin {
         new DuelManager();
         new MessageCommand();
         new ReplyCommand();
+        BillboardManager.getInstance();
 
         ExecutableItemRegistry.register(new MatchBrowserItem());
 
@@ -90,6 +95,8 @@ public final class Lobby extends JavaPlugin {
         new PlayerChatListener();
         new PlayerListener();
         new ItemPlayerListener();
+        new BillboardListener();
+        new BillboardPacketListener();
     }
 
     /**
@@ -103,6 +110,7 @@ public final class Lobby extends JavaPlugin {
         new WhereIsCommand();
         new PingCommand();
         new QueueCommand();
+        new BillboardCommand();
     }
 
 

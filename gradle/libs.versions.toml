@@ -10,6 +10,8 @@ worldguard = "7.0.10"
 velocity = "3.4.0-SNAPSHOT"
 kubernetes = "7.3.1"
 jetbrainsannotations = "26.0.2-1"
+entitylib = "3.0.3-SNAPSHOT"
+packetevents = "2.11.1"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -21,6 +23,8 @@ worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = 
 velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 kubernetes = { module = "io.fabric8:kubernetes-client", version.ref = "kubernetes" }
 jetbrainsannotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsannotations" }
+entitylib = { module = "io.github.tofaa2:spigot", version.ref = "entitylib" }
+packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

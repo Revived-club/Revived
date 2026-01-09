@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: revived
+    ports:
+      - "27017:27017"
+    networks:
+      - revived-net
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - revived-net
+
+  lobby:
+    build: ./lobby
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PASSWORD: password
+      MONGODB_USERNAME: admin
+      MONGODB_DATABASE: revived
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOSTNAME: lobby
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - revived-net
+
+  duels:
+    build: ./duels
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PASSWORD: password
+      MONGODB_USERNAME: admin
+      MONGODB_DATABASE: revived
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOSTNAME: duels
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - revived-net
+
+  proxy:
+    build: ./proxy
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PASSWORD: password
+      MONGODB_USERNAME: admin
+      MONGODB_DATABASE: revived
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOSTNAME: proxy
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - revived-net
+    ports:
+      - "19132:19132"
+
+  queue:
+    build: ./service/queue
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PASSWORD: password
+      MONGODB_USERNAME: admin
+      MONGODB_DATABASE: revived
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOSTNAME: proxy
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - revived-net
+    ports:
+      - "6767:6767"
+
+
+
+networks:
+  revived-net:
+    driver: bridge

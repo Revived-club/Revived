@@ -4,6 +4,8 @@ import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.impl.AddToQueue;
 import club.revived.queue.cluster.messaging.impl.DuelStart;
+import club.revived.queue.cluster.messaging.impl.IsQueuedRequest;
+import club.revived.queue.cluster.messaging.impl.IsQueuedResponse;
 import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
@@ -86,6 +88,18 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                     );
 
                     this.push(queueEntry);
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerHandler(IsQueuedRequest.class, isQueuedRequest -> {
+                    final var uuid = isQueuedRequest.uuid();
+
+                    final boolean alreadyQueued = this.queue.values().stream()
+                            .flatMap(map -> map.values().stream())
+                            .flatMap(Collection::stream)
+                            .anyMatch(entry -> entry.uuid().equals(uuid));
+
+                    return new IsQueuedResponse(uuid, alreadyQueued);
                 });
     }
 

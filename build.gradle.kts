@@ -18,3 +18,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+
+tasks.register<Exec>("dev") {
+    dependsOn(
+        ":duels:build",
+        ":lobby:build",
+        ":proxy:build",
+        ":service:queue:build"
+    )
+
+    commandLine("docker", "compose", "up", "-d", "--build")
+}
