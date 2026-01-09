@@ -108,18 +108,22 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
             );
         });
 
-//        PlayerManager.getInstance().getNetworkPlayers()
-//                .entrySet()
-//                .removeIf(entry ->
-//                        message.onlinePlayers().stream().noneMatch(p -> {
-//                            final var uuid = p.uuid();
-//                            final var value = entry.getValue();
-//                            final var entryUUID = value.getUuid();
-//
-//                            final var valueService = value.getCurrentServer();
-//                            final var playerService = p.currentServer();
-//
-//                            return uuid.equals(entryUUID) && playerService.equalsIgnoreCase(valueService);
-//                        }));
+        final var serviceId = message.id();
+
+        final var onlinePlayers = message.onlinePlayers();
+
+        PlayerManager.getInstance().getNetworkPlayers()
+                .entrySet()
+                .removeIf(entry -> {
+                    final var networkPlayer = entry.getValue();
+
+                    if (!networkPlayer.getCurrentServer().equalsIgnoreCase(serviceId)) {
+                        return false;
+                    }
+
+                    return onlinePlayers.stream()
+                            .noneMatch(p -> p.uuid().equals(networkPlayer.getUuid()));
+                });
+
     }
 }

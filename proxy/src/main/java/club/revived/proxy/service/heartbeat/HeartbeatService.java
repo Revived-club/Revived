@@ -154,18 +154,21 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                 onlinePlayer.ping()
         ));
 
+        final var serviceId = message.id();
+
+        final var onlinePlayers = message.onlinePlayers();
+
         PlayerManager.getInstance().getNetworkPlayers()
                 .entrySet()
-                .removeIf(entry ->
-                        message.onlinePlayers().stream().noneMatch(p -> {
-                            final var uuid = p.uuid();
-                            final var value = entry.getValue();
-                            final var entryUUID = value.getUuid();
+                .removeIf(entry -> {
+                    final var networkPlayer = entry.getValue();
 
-                            final var valueService = value.getCurrentServer();
-                            final var playerService = p.currentServer();
+                    if (!networkPlayer.getCurrentServer().equalsIgnoreCase(serviceId)) {
+                        return false;
+                    }
 
-                            return uuid.equals(entryUUID) && playerService.equalsIgnoreCase(valueService);
-                        }));
+                    return onlinePlayers.stream()
+                            .noneMatch(p -> p.uuid().equals(networkPlayer.getUuid()));
+                });
     }
 }
