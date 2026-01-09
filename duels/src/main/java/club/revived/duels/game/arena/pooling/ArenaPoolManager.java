@@ -68,7 +68,7 @@ public final class ArenaPoolManager {
     @NotNull
     public CompletableFuture<IArena> getArena(final @NotNull KitType kitType) {
         final ArenaType arenaType = kitType.getArenaType();
-        final var arenas = arenaPool.computeIfAbsent(arenaType, k -> new ArrayDeque<>());
+        final var arenas = arenaPool.computeIfAbsent(arenaType, _ -> new ArrayDeque<>());
 
         final IArena arena = arenas.pollFirst();
 

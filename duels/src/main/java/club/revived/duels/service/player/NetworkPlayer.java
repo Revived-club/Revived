@@ -64,7 +64,7 @@ public final class NetworkPlayer {
     }
 
     @NotNull
-    private CompletableFuture<ClusterService> whereIsProxy() {
+    public CompletableFuture<ClusterService> whereIsProxy() {
         return Cluster.getInstance().whereIsProxy(this.uuid);
     }
 
@@ -239,6 +239,8 @@ public final class NetworkPlayer {
                         throw new ServiceUnavailableException("Trying to connect to a service that's not available");
                     }
 
+                    System.out.println(statusResponse.status());
+
                     this.whereIsProxy().thenAccept(service -> {
                         System.out.println(service.getId());
                         service.sendMessage(new Connect(
@@ -247,6 +249,16 @@ public final class NetworkPlayer {
                         ));
                     });
                 });
+    }
+
+    public void connectHere() {
+        this.whereIsProxy().thenAccept(service -> {
+            System.out.println(service.getId());
+            service.sendMessage(new Connect(
+                    this.uuid,
+                    Cluster.getInstance().getServiceId()
+            ));
+        });
     }
 
     /**

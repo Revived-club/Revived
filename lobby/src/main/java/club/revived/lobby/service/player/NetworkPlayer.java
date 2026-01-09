@@ -57,6 +57,12 @@ public final class NetworkPlayer {
         return Cluster.getInstance().whereIs(this.uuid);
     }
 
+    @NotNull
+    public CompletableFuture<ClusterService> whereIsProxy() {
+        return Cluster.getInstance().whereIsProxy(this.uuid);
+    }
+
+
     /**
      * Determines the cluster service category responsible for this player.
      *
@@ -66,6 +72,7 @@ public final class NetworkPlayer {
     public CompletableFuture<ServiceType> getService() {
         return this.whereIs().thenApply(ClusterService::getType);
     }
+
 
     /**
      * Store an object in the cluster-wide global cache for this player with a time-to-live.

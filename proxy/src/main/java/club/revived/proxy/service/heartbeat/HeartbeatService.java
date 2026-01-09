@@ -12,6 +12,7 @@ import club.revived.proxy.service.status.StatusResponse;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -32,6 +33,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     private final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
     private final Cluster cluster = Cluster.getInstance();
+    private final MessageBroker broker;
 
     /**
      * Creates a HeartbeatService, subscribes it to the "service:heartbeat" channel, and starts its periodic task.
@@ -39,6 +41,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      * @param broker the MessageBroker used to subscribe to heartbeat messages for this service
      */
     public HeartbeatService(final MessageBroker broker) {
+        this.broker = broker;
         System.out.println("Starting heartbeat service...");
         broker.subscribe("service:heartbeat", Heartbeat.class, this);
 
@@ -60,6 +63,15 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     .values()
                     .stream()
                     .toList();
+
+            broker.publish("service:heartbeat", new Heartbeat(
+                    System.currentTimeMillis(),
+                    cluster.getServiceType(),
+                    cluster.getServiceId(),
+                    0,
+                    List.of(),
+                    cluster.getIp()
+            ));
 
             services.forEach(service -> {
                 System.out.println("[Heartbeat] Checking service: " + service.getId());

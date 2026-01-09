@@ -22,13 +22,16 @@ public final class StringUtils {
     public static String generateId(final String prefix) {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         final StringBuilder builder = new StringBuilder(8);
+        builder.append(prefix);
+
         for (int i = 0; i < 8; ++i) {
             final var chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
-            int randomIndex = random.nextInt(chars.length());
-            char randomChar = chars.charAt(randomIndex);
+            final int randomIndex = random.nextInt(chars.length());
+            final char randomChar = chars.charAt(randomIndex);
 
             builder.append(randomChar);
         }
-        return builder.append(prefix).toString();
+
+        return builder.toString();
     }
 }

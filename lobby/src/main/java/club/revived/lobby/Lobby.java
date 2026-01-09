@@ -140,6 +140,7 @@ public final class Lobby extends JavaPlugin {
         new QueueCommand();
         new BillboardCommand();
         new ArenaCommand();
+        new WhereIsProxyCommand();
     }
 
     private void createDataFolder() {

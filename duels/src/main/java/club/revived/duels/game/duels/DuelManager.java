@@ -81,7 +81,7 @@ public final class DuelManager {
 
             networkPlayers.forEach(networkPlayer -> {
                 networkPlayer.sendMessage("<red>There has been an issue with " + game.gameServerId());
-                networkPlayer.connect(this.cluster.getServiceId());
+                networkPlayer.connectHere();
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
 
@@ -162,8 +162,10 @@ public final class DuelManager {
                     .map(uuid -> PlayerManager.getInstance().fromBukkitPlayer(uuid))
                     .toList();
 
+            System.out.println(networkPlayers);
+
             networkPlayers.forEach(networkPlayer -> {
-                networkPlayer.connect(this.cluster.getServiceId());
+                networkPlayer.connectHere();
                 this.runningDuels.put(networkPlayer.getUuid(), duel);
             });
 

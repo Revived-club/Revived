@@ -107,7 +107,7 @@ public final class ArenaCreator {
     @NotNull
     public Location getNextLocation() {
         final Location loc = new Location(
-                Bukkit.getWorld("duels"),
+                Bukkit.getWorld("world"),
                 currentX * 1000,
                 100,
                 currentZ * 1000

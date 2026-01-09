@@ -192,9 +192,10 @@ public final class Cluster {
     @NotNull
     public CompletableFuture<ClusterService> whereIsProxy(final UUID uuid) {
         return this.messagingService.sendGlobalRequest(new WhereIsProxyRequest(uuid), WhereIsProxyResponse.class)
-                .thenApply(whereIsResponse -> {
-                    System.out.println("where is proxy response");
-                    final var id = whereIsResponse.getFirst().proxy();
+                .thenApply(whereIsResponses -> {
+                    final var whereIsResponse = whereIsResponses.getFirst();
+
+                    final var id = whereIsResponse.proxy();
 
                     return this.services.get(id);
                 });
