@@ -81,8 +81,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                         for (final var entry : queued) {
                             try {
                                 final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
-                                System.out.println("actionbar");
-                                networkPlayer.sendActionbar("<red>You are in queue...");
+                                networkPlayer.sendActionbar(String.format("<gray>You are searching for %s duel... Type: %s", entry.kitType(), entry.queueType()));
                             } catch (final Exception e) {
                                 queued.remove(entry);
                             }
@@ -109,7 +108,6 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                         }
 
                         if (entries.size() == required) {
-                            System.out.println("Starting match for " + kit + " " + type);
                             pop(entries.toArray(new QueueEntry[0]));
                         }
                     }
@@ -131,6 +129,12 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
         queue.get(entry.kitType())
                 .get(entry.queueType())
                 .add(entry);
+
+        if (PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
+            final var networkPlayers = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
+            networkPlayers.sendActionbar("<gray>You joined the queue");
+            networkPlayers.sendMessage("<gray>You joined the queue");
+        }
     }
 
     /**
@@ -186,6 +190,11 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
         this.queue.forEach((_, queueEntries) ->
                 queueEntries.values().forEach(entries ->
                         entries.removeIf(queueEntry -> queueEntry.uuid().equals(uuid))));
+
+        if (PlayerManager.getInstance().getNetworkPlayers().containsKey(uuid)) {
+            final var networkPlayers = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+            networkPlayers.sendMessage("<red>You left the queue");
+        }
     }
 
     /**

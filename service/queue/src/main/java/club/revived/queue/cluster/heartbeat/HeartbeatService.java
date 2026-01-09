@@ -79,8 +79,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      */
     @Override
     public void handle(final Heartbeat message) {
-        System.out.println("heartbeat handle");
-
         final var service = new ClusterService(
                 message.id(),
                 message.serverIp(),
@@ -100,7 +98,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
         );
 
         message.onlinePlayers().forEach(onlinePlayer -> {
-            System.out.printf("Registering %s", onlinePlayer.username());
             PlayerManager.getInstance().registerPlayer(
                     onlinePlayer.uuid(),
                     onlinePlayer.username(),
