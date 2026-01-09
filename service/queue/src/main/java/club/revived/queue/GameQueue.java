@@ -79,14 +79,13 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
                         final Deque<QueueEntry> queued = queue.get(kit).get(type);
 
                         for (final var entry : queued) {
-                            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(entry.uuid())) {
-                                System.out.println("Removing disconnected player from queue");
+                            try {
+                                final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
+                                networkPlayer.sendActionbar("<red>You are in queue...");
+                            } catch (final Exception e) {
                                 queued.remove(entry);
-                                continue;
                             }
 
-                            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(entry.uuid());
-                            networkPlayer.sendActionbar("<red>You are in queue...");
                         }
 
                         final int required = type.totalPlayers();
