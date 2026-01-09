@@ -2,6 +2,8 @@ package club.revived.duels.game.arena.schematic;
 
 import club.revived.duels.database.DatabaseManager;
 import club.revived.duels.game.arena.ArenaType;
+import club.revived.duels.service.cluster.Cluster;
+import club.revived.duels.service.messaging.impl.UpdateArenas;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +31,15 @@ public final class SchematicProvider {
      */
     public SchematicProvider() {
         schematicProvider = this;
+        this.loadArenas();
+
+        Cluster.getInstance().getMessagingService().registerMessageHandler(UpdateArenas.class, _ -> this.loadArenas());
+    }
+
+    /**
+     * Loads all arenas from the database & updates the schematics & worldedit schematics
+     */
+    private void loadArenas() {
         DatabaseManager.getInstance().getAll(WorldeditSchematic.class)
                 .thenAccept(worldeditSchematics1 -> {
                     for (final var schem : worldeditSchematics1) {

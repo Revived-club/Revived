@@ -6,6 +6,8 @@ import club.revived.lobby.game.duel.schematic.ArenaType;
 import club.revived.lobby.game.duel.schematic.DuelArenaDraft;
 import club.revived.lobby.game.duel.schematic.DuelArenaSchematic;
 import club.revived.lobby.game.duel.schematic.SchematicManager;
+import club.revived.lobby.service.cluster.Cluster;
+import club.revived.lobby.service.messaging.impl.UpdateArenas;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -106,6 +108,12 @@ public final class ArenaCommand {
                             );
 
                             player.sendRichMessage("<green>Arena saved successfully.");
+                        }))
+                .then(new LiteralArgument("update")
+                        .executesPlayer((player, _) -> {
+                            player.sendRichMessage("<green>Updating Arenas...");
+                            Cluster.getInstance().getMessagingService()
+                                    .sendGlobalMessage(new UpdateArenas());
                         }))
                 .then(new LiteralArgument("list")
                         .executesPlayer((player, args) -> {
