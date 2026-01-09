@@ -158,6 +158,8 @@ public final class DuelRequestMenu {
                         throw new UnregisteredPlayerException("player does not exist");
                     }
 
+                    player.closeInventory();
+
                     final var receiver = networkPlayers.get(this.target);
                     final var sender = PlayerManager.getInstance().fromBukkitPlayer(this.player);
 

@@ -83,7 +83,7 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                 final var timestamp = lastSeen.get(server);
                 final var time = System.currentTimeMillis() - timestamp;
 
-                if (time < TIMEOUT) {
+                if (time >= TIMEOUT) {
                     log.error("{} timed out after {}ms", server, time);
                 }
             }
