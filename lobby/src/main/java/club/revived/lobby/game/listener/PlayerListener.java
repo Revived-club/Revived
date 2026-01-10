@@ -9,6 +9,8 @@ import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  * PlayerListener
@@ -37,6 +39,13 @@ public final class PlayerListener implements Listener {
 
         player.setGameMode(GameMode.ADVENTURE);
         event.joinMessage(null);
+
+        player.addPotionEffect(new PotionEffect(
+                PotionEffectType.SPEED,
+                -1,
+                1,
+                true
+        ));
 
         final var item = ExecutableItemRegistry.byType(ExecutableItemType.MATCH_BROWSER).toBukkitItem();
         player.getInventory().setItem(0, item);

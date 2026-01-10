@@ -200,9 +200,7 @@ public final class DuelManager {
 
                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
 
-                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> {
-                        player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]));
-                    });
+                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0])));
 
                     this.runningDuels.put(player.getUniqueId(), duel);
                 }
@@ -322,9 +320,7 @@ public final class DuelManager {
 
             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
 
-            networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> {
-                player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]));
-            });
+            networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0])));
         }
 
         new DuelStartTask(3, duel);
