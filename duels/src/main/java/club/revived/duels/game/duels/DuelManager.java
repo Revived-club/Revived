@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * DuelManager
@@ -36,7 +37,7 @@ public final class DuelManager {
 
     /**
      * Initializes the DuelManager singleton and registers message handlers for duel lifecycle messages.
-     *
+     * <p>
      * Sets the static instance reference and registers handlers for DuelStart and MigrateGame with the cluster messaging service.
      */
     public DuelManager() {
@@ -186,7 +187,6 @@ public final class DuelManager {
                             <white>First To: <#3B82F6><to>
                             <white>Duel Kit: <#3B82F6><kit>
                             <white>Players: <#3B82F6><players>
-                            
                             """
                             .replace("<kit>", kitType.getBeautifiedName())
                             .replace("<to>", String.valueOf(rounds))
@@ -221,16 +221,16 @@ public final class DuelManager {
     }
 
     /**
-         * Finalizes a duel and notifies the lobby of its outcome.
-         *
-         * Sets the duel state to ENDING, removes all participants from the active-duel registry and heals them,
-         * then sends a DuelEnd message to the least-loaded lobby service containing winner and loser UUIDs,
-         * rounds, final scores, and the duel's kit type.
-         *
-         * @param duel   the duel to finalize
-         * @param winner the team that won the duel
-         * @param loser  the team that lost the duel
-         */
+     * Finalizes a duel and notifies the lobby of its outcome.
+     * <p>
+     * Sets the duel state to ENDING, removes all participants from the active-duel registry and heals them,
+     * then sends a DuelEnd message to the least-loaded lobby service containing winner and loser UUIDs,
+     * rounds, final scores, and the duel's kit type.
+     *
+     * @param duel   the duel to finalize
+     * @param winner the team that won the duel
+     * @param loser  the team that lost the duel
+     */
     public void endDuel(
             final Duel duel,
             final DuelTeam winner,
@@ -238,23 +238,53 @@ public final class DuelManager {
     ) {
         duel.setGameState(GameState.ENDING);
 
+        final String winners = winner.getPlayers().stream()
+                .map(Player::getName)
+                .collect(Collectors.joining(", "));
+
+        final String losers = loser.getPlayers().stream()
+                .map(Player::getName)
+                .collect(Collectors.joining(", "));
+
         for (final var player : duel.getPlayers()) {
             this.runningDuels.remove(player.getUniqueId());
             this.healPlayer(player);
+
+            player.sendRichMessage("""
+                        
+                        <#3B82F6><bold>Duel Summary</bold><reset>
+                        
+                        <white>Kit:</white> <#3B82F6>%s
+                        <white>Score:</white> <#3B82F6>%d</#3B82F6> - <#EF4444>%d</#EF4444>
+                        <white>Duration:</white> <#3B82F6>%s
+                        <white>Winners: <#3B82F6>%s
+                        <white>Losers: <#3B82F6>%s
+                        """.formatted(
+                    duel.getKitType().getBeautifiedName(),
+                    winner.getScore(),
+                    loser.getScore(),
+                    duel.getElapsedTimeFormatter().getElapsedTime(),
+                    winners,
+                    losers
+            ));
         }
 
-        duel.deleteGame();
+        Bukkit.getScheduler().runTaskLater(Duels.getInstance(), () -> {
 
-        this.cluster.getLeastLoadedService(ServiceType.LOBBY)
-                .sendMessage(new DuelEnd(
-                        winner.getUuids(),
-                        loser.getUuids(),
-                        duel.getRounds(),
-                        winner.getScore(),
-                        loser.getScore(),
-                        duel.getKitType(),
-                        0L // TODO: Impl
-                ));
+
+            duel.deleteGame();
+
+            this.cluster.getLeastLoadedService(ServiceType.LOBBY)
+                    .sendMessage(new DuelEnd(
+                            winner.getUuids(),
+                            loser.getUuids(),
+                            duel.getRounds(),
+                            winner.getScore(),
+                            loser.getScore(),
+                            duel.getKitType(),
+                            0L // TODO: Impl
+                    ));
+        }, 60L);
     }
 
     /**

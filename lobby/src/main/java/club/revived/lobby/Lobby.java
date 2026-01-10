@@ -52,15 +52,10 @@ public final class Lobby extends JavaPlugin {
     @Override
     public void onLoad() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().getSettings()
-                .reEncodeByDefault(false)
-                .checkForUpdates(false);
-
         PacketEvents.getAPI().load();
 
         final SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(this);
         final APIConfig settings = new APIConfig(PacketEvents.getAPI())
-                // .debugMode()
                 .tickTickables()
                 .usePlatformLogger();
 

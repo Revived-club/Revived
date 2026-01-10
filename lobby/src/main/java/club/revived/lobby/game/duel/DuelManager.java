@@ -15,6 +15,7 @@ import club.revived.lobby.service.status.StatusResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Handles duels-related things on lobby servers e.g. accepting & sending duel requests.
@@ -38,18 +39,17 @@ public final class DuelManager {
     private void initializeMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(DuelEnd.class, duelEnd -> {
-                    final var uuids = new ArrayList<>(duelEnd.loser());
+                    final var uuids = new ArrayList<UUID>();
                     uuids.addAll(duelEnd.winner());
+                    uuids.addAll(duelEnd.loser());
 
                     for (final var uuid : uuids) {
-                        System.out.println(uuid);
                         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
                         networkPlayer.connectHere();
                     }
-
-                    // TODO: Do the rest lel
                 });
     }
+
 
     /**
      * Accepts a pending duel request for the given player and initiates the duel on an available duel service.
@@ -141,8 +141,8 @@ public final class DuelManager {
      * Adds the given player to the matchmaking queue for the specified kit and queue type.
      *
      * @param networkPlayer the player to add to the queue
-     * @param kitType the kit type to queue for
-     * @param queueType the queue category to join
+     * @param kitType       the kit type to queue for
+     * @param queueType     the queue category to join
      */
     public void queue(
             final NetworkPlayer networkPlayer,

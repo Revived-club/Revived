@@ -1,5 +1,6 @@
 package club.revived.duels.game.duels;
 
+import club.revived.commons.generic.ElapsedTimeFormatter;
 import club.revived.commons.generic.StringUtils;
 import club.revived.duels.game.arena.IArena;
 import club.revived.duels.service.cluster.Cluster;
@@ -26,6 +27,8 @@ public final class Duel {
     private final KitType kitType;
     private final String id;
     private final IArena arena;
+
+    private final ElapsedTimeFormatter elapsedTimeFormatter;
 
     private GameState gameState = GameState.PREPARING;
 
@@ -64,6 +67,7 @@ public final class Duel {
         this.arena = arena;
         this.rounds = rounds;
         this.kitType = kitType;
+        this.elapsedTimeFormatter = new ElapsedTimeFormatter();
         this.id = StringUtils.generateId("#game-");
 
         this.updateGame();
@@ -302,5 +306,9 @@ public final class Duel {
      */
     public IArena getArena() {
         return arena;
+    }
+
+    public ElapsedTimeFormatter getElapsedTimeFormatter() {
+        return elapsedTimeFormatter;
     }
 }

@@ -36,6 +36,7 @@ public final class PlayerListener implements Listener {
         WarpLocation.SPAWN.teleport(player);
 
         player.setGameMode(GameMode.ADVENTURE);
+        event.joinMessage(null);
 
         final var item = ExecutableItemRegistry.byType(ExecutableItemType.MATCH_BROWSER).toBukkitItem();
         player.getInventory().setItem(0, item);
