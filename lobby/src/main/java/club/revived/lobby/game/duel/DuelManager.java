@@ -3,6 +3,7 @@ package club.revived.lobby.game.duel;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
+import club.revived.lobby.service.messaging.impl.DuelEnd;
 import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.messaging.impl.AddToQueue;
 import club.revived.lobby.service.player.NetworkPlayer;
@@ -11,7 +12,9 @@ import club.revived.lobby.service.status.ServiceStatus;
 import club.revived.lobby.service.status.StatusRequest;
 import club.revived.lobby.service.status.StatusResponse;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Handles duels-related things on lobby servers e.g. accepting & sending duel requests.
@@ -28,6 +31,24 @@ public final class DuelManager {
      */
     public DuelManager() {
         instance = this;
+        this.initializeMessageHandlers();
+    }
+
+
+    private void initializeMessageHandlers() {
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(DuelEnd.class, duelEnd -> {
+                    final var uuids = new ArrayList<>(duelEnd.loser());
+                    uuids.addAll(duelEnd.winner());
+
+                    for (final var uuid : uuids) {
+                        System.out.println(uuid);
+                        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                        networkPlayer.connectHere();
+                    }
+
+                    // TODO: Do the rest lel
+                });
     }
 
     /**

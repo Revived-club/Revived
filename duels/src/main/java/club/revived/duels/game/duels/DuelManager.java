@@ -1,7 +1,9 @@
 package club.revived.duels.game.duels;
 
+import club.revived.commons.location.BukkitCuboidRegion;
 import club.revived.commons.player.PlayerJoinTracker;
 import club.revived.duels.Duels;
+import club.revived.duels.game.arena.IArena;
 import club.revived.duels.game.arena.pooling.ArenaPoolManager;
 import club.revived.duels.game.kit.EditedDuelKit;
 import club.revived.duels.service.cluster.Cluster;
@@ -11,6 +13,8 @@ import club.revived.duels.service.messaging.impl.DuelStart;
 import club.revived.duels.service.messaging.impl.MigrateGame;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +60,7 @@ public final class DuelManager {
     private void migrateGame(final MigrateGame game) {
         final var blueTeam = game.blueTeam();
         final var redTeam = game.redTeam();
+
         final var maxRounds = game.maxRounds();
         final var kitType = game.kitType();
 
@@ -140,6 +145,10 @@ public final class DuelManager {
         System.out.println("duel start");
         final List<UUID> blueTeam = duelStart.blueTeam();
         final List<UUID> redTeam = duelStart.redTeam();
+
+        System.out.println(duelStart.blueTeam());
+        System.out.println(duelStart.redTeam());
+
         final int rounds = duelStart.rounds();
         final KitType kitType = duelStart.kitType();
 
@@ -231,9 +240,10 @@ public final class DuelManager {
 
         for (final var player : duel.getPlayers()) {
             this.runningDuels.remove(player.getUniqueId());
-
             this.healPlayer(player);
         }
+
+        duel.deleteGame();
 
         this.cluster.getLeastLoadedService(ServiceType.LOBBY)
                 .sendMessage(new DuelEnd(
@@ -253,7 +263,41 @@ public final class DuelManager {
      * @param duel the duel to start a new round for
      */
     public void startNewRound(final Duel duel) {
+        final IArena selected = duel.getArena();
 
+        final var region = new BukkitCuboidRegion(
+                selected.getCorner1(),
+                selected.getCorner2()
+        );
+
+        for (final var entity : region.getEntities()) {
+            if (entity.getType() == EntityType.PLAYER) {
+                continue;
+            }
+
+            entity.remove();
+        }
+
+        for (final Player redPlayer : duel.getRedPlayers()) {
+            redPlayer.teleportAsync(selected.getSpawn1());
+        }
+
+        for (final Player bluePlayer : duel.getBluePlayers()) {
+            bluePlayer.teleportAsync(selected.getSpawn2());
+        }
+
+        for (final var player : duel.getPlayers()) {
+            player.setGameMode(GameMode.SURVIVAL);
+            this.healPlayer(player);
+
+            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+            networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> {
+                player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]));
+            });
+        }
+
+        new DuelStartTask(3, duel);
     }
 
     /**

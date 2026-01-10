@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ArenaPoolManager {
 
-    private static final int ARENA_POOL_SIZE = 3;
+    private static final int ARENA_POOL_SIZE = 10;
 
     private static ArenaPoolManager instance;
 
@@ -41,14 +41,11 @@ public final class ArenaPoolManager {
 
     /**
      * Initialize and seed the arena pools for every ArenaType.
-     *
+     * <p>
      * Ensures a deque exists for each ArenaType and fills each pool up to the configured pool size.
-     *
-     * @return a CompletableFuture that completes when all arena pools have been created and seeded
      */
-    @NotNull
-    public CompletableFuture<Void> initialize() {
-        return CompletableFuture.runAsync(() -> {
+    public void initialize() {
+        CompletableFuture.runAsync(() -> {
             for (final ArenaType arenaType : ArenaType.values()) {
                 this.arenaPool.putIfAbsent(arenaType, new ArrayDeque<>());
 
@@ -59,7 +56,7 @@ public final class ArenaPoolManager {
 
     /**
      * Obtains an arena matching the given kit's arena type, using a pooled instance when available.
-     *
+     * <p></p>
      * If a pooled arena is returned, the pool is asynchronously replenished with a newly generated arena.
      *
      * @param kitType the kit whose associated ArenaType will be used to select or create an arena
@@ -82,7 +79,7 @@ public final class ArenaPoolManager {
 
     /**
      * Refills the pool for the specified arena type until it contains ARENA_POOL_SIZE arenas.
-     *
+     * <p></p>
      * Generates missing arenas asynchronously and appends each created arena to the end of the pool's deque.
      *
      * @param arenaType the arena type whose pool should be replenished

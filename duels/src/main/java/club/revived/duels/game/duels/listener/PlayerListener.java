@@ -49,7 +49,7 @@ public final class PlayerListener implements Listener {
      * @param event the food level change event to evaluate and possibly cancel
      */
     @EventHandler
-    public void onHunger(FoodLevelChangeEvent event) {
+    public void onHunger(final FoodLevelChangeEvent event) {
         final Entity entity = event.getEntity();
 
         if (entity instanceof final Player player) {
@@ -73,7 +73,7 @@ public final class PlayerListener implements Listener {
      * @param event the explosion event whose yield is cleared
      */
     @EventHandler
-    public void handle(EntityExplodeEvent event) {
+    public void handle(final EntityExplodeEvent event) {
         event.setYield(0);
     }
 
@@ -83,7 +83,7 @@ public final class PlayerListener implements Listener {
      * @param event the BlockExplodeEvent whose block drop yield will be set to 0
      */
     @EventHandler
-    public void handle(BlockExplodeEvent event) {
+    public void handle(final BlockExplodeEvent event) {
         event.setYield(0);
     }
 
@@ -96,7 +96,7 @@ public final class PlayerListener implements Listener {
      * @param event the block-change event to inspect and potentially cancel
      */
     @EventHandler
-    public void handle(EntityChangeBlockEvent event) {
+    public void handle(final EntityChangeBlockEvent event) {
         if (event.getEntityType() == EntityType.FALLING_BLOCK) {
             event.setCancelled(true);
         }
@@ -294,6 +294,7 @@ public final class PlayerListener implements Listener {
         event.joinMessage(null);
 
         final Player player = event.getPlayer();
+        player.setGameMode(GameMode.SURVIVAL);
 
         if (player.isDead()) {
             player.spigot().respawn();

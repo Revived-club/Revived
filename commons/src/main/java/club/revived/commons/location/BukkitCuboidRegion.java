@@ -1,11 +1,15 @@
 package club.revived.commons.location;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -32,7 +36,10 @@ public final class BukkitCuboidRegion {
      * @throws IllegalArgumentException if either location is null, either location has a null world,
      *                                  or the two locations are not in the same world
      */
-    public BukkitCuboidRegion(Location a, Location b) {
+    public BukkitCuboidRegion(
+            final Location a,
+            final Location b
+    ) {
         if (a == null || b == null) {
             throw new IllegalArgumentException("Locations cannot be null");
         }
@@ -64,42 +71,58 @@ public final class BukkitCuboidRegion {
     }
 
     /**
- * Gets the region's minimum X coordinate.
- *
- * @return the inclusive minimum X block coordinate of the region
- */
-public int getMinX() { return minX; }
-    /**
- * Gets the region's inclusive minimum Y coordinate.
- *
- * @return the inclusive minimum Y coordinate of the region
- */
-public int getMinY() { return minY; }
-    /**
- * Gets the inclusive minimum Z block coordinate of the region.
- *
- * @return the region's minimum Z coordinate (inclusive)
- */
-public int getMinZ() { return minZ; }
+     * Gets the region's minimum X coordinate.
+     *
+     * @return the inclusive minimum X block coordinate of the region
+     */
+    public int getMinX() {
+        return minX;
+    }
 
     /**
- * Gets the inclusive maximum X block-coordinate of this cuboid region.
- *
- * @return the maximum X coordinate (inclusive)
- */
-public int getMaxX() { return maxX; }
+     * Gets the region's inclusive minimum Y coordinate.
+     *
+     * @return the inclusive minimum Y coordinate of the region
+     */
+    public int getMinY() {
+        return minY;
+    }
+
     /**
- * Gets the region's maximum Y coordinate (inclusive).
- *
- * @return the maximum Y block coordinate within the region
- */
-public int getMaxY() { return maxY; }
+     * Gets the inclusive minimum Z block coordinate of the region.
+     *
+     * @return the region's minimum Z coordinate (inclusive)
+     */
+    public int getMinZ() {
+        return minZ;
+    }
+
     /**
- * Gets the region's maximum Z coordinate.
- *
- * @return the inclusive maximum Z coordinate of the region
- */
-public int getMaxZ() { return maxZ; }
+     * Gets the inclusive maximum X block-coordinate of this cuboid region.
+     *
+     * @return the maximum X coordinate (inclusive)
+     */
+    public int getMaxX() {
+        return maxX;
+    }
+
+    /**
+     * Gets the region's maximum Y coordinate (inclusive).
+     *
+     * @return the maximum Y block coordinate within the region
+     */
+    public int getMaxY() {
+        return maxY;
+    }
+
+    /**
+     * Gets the region's maximum Z coordinate.
+     *
+     * @return the inclusive maximum Z coordinate of the region
+     */
+    public int getMaxZ() {
+        return maxZ;
+    }
 
     /**
      * Creates a Location at the region's minimum (inclusive) block coordinates in the region's world.
@@ -112,7 +135,7 @@ public int getMaxZ() { return maxZ; }
 
     /**
      * Get the region's maximum corner as a Location.
-     *
+     * <p>
      * The returned Location is in the region's world and uses the region's inclusive maximum block
      * coordinates (maxX, maxY, maxZ).
      *
@@ -127,7 +150,7 @@ public int getMaxZ() { return maxZ; }
      *
      * @param loc the location to test; may be null
      * @return {@code true} if {@code loc} is non-null, its world matches this region's world,
-     *         and its block coordinates are within the region's inclusive bounds; {@code false} otherwise
+     * and its block coordinates are within the region's inclusive bounds; {@code false} otherwise
      */
     public boolean contains(final Location loc) {
         if (loc == null || loc.getWorld() == null) return false;
@@ -143,12 +166,61 @@ public int getMaxZ() { return maxZ; }
     }
 
     /**
+     * Gets all entities currently located within this cuboid region by iterating
+     * over loaded chunks intersecting the region.
+     *
+     * <p>
+     * Only entities in already-loaded chunks are considered. Entity containment
+     * is determined using block coordinates.
+     * </p>
+     *
+     * @return a list of all entities inside this region
+     */
+    @NotNull
+    public List<Entity> getEntities() {
+        final List<Entity> result = new ArrayList<>();
+
+        final int minChunkX = minX >> 4;
+        final int maxChunkX = maxX >> 4;
+        final int minChunkZ = minZ >> 4;
+        final int maxChunkZ = maxZ >> 4;
+
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+
+                if (!world.isChunkLoaded(chunkX, chunkZ)) {
+                    continue;
+                }
+
+                final Chunk chunk = world.getChunkAt(chunkX, chunkZ);
+
+                for (final Entity entity : chunk.getEntities()) {
+                    final Location loc = entity.getLocation();
+
+                    final int x = loc.getBlockX();
+                    final int y = loc.getBlockY();
+                    final int z = loc.getBlockZ();
+
+                    if (x >= minX && x <= maxX
+                            && y >= minY && y <= maxY
+                            && z >= minZ && z <= maxZ) {
+                        result.add(entity);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+    /**
      * Checks whether the given block lies within this cuboid region.
      *
      * @param block the block to test for containment; may be {@code null}
      * @return {@code true} if the block is non-null and its location is inside the region, {@code false} otherwise
      */
-    public boolean contains(Block block) {
+    public boolean contains(final Block block) {
         return block != null && contains(block.getLocation());
     }
 
@@ -165,7 +237,7 @@ public int getMaxZ() { return maxZ; }
 
     /**
      * Iterates all blocks contained in this cuboid region.
-     *
+     * <p>
      * The returned Iterable produces an Iterator that visits every Block in the region's world
      * whose block coordinates are within the region's inclusive bounds. Iteration advances in
      * row-major order: x increments fastest, then z, then y.

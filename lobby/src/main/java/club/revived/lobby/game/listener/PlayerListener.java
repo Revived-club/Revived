@@ -5,6 +5,7 @@ import club.revived.lobby.game.WarpLocation;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.ExecutableItemType;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -33,6 +34,8 @@ public final class PlayerListener implements Listener {
     public void onJoin(final PlayerJoinEvent event) {
         final var player = event.getPlayer();
         WarpLocation.SPAWN.teleport(player);
+
+        player.setGameMode(GameMode.ADVENTURE);
 
         final var item = ExecutableItemRegistry.byType(ExecutableItemType.MATCH_BROWSER).toBukkitItem();
         player.getInventory().setItem(0, item);

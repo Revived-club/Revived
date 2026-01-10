@@ -156,7 +156,7 @@ public final class Duel {
      */
     @NotNull
     public DuelTeam getOpposing(final DuelTeam team) {
-        return team.getType() == DuelTeamType.BLUE ? this.blueTeam : this.redTeam;
+        return team.getType() == DuelTeamType.BLUE ? this.redTeam : this.blueTeam;
     }
 
     /**
@@ -188,6 +188,14 @@ public final class Duel {
     }
 
 
+    public void deleteGame() {
+        Cluster.getInstance().getGlobalCache().removeFromList(
+                "games",
+                this.game,
+                1
+        );
+    }
+
     /**
      * Refreshes the Duel's Game instance and synchronizes it with the global cache.
      *
@@ -196,11 +204,7 @@ public final class Duel {
      * to the duel, and pushes the new Game into the global cache.
      */
     private void updateGame() {
-        Cluster.getInstance().getGlobalCache().removeFromList(
-                "games",
-                this.game,
-                1
-        );
+        this.deleteGame();
 
         this.game = new Game(
                 this.blueTeam.getUuids(),

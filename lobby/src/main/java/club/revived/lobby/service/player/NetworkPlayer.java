@@ -209,6 +209,16 @@ public final class NetworkPlayer {
                 });
     }
 
+    public void connectHere() {
+        this.whereIsProxy().thenAccept(service -> {
+            System.out.println(service.getId());
+            service.sendMessage(new Connect(
+                    this.uuid,
+                    Cluster.getInstance().getServiceId()
+            ));
+        });
+    }
+
     public @NotNull UUID getUuid() {
         return uuid;
     }

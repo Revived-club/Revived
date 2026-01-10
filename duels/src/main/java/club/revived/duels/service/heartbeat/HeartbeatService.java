@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class HeartbeatService implements MessageHandler<Heartbeat> {
 
-    private static final long INTERVAL = 5_000;
+    private static final long INTERVAL = 1_000;
     private static final long TIMEOUT = 15_000;
     private static final Logger log = LoggerFactory.getLogger(HeartbeatService.class);
 

@@ -78,14 +78,14 @@ public final class ArenaCreator {
                     .get(schematic.id());
 
             final var arena = new DuelArena(
-                    schematic.corner1(),
-                    schematic.corner2(),
+                    corner1,
+                    corner2,
                     schematic.arenaType(),
                     worldEditSchematic.file()
             );
 
-            arena.setSpawn1(schematic.spawn1());
-            arena.setSpawn2(schematic.spawn2());
+            arena.setSpawn1(spawn1);
+            arena.setSpawn2(spawn2);
 
             arena.generate(location);
 
@@ -96,7 +96,7 @@ public final class ArenaCreator {
 
     /**
      * Compute the next arena placement location on the arena grid.
-     *
+     * <p></p>
      * Produces a Location in the "duels" world at coordinates (currentX * 1000, 100, currentZ * 1000)
      * corresponding to the current grid position before advancing. Advances the internal grid cursor
      * along an outward spiral pattern and updates currentX, currentZ, direction, stepCount, stepLimit,

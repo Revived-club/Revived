@@ -112,6 +112,13 @@ public final class PlayerManager {
      */
     @NotNull
     public NetworkPlayer fromBukkitPlayer(final Player player) {
+        if (!this.networkPlayers.containsKey(player.getUniqueId())) {
+            this.networkPlayers.put(player.getUniqueId(), new NetworkPlayer(
+                    player.getUniqueId(),
+                    player.getName(),
+                    Cluster.getInstance().getServiceId()
+            ));
+        }
         return this.fromBukkitPlayer(player.getUniqueId());
     }
 
