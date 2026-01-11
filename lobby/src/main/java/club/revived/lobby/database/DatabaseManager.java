@@ -7,6 +7,7 @@ import club.revived.lobby.game.duel.schematic.DuelArenaSchematic;
 import club.revived.lobby.game.duel.schematic.WorldeditSchematic;
 import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
+import club.revived.lobby.game.kit.KitTemplate;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -150,6 +151,7 @@ public final class DatabaseManager {
         this.providers.put(QueueBillboardLocation.class, new BillboardDatabaseProvider(this.database));
         this.providers.put(DuelArenaSchematic.class, new DuelArenaSchematicProvider(this.database));
         this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
+        this.providers.put(KitTemplate.class, new KitTemplateDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

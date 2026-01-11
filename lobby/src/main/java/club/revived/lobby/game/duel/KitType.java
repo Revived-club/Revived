@@ -1,6 +1,10 @@
 package club.revived.lobby.game.duel;
 
+import club.revived.lobby.game.WarpLocation;
 import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /**
  * Different Kits mostly mctiers kits.
@@ -134,5 +138,12 @@ public enum KitType {
      */
     public boolean isRanked() {
         return this.isRanked;
+    }
+
+    @NotNull
+    public static String[] toStringArray() {
+        return Arrays.stream(KitType.values())
+                .map(KitType::name)
+                .toArray(String[]::new);
     }
 }

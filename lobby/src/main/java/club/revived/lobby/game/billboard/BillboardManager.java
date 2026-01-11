@@ -76,7 +76,7 @@ public final class BillboardManager {
 
                     DuelManager.getInstance().queue(
                             networkPlayer,
-                            KitType.SWORD,
+                            type,
                             QueueType.SOLO
                     );
 
