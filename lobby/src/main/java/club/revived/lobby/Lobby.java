@@ -72,20 +72,19 @@ public final class Lobby extends JavaPlugin {
         instance = this;
 
         InventoryManager.register(this);
-
         this.createDataFolder();
         this.createDirs();
         this.connectDatabase();
-        this.setupCommands();
         this.setupCluster();
         this.setLocations();
-        this.registerListeners();
 
         new PlayerManager();
         new DuelManager();
-        new MessageCommand();
-        BillboardManager.getInstance().setup();
 
+        this.setupCommands();
+        this.registerListeners();
+
+        BillboardManager.getInstance().setup();
         ExecutableItemRegistry.register(new MatchBrowserItem());
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
@@ -121,7 +120,6 @@ public final class Lobby extends JavaPlugin {
         new BillboardPacketListener();
         new ReplyCommand();
         new SpawnListener();
-        new PartyCommand();
     }
 
     /**
@@ -138,6 +136,8 @@ public final class Lobby extends JavaPlugin {
         new BillboardCommand();
         new ArenaCommand();
         new WhereIsProxyCommand();
+        new PartyCommand();
+        new MessageCommand();
     }
 
     private void createDataFolder() {

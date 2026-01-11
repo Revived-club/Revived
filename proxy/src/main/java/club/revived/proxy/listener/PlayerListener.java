@@ -4,6 +4,7 @@ import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.cluster.ClusterService;
 import club.revived.proxy.service.cluster.ServiceType;
+import club.revived.proxy.service.messaging.impl.QuitNetwork;
 import club.revived.proxy.service.player.PlayerManager;
 import club.revived.proxy.tab.TABManager;
 import com.velocitypowered.api.event.Subscribe;
@@ -71,7 +72,9 @@ public final class PlayerListener {
     public void onQuit(final @NotNull DisconnectEvent event) {
         final Player player = event.getPlayer();
 
-        TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
+       TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
+
+       Cluster.getInstance().getMessagingService().sendGlobalMessage(new QuitNetwork(player.getUniqueId()));
     }
 
     /**

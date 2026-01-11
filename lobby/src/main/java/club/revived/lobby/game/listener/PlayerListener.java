@@ -4,6 +4,7 @@ import club.revived.lobby.Lobby;
 import club.revived.lobby.game.WarpLocation;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.ExecutableItemType;
+import club.revived.lobby.game.parties.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;

@@ -23,6 +23,24 @@ public final class PartyCommand {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
                             PartyManager.getInstance().make(networkPlayer);
                         }))
+                .then(new LiteralArgument("disband")
+                        .executesPlayer((player, _) -> {
+                            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                            networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                if (party == null) {
+                                    player.sendRichMessage("<red>You are not in a party!");
+                                    return;
+                                }
+
+                                if (!party.getOwner().equals(player.getUniqueId())) {
+                                    player.sendRichMessage("<red>You are not owner of the party!");
+                                    return;
+                                }
+
+                                PartyManager.getInstance().disband(party);
+                            });
+                        }))
                 .then(new LiteralArgument("invite")
                         .then(NetworkPlayerArgument.networkPlayer("target")
                                 .executesPlayer((player, args) -> {
@@ -35,8 +53,13 @@ public final class PartyCommand {
                                             return;
                                         }
 
-                                        if (!party.owner().equals(player.getUniqueId())) {
+                                        if (!party.getOwner().equals(player.getUniqueId())) {
                                             player.sendRichMessage("<red>You are not owner of the party!");
+                                            return;
+                                        }
+
+                                        if (party.getMembers().contains(target.getUuid())) {
+                                            player.sendRichMessage(String.format("<red>%s is already in the party!", target.getUsername()));
                                             return;
                                         }
 

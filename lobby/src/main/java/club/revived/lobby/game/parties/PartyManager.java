@@ -1,10 +1,15 @@
 package club.revived.lobby.game.parties;
 
+import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
+import club.revived.lobby.service.messaging.impl.QuitNetwork;
 import club.revived.lobby.service.player.NetworkPlayer;
+import club.revived.lobby.service.player.PlayerManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * PartyManager
@@ -18,18 +23,64 @@ public final class PartyManager {
 
     public PartyManager() {
         instance = this;
+        this.initializeMessageHandlers();
+    }
+
+    private void initializeMessageHandlers() {
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(QuitNetwork.class, quitNetwork -> {
+                    Cluster.getInstance().getGlobalCache()
+                            .get(Party.class, quitNetwork.uuid() + ":" + Party.class.getSimpleName())
+                            .thenAccept(party -> {
+                                if (party == null) {
+                                    return;
+                                }
+
+                                this.changeOwnership(party, quitNetwork.uuid());
+                            });
+                });
     }
 
     public void make(final NetworkPlayer player) {
-        final var party = new Party(
-                player.getUuid(),
-                new ArrayList<>(Collections.singleton(player.getUuid())),
-                new ArrayList<>(),
-                false
-        );
+        player.getCachedValue(Party.class).thenAccept(p -> {
+            if (p != null) {
+                player.sendMessage("<red>You are already in a party!");
+                return;
+            }
 
-        player.sendMessage("<green>Successfully created a new party");
-        player.cacheValue(Party.class, party);
+            final var party = new Party(
+                    player.getUuid(),
+                    new ArrayList<>(Collections.singleton(player.getUuid())),
+                    new ArrayList<>()
+            );
+
+            player.sendMessage("<green>Successfully created a new party");
+            player.cacheValue(Party.class, party);
+        });
+
+    }
+
+    public void disband(final Party party) {
+        for (final UUID member : party.getMembers()) {
+            final NetworkPlayer networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
+            networkPlayer.cacheValue(Party.class, null);
+            networkPlayer.sendMessage("The party you are in got disbanded");
+        }
+
+        party.setDisbanded(true);
+    }
+
+    public void changeOwnership(final Party party, final UUID oldOwner) {
+        final var random = ThreadLocalRandom.current();
+        final var uuids = party.getMembers();
+
+        uuids.remove(oldOwner);
+
+        final UUID uuid = uuids.get(random.nextInt(uuids.size()));
+        party.setOwner(uuid);
+
+        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+        networkPlayer.sendMessage("<green>You are the new owner of the party!");
     }
 
     public void acceptRequest(final NetworkPlayer networkPlayer) {
@@ -40,6 +91,11 @@ public final class PartyManager {
             }
 
             final var party = partyRequest.party();
+
+            if (party.isDisbanded()) {
+                networkPlayer.sendMessage("<red>The party you are trying to join is disbanded!");
+                return;
+            }
 
             party.addMember(networkPlayer.getUuid());
         });

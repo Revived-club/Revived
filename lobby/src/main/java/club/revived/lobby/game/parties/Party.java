@@ -13,12 +13,19 @@ import java.util.UUID;
  * @author yyuh
  * @since 11.01.26
  */
-public record Party(
-        UUID owner,
-        List<UUID> members,
-        List<UUID> bannedUsers,
-        boolean open
-) {
+public final class Party {
+
+    private UUID owner;
+    private final List<UUID> members;
+    private final List<UUID> bannedUsers;
+    private boolean open = false;
+    private boolean disbanded = false;
+
+    public Party(UUID owner, List<UUID> members, List<UUID> bannedUsers) {
+        this.owner = owner;
+        this.members = members;
+        this.bannedUsers = bannedUsers;
+    }
 
     @NotNull
     public List<NetworkPlayer> players() {
@@ -41,5 +48,37 @@ public record Party(
             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
             networkPlayer.cacheValue(Party.class, this);
         }
+    }
+
+    public void setOwner(UUID owner) {
+        this.owner = owner;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+
+    public void setDisbanded(boolean disbanded) {
+        this.disbanded = disbanded;
+    }
+
+    public UUID getOwner() {
+        return owner;
+    }
+
+    public List<UUID> getMembers() {
+        return members;
+    }
+
+    public List<UUID> getBannedUsers() {
+        return bannedUsers;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public boolean isDisbanded() {
+        return disbanded;
     }
 }
