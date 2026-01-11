@@ -17,6 +17,7 @@ import club.revived.lobby.game.item.impl.MatchBrowserItem;
 import club.revived.lobby.game.listener.ItemPlayerListener;
 import club.revived.lobby.game.listener.PlayerListener;
 import club.revived.lobby.game.listener.SpawnListener;
+import club.revived.lobby.game.parties.PartyManager;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -83,7 +84,6 @@ public final class Lobby extends JavaPlugin {
         new PlayerManager();
         new DuelManager();
         new MessageCommand();
-        new ReplyCommand();
         BillboardManager.getInstance().setup();
 
         ExecutableItemRegistry.register(new MatchBrowserItem());
@@ -119,7 +119,9 @@ public final class Lobby extends JavaPlugin {
         new ItemPlayerListener();
         new BillboardListener();
         new BillboardPacketListener();
+        new ReplyCommand();
         new SpawnListener();
+        new PartyCommand();
     }
 
     /**
