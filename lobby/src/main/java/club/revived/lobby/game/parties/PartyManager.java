@@ -109,6 +109,7 @@ public final class PartyManager {
         party.update();
 
         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+        networkPlayer.cacheValue(Party.class, null);
         networkPlayer.sendMessage("<red>You have been kicked from the party");
     }
 
