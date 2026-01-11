@@ -10,6 +10,8 @@ import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 
+import java.util.UUID;
+
 /**
  * PartyCommand
  *
@@ -27,8 +29,6 @@ public final class PartyCommand {
                                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
 
                                     target.getCachedValue(Party.class).thenAccept(party -> {
-                                        networkPlayer.sendMessage("test");
-
                                         if (party == null) {
                                             networkPlayer.sendMessage(String.format("<red>%s is not in a party", target.getUsername()));
                                             return;
@@ -42,6 +42,15 @@ public final class PartyCommand {
                                         if (party.isDisbanded()) {
                                             networkPlayer.sendMessage(String.format("<red>%s's party is disbanded!", target.getUsername()));
                                             return;
+                                        }
+
+                                        for (final var uuid : party.getMembers()) {
+                                            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(uuid)) {
+                                                continue;
+                                            }
+
+                                            final var member = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                                            member.sendMessage(String.format("%s joined the party!", networkPlayer.getUsername()));
                                         }
 
                                         party.addMember(networkPlayer.getUuid());

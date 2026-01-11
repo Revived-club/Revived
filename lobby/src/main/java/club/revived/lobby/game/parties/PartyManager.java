@@ -127,6 +127,15 @@ public final class PartyManager {
             }
 
             party.addMember(networkPlayer.getUuid());
+
+            for (final var uuid : party.getMembers()) {
+                if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(uuid)) {
+                    continue;
+                }
+
+                final var member = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                member.sendMessage(String.format("%s joined the party!", networkPlayer.getUsername()));
+            }
         });
     }
 
