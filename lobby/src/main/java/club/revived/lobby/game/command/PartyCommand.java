@@ -6,6 +6,8 @@ import club.revived.lobby.game.parties.PartyManager;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
+import dev.jorel.commandapi.arguments.BooleanArgument;
+import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 
 /**
@@ -18,6 +20,120 @@ public final class PartyCommand {
 
     public PartyCommand() {
         new CommandTree("party")
+                .then(new LiteralArgument("set-public")
+                        .then(new BooleanArgument("state")
+                                .executesPlayer((player, args) -> {
+                                    final var bool = (boolean) args.get("state");
+
+                                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                                    networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                        if (party == null) {
+                                            player.sendRichMessage("<red>You are not in a party!");
+                                            return;
+                                        }
+
+                                        if (!party.getOwner().equals(player.getUniqueId())) {
+                                            player.sendRichMessage("<red>You are not owner of the party!");
+                                            return;
+                                        }
+
+                                        party.setOpen(bool);
+                                        party.update();
+                                    });
+                                })))
+                .then(new LiteralArgument("kick")
+                        .then(NetworkPlayerArgument.networkPlayer("target")
+                                .executesPlayer((player, args) -> {
+                                    final var target = (NetworkPlayer) args.get("target");
+                                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                                    networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                        if (party == null) {
+                                            player.sendRichMessage("<red>You are not in a party!");
+                                            return;
+                                        }
+
+                                        if (!party.getOwner().equals(player.getUniqueId())) {
+                                            player.sendRichMessage("<red>You are not owner of the party!");
+                                            return;
+                                        }
+
+                                        if (!party.getMembers().contains(target.getUuid())) {
+                                            player.sendRichMessage(String.format("<red>%s is not in the party!", target.getUsername()));
+                                            return;
+                                        }
+
+                                        PartyManager.getInstance().kick(party, target.getUuid());
+                                    });
+                                })))
+                .then(new LiteralArgument("transfer")
+                        .then(NetworkPlayerArgument.networkPlayer("target")
+                                .executesPlayer((player, args) -> {
+                                    final var target = (NetworkPlayer) args.get("target");
+                                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                                    networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                        if (party == null) {
+                                            player.sendRichMessage("<red>You are not in a party!");
+                                            return;
+                                        }
+
+                                        if (!party.getOwner().equals(player.getUniqueId())) {
+                                            player.sendRichMessage("<red>You are not owner of the party!");
+                                            return;
+                                        }
+
+                                        if (!party.getMembers().contains(target.getUuid())) {
+                                            player.sendRichMessage(String.format("<red>%s is not in the party!", target.getUsername()));
+                                            return;
+                                        }
+
+                                        PartyManager.getInstance().changeOwnership(party, networkPlayer.getUuid(), target.getUuid());
+                                    });
+                                })))
+                .then(new LiteralArgument("chat")
+                        .then(new GreedyStringArgument("message")
+                                .executesPlayer((player, args) -> {
+                                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+                                    final String message = (String) args.get("message");
+
+                                    networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                        if (party == null) {
+                                            player.sendRichMessage("<red>You are not in a party!");
+                                            return;
+                                        }
+
+                                        for (final var uuid : party.getMembers()) {
+                                            if (!PlayerManager.getInstance().isRegistered(uuid)) {
+                                                return;
+                                            }
+
+                                            final var partyMember = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                                            partyMember.sendMessage("Party Chat: " + message);
+                                        }
+                                    });
+                                })))
+                .then(new LiteralArgument("list")
+                        .executesPlayer((player, _) -> {
+                            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                            networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                if (party == null) {
+                                    player.sendRichMessage("<red>You are not in a party!");
+                                    return;
+                                }
+
+                                for (final var uuid : party.getMembers()) {
+                                    if (!PlayerManager.getInstance().isRegistered(uuid)) {
+                                        return;
+                                    }
+
+                                    final var partyMember = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                                    player.sendRichMessage("> " + partyMember.getUsername());
+                                }
+                            });
+                        }))
                 .then(new LiteralArgument("create")
                         .executesPlayer((player, _) -> {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);

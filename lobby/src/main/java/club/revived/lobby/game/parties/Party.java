@@ -50,6 +50,17 @@ public final class Party {
         }
     }
 
+    public void update() {
+        for (final UUID member : this.members)  {
+            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
+                continue;
+            }
+
+            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
+            networkPlayer.cacheValue(Party.class, this);
+        }
+    }
+
     public void setOwner(UUID owner) {
         this.owner = owner;
     }

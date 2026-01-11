@@ -103,6 +103,10 @@ public final class PlayerManager {
                 });
     }
 
+    public boolean isRegistered(final UUID uuid) {
+        return this.networkPlayers.containsKey(uuid);
+    }
+
     /**
      * Locate the NetworkPlayer associated with the given Bukkit Player.
      *

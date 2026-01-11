@@ -29,14 +29,26 @@ public final class PartyManager {
     private void initializeMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(QuitNetwork.class, quitNetwork -> {
+                    System.out.println("test " + quitNetwork);
+
                     Cluster.getInstance().getGlobalCache()
-                            .get(Party.class, quitNetwork.uuid() + ":" + Party.class.getSimpleName())
+                            .get(
+                                    Party.class,
+                                    quitNetwork.uuid() + ":" + Party.class.getSimpleName().toLowerCase()
+                            )
                             .thenAccept(party -> {
                                 if (party == null) {
                                     return;
                                 }
 
-                                this.changeOwnership(party, quitNetwork.uuid());
+                                if (party.getOwner().equals(quitNetwork.uuid())) {
+                                    this.changeOwnership(party, quitNetwork.uuid());
+                                }
+
+                                Cluster.getInstance().getGlobalCache().set(
+                                        quitNetwork.uuid() + ":" + Party.class.getSimpleName().toLowerCase(),
+                                        null
+                                );
                             });
                 });
     }
@@ -57,7 +69,6 @@ public final class PartyManager {
             player.sendMessage("<green>Successfully created a new party");
             player.cacheValue(Party.class, party);
         });
-
     }
 
     public void disband(final Party party) {
@@ -68,6 +79,7 @@ public final class PartyManager {
         }
 
         party.setDisbanded(true);
+        party.update();
     }
 
     public void changeOwnership(final Party party, final UUID oldOwner) {
@@ -81,11 +93,31 @@ public final class PartyManager {
 
         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
         networkPlayer.sendMessage("<green>You are the new owner of the party!");
+        party.update();
+    }
+
+    public void changeOwnership(final Party party, final UUID oldOwner, final UUID newOwner) {
+        final var uuids = party.getMembers();
+        uuids.remove(oldOwner);
+
+        party.setOwner(newOwner);
+
+        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(newOwner);
+        networkPlayer.sendMessage("<green>You are the new owner of the party!");
+        party.update();
+    }
+
+    public void kick(final Party party, final UUID uuid) {
+        party.getMembers().remove(uuid);
+        party.update();
+
+        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+        networkPlayer.sendMessage("<red>You have been kicked from the party");
     }
 
     public void acceptRequest(final NetworkPlayer networkPlayer) {
         networkPlayer.getCachedValue(PartyRequest.class).thenAccept(partyRequest -> {
-            if (partyRequest == null)  {
+            if (partyRequest == null) {
                 networkPlayer.sendMessage("<red>You don't have any open requests!");
                 return;
             }
