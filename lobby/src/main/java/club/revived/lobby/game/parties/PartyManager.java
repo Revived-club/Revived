@@ -96,10 +96,7 @@ public final class PartyManager {
         party.update();
     }
 
-    public void changeOwnership(final Party party, final UUID oldOwner, final UUID newOwner) {
-        final var uuids = party.getMembers();
-        uuids.remove(oldOwner);
-
+    public void transferOwnership(final Party party, final UUID newOwner) {
         party.setOwner(newOwner);
 
         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(newOwner);

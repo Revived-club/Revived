@@ -39,15 +39,7 @@ public final class Party {
 
     public void addMember(final UUID uuid) {
         this.members.add(uuid);
-
-        for (final UUID member : this.members)  {
-            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
-                continue;
-            }
-
-            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
-            networkPlayer.cacheValue(Party.class, this);
-        }
+        this.update();
     }
 
     public void update() {
