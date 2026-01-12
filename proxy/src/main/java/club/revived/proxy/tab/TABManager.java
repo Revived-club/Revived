@@ -68,22 +68,16 @@ public final class TABManager {
                         PlayerManager.getInstance().getNetworkPlayers()
                                 .values()
                                 .forEach(networkPlayer -> {
-                                    networkPlayer.getService().thenAccept(serviceType -> {
-                                        if (serviceType == ServiceType.LIMBO) {
-                                            return;
-                                        }
-
-                                        tabEntries.computeIfAbsent(networkPlayer.getUuid(), u -> TabListEntry.builder()
-                                                .tabList(tabList)
-                                                .displayName(ColorUtils.parse(networkPlayer.getUsername()))
-                                                .latency(20)
-                                                .profile(new GameProfile(
-                                                        networkPlayer.getUuid(),
-                                                        networkPlayer.getUsername(),
-                                                        List.of(new GameProfile.Property("textures", networkPlayer.getSkin(), networkPlayer.getSkinSignature()))
-                                                ))
-                                                .build());
-                                    });
+                                    tabEntries.computeIfAbsent(networkPlayer.getUuid(), u -> TabListEntry.builder()
+                                            .tabList(tabList)
+                                            .displayName(ColorUtils.parse(networkPlayer.getUsername()))
+                                            .latency(20)
+                                            .profile(new GameProfile(
+                                                    networkPlayer.getUuid(),
+                                                    networkPlayer.getUsername(),
+                                                    List.of(new GameProfile.Property("textures", networkPlayer.getSkin(), networkPlayer.getSkinSignature()))
+                                            ))
+                                            .build());
                                 });
 
                         tabEntries.forEach((uuid, tabListEntry) -> {
