@@ -3,13 +3,12 @@ package club.revived.lobby.game.inventory;
 import club.revived.commons.inventories.inv.ListMenu;
 import club.revived.commons.inventories.inv.button.AbstractButton;
 import club.revived.commons.inventories.util.ColorUtils;
-import club.revived.commons.inventories.util.HeadBuilder;
 import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
-import org.bukkit.Material;
+import club.revived.lobby.util.HeadBuilder;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

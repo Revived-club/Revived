@@ -1,4 +1,4 @@
-package club.revived.commons.inventories.util;
+package club.revived.lobby.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -10,7 +10,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,7 +52,7 @@ public final class HeadBuilder {
     @NotNull
     public HeadBuilder texture(final String base64) {
         final GameProfile profile = new GameProfile(UUID.randomUUID(), "test");
-        profile.getProperties().put("textures", new Property("textures", base64));
+        profile.properties().put("textures", new Property("textures", base64));
 
         try {
             final Field profileField = meta.getClass().getDeclaredField("profile");
