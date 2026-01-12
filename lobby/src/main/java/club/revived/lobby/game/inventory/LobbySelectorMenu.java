@@ -44,13 +44,21 @@ public final class LobbySelectorMenu {
             }
 
             itemBuilders.add(new AbstractButton(-1, ItemBuilder.item(Material.PLAYER_HEAD)
-                            .name(String.format("<green>● %s", service.getId()))
-                            .lore(
-                                    ColorUtils.parse("<green>Click to connect")
-                            ), event -> {
-                        final var player = PlayerManager.getInstance().fromBukkitPlayer(this.player);
-                        player.connect(service.getId());
-                    }));
+                    .name(String.format("<green>● %s", service.getId()))
+                    .lore(
+                            ColorUtils.parse("<gray>Click to connect")
+                    ), event -> {
+                event.setCancelled(true);
+
+                final var player = PlayerManager.getInstance().fromBukkitPlayer(this.player);
+                
+                if (service.getId().equals(player.getCurrentServer())) {
+                    player.sendMessage("<red>You are already on " + service.getId());
+                    return;
+                }
+                
+                player.connect(service.getId());
+            }));
         }
 
         return itemBuilders;
