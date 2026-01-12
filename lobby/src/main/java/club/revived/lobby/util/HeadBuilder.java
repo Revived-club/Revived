@@ -1,5 +1,7 @@
 package club.revived.lobby.util;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -52,10 +54,10 @@ public final class HeadBuilder {
 
     @NotNull
     public HeadBuilder texture(final String base64) {
-        final PropertyMap properties = new PropertyMap(PropertyMap.EMPTY);
+        final Multimap<String, Property> properties = LinkedHashMultimap.create();
         properties.put("textures", new Property("textures", base64));
 
-        final GameProfile profile = new GameProfile(UUID.randomUUID(), "", properties);
+        final GameProfile profile = new GameProfile(UUID.randomUUID(), "", new PropertyMap(properties));
 
         try {
             final Field profileField = meta.getClass().getDeclaredField("profile");
@@ -67,7 +69,6 @@ public final class HeadBuilder {
 
         return this;
     }
-
     @NotNull
     public ItemStack build() {
         item.setItemMeta(meta);
