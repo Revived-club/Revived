@@ -8,7 +8,8 @@ package club.revived.lobby.game.item;
  */
 public enum ExecutableItemType {
 
-    MATCH_BROWSER
+    MATCH_BROWSER,
+    PARTY_BROWSER
 
     ;
 }

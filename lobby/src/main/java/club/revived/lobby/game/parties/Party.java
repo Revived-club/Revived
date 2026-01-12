@@ -1,5 +1,6 @@
 package club.revived.lobby.game.parties;
 
+import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,7 @@ public final class Party {
     }
 
     public void update() {
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, 1);
         for (final UUID member : this.members)  {
             if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
                 continue;
@@ -51,6 +53,8 @@ public final class Party {
             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
             networkPlayer.cacheValue(Party.class, this);
         }
+
+        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public void setOwner(UUID owner) {

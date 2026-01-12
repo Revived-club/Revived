@@ -10,8 +10,6 @@ import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 
-import java.util.UUID;
-
 /**
  * PartyCommand
  *

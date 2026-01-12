@@ -5,6 +5,7 @@ import club.revived.lobby.game.WarpLocation;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.ExecutableItemType;
 import club.revived.lobby.game.parties.PartyManager;
+import com.github.retrooper.packetevents.util.ExceptionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
@@ -38,6 +39,8 @@ public final class PlayerListener implements Listener {
         final var player = event.getPlayer();
         WarpLocation.SPAWN.teleport(player);
 
+        player.getInventory().clear();
+
         player.setGameMode(GameMode.ADVENTURE);
         event.joinMessage(null);
 
@@ -50,5 +53,8 @@ public final class PlayerListener implements Listener {
 
         final var item = ExecutableItemRegistry.byType(ExecutableItemType.MATCH_BROWSER).toBukkitItem();
         player.getInventory().setItem(0, item);
+
+        final var partyBrowser = ExecutableItemRegistry.byType(ExecutableItemType.PARTY_BROWSER).toBukkitItem();
+        player.getInventory().setItem(1, partyBrowser);
     }
 }

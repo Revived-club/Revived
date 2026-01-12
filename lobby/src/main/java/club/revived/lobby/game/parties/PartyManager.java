@@ -66,6 +66,8 @@ public final class PartyManager {
                     new ArrayList<>()
             );
 
+            Cluster.getInstance().getGlobalCache().push("parties", party);
+
             player.sendMessage("<green>Successfully created a new party");
             player.cacheValue(Party.class, party);
         });
