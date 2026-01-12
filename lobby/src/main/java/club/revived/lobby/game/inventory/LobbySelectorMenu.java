@@ -45,6 +45,7 @@ public final class LobbySelectorMenu {
 
             itemBuilders.add(new AbstractButton(-1, ItemBuilder.item(Material.PLAYER_HEAD)
                     .name(String.format("<green>● %s", service.getId()))
+                    .amount(service.getOnlinePlayers().size())
                     .lore(
                             ColorUtils.parse("<gray>Click to connect")
                     ), event -> {
