@@ -12,6 +12,8 @@ kubernetes = "7.3.1"
 jetbrainsannotations = "26.0.2-1"
 entitylib = "3.0.3-SNAPSHOT"
 packetevents = "2.11.1"
+limbo = "0.7.9-ALPHA"
+adventure = "4.25.0"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -25,6 +27,8 @@ kubernetes = { module = "io.fabric8:kubernetes-client", version.ref = "kubernete
 jetbrainsannotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsannotations" }
 entitylib = { module = "io.github.tofaa2:spigot", version.ref = "entitylib" }
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
+limbo = { module = "com.loohp:Limbo", version.ref = "limbo" }
+adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

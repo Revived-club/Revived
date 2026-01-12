@@ -2,6 +2,7 @@ package club.revived.proxy.tab;
 
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.proxy.ProxyPlugin;
+import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.player.NetworkPlayer;
 import club.revived.proxy.service.player.PlayerManager;
 import com.velocitypowered.api.proxy.Player;
@@ -29,7 +30,7 @@ public final class TABManager {
 
     /**
      * Initializes the TABManager singleton and begins periodic entry and display update tasks.
-     *
+     * <p>
      * Sets this object as the singleton instance and starts the background tasks that
      * maintain per-player tab entries and refresh tab header/footer displays.
      */
@@ -55,7 +56,7 @@ public final class TABManager {
 
     /**
      * Starts a repeating task that synchronizes the manager's tabEntries with the current set of NetworkPlayer instances.
-     *
+     * <p>
      * The task iterates online players to ensure a TabListEntry exists (using each player's TabList) for every NetworkPlayer,
      * and removes entries whose UUIDs are no longer present among NetworkPlayer instances. Runs repeatedly (every 750 ms).
      */
@@ -67,17 +68,22 @@ public final class TABManager {
                         PlayerManager.getInstance().getNetworkPlayers()
                                 .values()
                                 .forEach(networkPlayer -> {
-                                    tabEntries.computeIfAbsent(networkPlayer.getUuid(), u -> TabListEntry.builder()
-                                            .tabList(tabList)
-                                            .displayName(ColorUtils.parse(networkPlayer.getUsername()))
-                                            .latency(20)
-                                            .profile(new GameProfile(
-                                                    networkPlayer.getUuid(),
-                                                    networkPlayer.getUsername(),
-                                                    List.of(new GameProfile.Property("textures", networkPlayer.getSkin(), networkPlayer.getSkinSignature()))
-                                            ))
-                                            .build());
+                                    networkPlayer.getService().thenAccept(serviceType -> {
+                                        if (serviceType == ServiceType.LIMBO) {
+                                            return;
+                                        }
 
+                                        tabEntries.computeIfAbsent(networkPlayer.getUuid(), u -> TabListEntry.builder()
+                                                .tabList(tabList)
+                                                .displayName(ColorUtils.parse(networkPlayer.getUsername()))
+                                                .latency(20)
+                                                .profile(new GameProfile(
+                                                        networkPlayer.getUuid(),
+                                                        networkPlayer.getUsername(),
+                                                        List.of(new GameProfile.Property("textures", networkPlayer.getSkin(), networkPlayer.getSkinSignature()))
+                                                ))
+                                                .build());
+                                    });
                                 });
 
                         tabEntries.forEach((uuid, tabListEntry) -> {
@@ -113,7 +119,7 @@ public final class TABManager {
 
     /**
      * Schedules a recurring task that updates each online player's tab list header and footer.
-     *
+     * <p>
      * The header shows a branded banner; the footer displays the player's current server name,
      * the network-wide online count, a simple max-online estimate (online + 1), and the player's ping.
      */
