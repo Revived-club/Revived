@@ -2,6 +2,7 @@ package club.revived.lobby.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -51,8 +52,10 @@ public final class HeadBuilder {
 
     @NotNull
     public HeadBuilder texture(final String base64) {
-        final GameProfile profile = new GameProfile(UUID.randomUUID(), "test");
-        profile.properties().put("textures", new Property("textures", base64));
+        final PropertyMap properties = new PropertyMap(PropertyMap.EMPTY);
+        properties.put("textures", new Property("textures", base64));
+
+        final GameProfile profile = new GameProfile(UUID.randomUUID(), "", properties);
 
         try {
             final Field profileField = meta.getClass().getDeclaredField("profile");
