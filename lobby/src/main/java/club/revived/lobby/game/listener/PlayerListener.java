@@ -56,5 +56,8 @@ public final class PlayerListener implements Listener {
 
         final var partyBrowser = ExecutableItemRegistry.byType(ExecutableItemType.PARTY_BROWSER).toBukkitItem();
         player.getInventory().setItem(1, partyBrowser);
+
+        final var lobbySelector = ExecutableItemRegistry.byType(ExecutableItemType.LOBBY_SELECTOR).toBukkitItem();
+        player.getInventory().setItem(8, lobbySelector);
     }
 }
