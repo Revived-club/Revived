@@ -3,6 +3,7 @@ package club.revived.commons.inventories.inv.button;
 import club.revived.commons.inventories.impl.InventoryBuilder;
 import club.revived.commons.inventories.util.ItemBuilder;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  */
 public final class AbstractButton implements Button {
 
-    private final ItemBuilder itemBuilder;
+    private final ItemStack itemStack;
     private final Consumer<InventoryClickEvent> eventConsumer;
     private final int slot;
 
@@ -31,12 +32,26 @@ public final class AbstractButton implements Button {
             final Consumer<InventoryClickEvent> eventConsumer
     ) {
         this.slot = slot;
-        this.itemBuilder = itemBuilder;
+        this.itemStack = itemBuilder.build();
+        this.eventConsumer = eventConsumer;
+    }
+
+    public AbstractButton(
+            final int slot,
+            final ItemStack stack,
+            final Consumer<InventoryClickEvent> eventConsumer
+    ) {
+        this.slot = slot;
+        this.itemStack = stack;
         this.eventConsumer = eventConsumer;
     }
 
     public ItemBuilder getItemBuilder() {
-        return itemBuilder;
+        return ItemBuilder.item(itemStack);
+    }
+
+    public ItemStack getItemStack() {
+        return this.itemStack;
     }
 
     /**
@@ -55,6 +70,6 @@ public final class AbstractButton implements Button {
      */
     @Override
     public void build(final InventoryBuilder builder) {
-        builder.setItem(this.slot, this.itemBuilder.build(), this.eventConsumer);
+        builder.setItem(this.slot, this.itemStack, this.eventConsumer);
     }
 }

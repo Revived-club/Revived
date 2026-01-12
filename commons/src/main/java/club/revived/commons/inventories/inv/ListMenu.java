@@ -41,7 +41,7 @@ public final class ListMenu extends PagedInventoryBuilder {
     public ListMenu addButtons(final Collection<? extends AbstractButton> items) {
         for (final AbstractButton button : items) {
             addItem(
-                    button.getItemBuilder().build(),
+                    button.getItemStack(),
                     button.getEventConsumer()
             );
         }

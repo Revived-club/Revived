@@ -9,6 +9,7 @@ import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.util.HeadBuilder;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,14 +45,13 @@ public final class LobbySelectorMenu {
                 continue;
             }
 
-            itemBuilders.add(new AbstractButton(-1, ItemBuilder.item(
-                            HeadBuilder.of().texture(Heads.GLOBE).build()
-                    )
-                    .name(String.format("<green>● %s", service.getId()))
-                    .amount(Math.max(service.getOnlinePlayers().size(), 1))
-                    .lore(
-                            ColorUtils.parse("<gray>Click to connect")
-                    ), event -> {
+            itemBuilders.add(new AbstractButton(-1,
+                    HeadBuilder.setSkullTexture(ItemBuilder.item(Material.PLAYER_HEAD)
+                            .name(String.format("<green>● %s", service.getId()))
+                            .amount(Math.max(service.getOnlinePlayers().size(), 1))
+                            .lore(
+                                    ColorUtils.parse("<gray>Click to connect")
+                            ).build(), Heads.GLOBE, ""), event -> {
                 event.setCancelled(true);
 
                 final var player = PlayerManager.getInstance().fromBukkitPlayer(this.player);

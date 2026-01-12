@@ -26,6 +26,7 @@ import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
+import club.revived.lobby.util.HeadBuilder;
 import com.github.retrooper.packetevents.PacketEvents;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIPaperConfig;
