@@ -22,7 +22,6 @@ public final class StatusService {
     public StatusService(final MessagingService messagingService) {
         System.out.println( "Starting status service...");
         messagingService.registerHandler(StatusRequest.class, statusRequest -> {
-            System.out.println("Responding to status request");
             return new StatusResponse(Cluster.STATUS);
         });
         System.out.println( "Started status service...");

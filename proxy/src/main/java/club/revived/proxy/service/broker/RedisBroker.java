@@ -139,10 +139,8 @@ public final class RedisBroker implements MessageBroker {
                             final String channel,
                             final String message
                     ) {
-                        System.out.println("Message received");
                         try {
                             final T obj = gson.fromJson(message, type);
-                            System.out.println(message);
                             handler.handle(obj);
                         } catch (final Exception e) {
                             throw new RuntimeException(e);

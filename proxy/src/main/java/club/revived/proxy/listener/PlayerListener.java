@@ -32,7 +32,6 @@ public final class PlayerListener {
     public void onServerConnect(final PlayerChooseInitialServerEvent event) {
         final Player player = event.getPlayer();
 
-        // Defer the initial server selection to allow async checks
         event.setInitialServer(null);
 
         findAvailableLobbyServer(player, 0);
