@@ -133,9 +133,6 @@ public final class PlayerListener {
             final int globalAttempt
     ) {
         if (serverIndex >= servers.size()) {
-            System.out.println("[ServerConnect] All servers unavailable for " + player.getUsername() +
-                    ", retrying (attempt " + (globalAttempt + 1) + ")...");
-
             ProxyPlugin.getInstance().getServer()
                     .getScheduler()
                     .buildTask(ProxyPlugin.getInstance(), () -> findAvailableLobbyServer(player, globalAttempt + 1))
@@ -150,7 +147,6 @@ public final class PlayerListener {
                 .orElse(null);
 
         if (server == null) {
-            System.out.println("[ServerConnect] Server " + selectedServer.getId() + " not registered, trying next...");
             tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
             return;
         }
@@ -159,36 +155,22 @@ public final class PlayerListener {
                 .sendRequest(selectedServer.getId(), new StatusRequest(), StatusResponse.class)
                 .thenAccept(statusResponse -> {
                     if (statusResponse == null || statusResponse.status() != ServiceStatus.AVAILABLE) {
-                        System.out.println("[ServerConnect] Server " + selectedServer.getId() +
-                                " reported unavailable, trying next...");
                         tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
                         return;
                     }
 
-                    System.out.println("[ServerConnect] Connecting " + player.getUsername() +
-                            " to " + selectedServer.getId());
-
                     player.createConnectionRequest(server).connect()
                             .thenAccept(result -> {
                                 if (!result.isSuccessful()) {
-                                    System.out.println("[ServerConnect] Connection to " + selectedServer.getId() +
-                                            " failed: " + result.getReasonComponent().orElse(Component.empty()));
                                     tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
-                                } else {
-                                    System.out.println("[ServerConnect] Successfully connected " + player.getUsername() +
-                                            " to " + selectedServer.getId());
                                 }
                             })
                             .exceptionally(throwable -> {
-                                System.err.println("[ServerConnect] Exception connecting to " + selectedServer.getId() +
-                                        ": " + throwable.getMessage());
                                 tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
                                 return null;
                             });
                 })
                 .exceptionally(throwable -> {
-                    System.err.println("[ServerConnect] Exception requesting status from " + selectedServer.getId() +
-                            ": " + throwable.getMessage());
                     tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
                     return null;
                 });
