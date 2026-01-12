@@ -13,6 +13,7 @@ import club.revived.lobby.game.chat.listener.PlayerChatListener;
 import club.revived.lobby.game.command.*;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
+import club.revived.lobby.game.item.impl.LobbySelectorItem;
 import club.revived.lobby.game.item.impl.MatchBrowserItem;
 import club.revived.lobby.game.item.impl.PartyBrowserItem;
 import club.revived.lobby.game.listener.ItemPlayerListener;
@@ -88,7 +89,8 @@ public final class Lobby extends JavaPlugin {
         BillboardManager.getInstance().setup();
         ExecutableItemRegistry.register(
                 new MatchBrowserItem(),
-                new PartyBrowserItem()
+                new PartyBrowserItem(),
+                new LobbySelectorItem()
         );
 
         Cluster.STATUS = ServiceStatus.AVAILABLE;
