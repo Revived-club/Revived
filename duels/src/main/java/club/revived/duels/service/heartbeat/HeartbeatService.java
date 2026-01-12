@@ -79,12 +79,14 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                     cluster.getIp()
             ));
 
+            final long now = System.currentTimeMillis();
             for (final String server : lastSeen.keySet()) {
                 final var timestamp = lastSeen.get(server);
-                final var time = System.currentTimeMillis() - timestamp;
+                final var time = now - timestamp;
 
-                if (time >= TIMEOUT) {
-                    log.error("{} timed out after {}ms", server, time);
+                if (time > TIMEOUT) {
+                    lastSeen.remove(server);
+                    Cluster.getInstance().getServices().remove(server);
                 }
             }
         }, 0, INTERVAL, TimeUnit.MILLISECONDS);
