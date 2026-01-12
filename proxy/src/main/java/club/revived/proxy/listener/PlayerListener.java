@@ -30,11 +30,62 @@ public final class PlayerListener {
 
     @Subscribe
     public void onServerConnect(final PlayerChooseInitialServerEvent event) {
-        final Player player = event.getPlayer();
+        final List<ClusterService> lobbyServers = Cluster.getInstance().getServices().values()
+                .stream()
+                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+                .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+                .toList();
 
-        event.setInitialServer(null);
+        if (lobbyServers.isEmpty()) {
+            this.redirectToLimbo(event);
+            return;
+        }
 
-        findAvailableLobbyServer(player, 0);
+        final var selectedServer = lobbyServers.getFirst();
+        if (selectedServer == null) {
+            this.redirectToLimbo(event);
+            return;
+        }
+
+        final RegisteredServer server = ProxyPlugin.getInstance().getServer().getServer(selectedServer.getId()).orElse(null);
+
+        if (server == null) {
+            this.redirectToLimbo(event);
+            return;
+        }
+
+        event.setInitialServer(server);
+    }
+
+    private void redirectToLimbo(final PlayerChooseInitialServerEvent event) {
+        final var player = event.getPlayer();
+        final List<ClusterService> limboServers = Cluster.getInstance().getServices().values()
+                .stream()
+                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+                .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+                .toList();
+
+        if (limboServers.isEmpty()) {
+            player.disconnect(Component.text("Error while connecting to Limbo!").style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        final var selectedServer = limboServers.getFirst();
+        if (selectedServer == null) {
+            player.disconnect(Component.text("Error while connecting to Limbo!").style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        final RegisteredServer server = ProxyPlugin.getInstance().getServer().getServer(selectedServer.getId()).orElse(null);
+
+        if (server == null) {
+            player.disconnect(Component.text("Error while connecting to Limbo!").style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
+        event.setInitialServer(server);
+
+        this.findAvailableLobbyServer(player, 0);
     }
 
     /**
