@@ -14,6 +14,7 @@ entitylib = "3.0.3-SNAPSHOT"
 packetevents = "2.11.1"
 limbo = "0.7.9-ALPHA"
 adventure = "4.25.0"
+authlib = "3.13.56"
 
 [libraries]
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
@@ -29,6 +30,7 @@ entitylib = { module = "io.github.tofaa2:spigot", version.ref = "entitylib" }
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 limbo = { module = "com.loohp:Limbo", version.ref = "limbo" }
 adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
 
 [plugins]
 paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

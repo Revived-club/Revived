@@ -17,6 +17,7 @@ dependencies {
     compileOnly(libs.worldguard)
     implementation(libs.anvilgui)
     implementation(libs.kubernetes)
+    compileOnly(libs.authlib)
 }
 
 tasks.test {

@@ -3,6 +3,8 @@ package club.revived.lobby.game.inventory;
 import club.revived.commons.inventories.inv.ListMenu;
 import club.revived.commons.inventories.inv.button.AbstractButton;
 import club.revived.commons.inventories.util.ColorUtils;
+import club.revived.commons.inventories.util.HeadBuilder;
+import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
@@ -43,7 +45,9 @@ public final class LobbySelectorMenu {
                 continue;
             }
 
-            itemBuilders.add(new AbstractButton(-1, ItemBuilder.item(Material.PLAYER_HEAD)
+            itemBuilders.add(new AbstractButton(-1, ItemBuilder.item(
+                            HeadBuilder.of().texture(Heads.GLOBE).build()
+                    )
                     .name(String.format("<green>● %s", service.getId()))
                     .amount(Math.max(service.getOnlinePlayers().size(), 1))
                     .lore(
@@ -52,12 +56,12 @@ public final class LobbySelectorMenu {
                 event.setCancelled(true);
 
                 final var player = PlayerManager.getInstance().fromBukkitPlayer(this.player);
-                
+
                 if (service.getId().equals(player.getCurrentServer())) {
                     player.sendMessage("<red>You are already on " + service.getId());
                     return;
                 }
-                
+
                 player.connect(service.getId());
             }));
         }
