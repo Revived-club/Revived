@@ -9,9 +9,9 @@ package club.revived.proxy.service.broker;
 @FunctionalInterface
 public interface MessageHandler<T> {
     /**
- * Handle the given message.
- *
- * @param message the message to process
- */
-void handle(T message);
+     * Handle the given message.
+     *
+     * @param message the message to process
+     */
+    void handle(T message);
 }

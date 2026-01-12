@@ -81,7 +81,6 @@ public final class PartyManager {
         }
 
         party.setDisbanded(true);
-        party.update();
     }
 
     public void changeOwnership(final Party party, final UUID oldOwner) {
