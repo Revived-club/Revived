@@ -6,6 +6,9 @@ import club.revived.proxy.service.cluster.ClusterService;
 import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.messaging.impl.QuitNetwork;
 import club.revived.proxy.service.player.PlayerManager;
+import club.revived.proxy.service.status.ServiceStatus;
+import club.revived.proxy.service.status.StatusRequest;
+import club.revived.proxy.service.status.StatusResponse;
 import club.revived.proxy.tab.TABManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -21,46 +24,124 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class PlayerListener {
 
-    /**
-     * Chooses an initial lobby server for a joining player and assigns it to the event.
-     * <p></p>
-     * If one or more lobby servers are available, the least-populated lobby server is selected and set as the player's initial server.
-     * If no lobby server can be resolved or the selected server is not registered with the proxy, the player is disconnected with an error message.
-     *
-     * @param event the server-selection event for the joining player
-     */
     @Subscribe
     public void onServerConnect(final PlayerChooseInitialServerEvent event) {
         final Player player = event.getPlayer();
 
+        // Defer the initial server selection to allow async checks
+        event.setInitialServer(null);
+
+        findAvailableLobbyServer(player, 0);
+    }
+
+    /**
+     * Recursively attempts to find and connect a player to an available lobby server.
+     *
+     * @param player  the player attempting to connect
+     * @param attempt the current attempt number (for retry limiting)
+     */
+    private void findAvailableLobbyServer(final Player player, final int attempt) {
+        final int MAX_ATTEMPTS = 3;
+
+        if (attempt >= MAX_ATTEMPTS) {
+            player.disconnect(Component.text("Failed to find an available lobby server after " + MAX_ATTEMPTS + " attempts.")
+                    .style(style -> style.color(NamedTextColor.RED)));
+            return;
+        }
+
         final List<ClusterService> lobbyServers = Cluster.getInstance().getServices().values()
                 .stream()
-                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+                .filter(service -> service.getType().equals(ServiceType.LOBBY))
                 .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
                 .toList();
 
         if (lobbyServers.isEmpty()) {
-            player.disconnect(Component.text("There are no available lobby servers!").style(style -> style.color(NamedTextColor.RED)));
+            player.disconnect(Component.text("There are no available lobby servers!")
+                    .style(style -> style.color(NamedTextColor.RED)));
             return;
         }
 
-        final var selectedServer = lobbyServers.getFirst();
-        if (selectedServer == null) {
-            player.disconnect(Component.text("Could not find lobby server!").style(style -> style.color(NamedTextColor.RED)));
+        tryConnectToServers(player, lobbyServers, 0, attempt);
+    }
+
+    /**
+     * Attempts to connect the player to servers from the list, checking availability first.
+     *
+     * @param player        the player to connect
+     * @param servers       the list of potential lobby servers
+     * @param serverIndex   the current server index in the list
+     * @param globalAttempt the global retry attempt number
+     */
+    private void tryConnectToServers(
+            final Player player,
+            final List<ClusterService> servers,
+            final int serverIndex,
+            final int globalAttempt
+    ) {
+        if (serverIndex >= servers.size()) {
+            System.out.println("[ServerConnect] All servers unavailable for " + player.getUsername() +
+                    ", retrying (attempt " + (globalAttempt + 1) + ")...");
+
+            ProxyPlugin.getInstance().getServer()
+                    .getScheduler()
+                    .buildTask(ProxyPlugin.getInstance(), () -> findAvailableLobbyServer(player, globalAttempt + 1))
+                    .delay(500, TimeUnit.MILLISECONDS)
+                    .schedule();
             return;
         }
 
-        final RegisteredServer server = ProxyPlugin.getInstance().getServer().getServer(selectedServer.getId()).orElse(null);
+        final ClusterService selectedServer = servers.get(serverIndex);
+        final RegisteredServer server = ProxyPlugin.getInstance().getServer()
+                .getServer(selectedServer.getId())
+                .orElse(null);
 
         if (server == null) {
-            player.disconnect(Component.text("Could not connect to " + selectedServer.getId()).style(style -> style.color(NamedTextColor.RED)));
+            System.out.println("[ServerConnect] Server " + selectedServer.getId() + " not registered, trying next...");
+            tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
             return;
         }
 
-        event.setInitialServer(server);
+        Cluster.getInstance().getMessagingService()
+                .sendRequest(selectedServer.getId(), new StatusRequest(), StatusResponse.class)
+                .thenAccept(statusResponse -> {
+                    if (statusResponse == null || statusResponse.status() != ServiceStatus.AVAILABLE) {
+                        System.out.println("[ServerConnect] Server " + selectedServer.getId() +
+                                " reported unavailable, trying next...");
+                        tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
+                        return;
+                    }
+
+                    System.out.println("[ServerConnect] Connecting " + player.getUsername() +
+                            " to " + selectedServer.getId());
+
+                    player.createConnectionRequest(server).connect()
+                            .thenAccept(result -> {
+                                if (!result.isSuccessful()) {
+                                    System.out.println("[ServerConnect] Connection to " + selectedServer.getId() +
+                                            " failed: " + result.getReasonComponent().orElse(Component.empty()));
+                                    tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
+                                } else {
+                                    System.out.println("[ServerConnect] Successfully connected " + player.getUsername() +
+                                            " to " + selectedServer.getId());
+                                }
+                            })
+                            .exceptionally(throwable -> {
+                                System.err.println("[ServerConnect] Exception connecting to " + selectedServer.getId() +
+                                        ": " + throwable.getMessage());
+                                tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
+                                return null;
+                            });
+                })
+                .exceptionally(throwable -> {
+                    System.err.println("[ServerConnect] Exception requesting status from " + selectedServer.getId() +
+                            ": " + throwable.getMessage());
+                    tryConnectToServers(player, servers, serverIndex + 1, globalAttempt);
+                    return null;
+                });
     }
 
     /**
@@ -72,14 +153,14 @@ public final class PlayerListener {
     public void onQuit(final @NotNull DisconnectEvent event) {
         final Player player = event.getPlayer();
 
-       TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
+        TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
 
-       Cluster.getInstance().getMessagingService().sendGlobalMessage(new QuitNetwork(player.getUniqueId()));
+        Cluster.getInstance().getMessagingService().sendGlobalMessage(new QuitNetwork(player.getUniqueId()));
     }
 
     /**
      * Update the server list ping to reflect the current network player counts.
-     *
+     * <p>
      * Sets the ping's onlinePlayers to the current network size and maximumPlayers to one greater.
      *
      * @param event the ProxyPingEvent whose ServerPing will be modified

@@ -59,6 +59,8 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     public void startTask() {
         System.out.println("Starting heartbeat task...");
         subServer.scheduleAtFixedRate(() -> {
+            checkForTimedOutServices();
+
             final var services = this.cluster.getServices()
                     .values()
                     .stream()
@@ -117,10 +119,58 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
     }
 
     /**
-         * Register the specified server in the proxy's server registry.
-         *
-         * @param serverInfo the ServerInfo containing the server id and network address
-         */
+     * Checks for services that haven't sent a heartbeat within the timeout period and removes them.
+     */
+    private void checkForTimedOutServices() {
+        final long currentTime = System.currentTimeMillis();
+        final long timeout = INTERVAL * 5;
+
+        lastSeen.entrySet().removeIf(entry -> {
+            final String serviceId = entry.getKey();
+            final long lastSeenTime = entry.getValue();
+
+            if (currentTime - lastSeenTime > timeout) {
+                System.out.println("[Heartbeat] Service " + serviceId + " timed out. Removing...");
+
+                cluster.getServices().remove(serviceId);
+
+                unregisterServer(serviceId);
+
+                PlayerManager.getInstance().getNetworkPlayers()
+                        .entrySet()
+                        .removeIf(playerEntry ->
+                                playerEntry.getValue().getCurrentServer().equalsIgnoreCase(serviceId)
+                        );
+
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * Unregister the specified server from the proxy's server registry.
+     *
+     * @param serverId the server identifier to unregister
+     */
+    private void unregisterServer(final String serverId) {
+        ProxyPlugin.getInstance()
+                .getServer()
+                .getServer(serverId)
+                .ifPresent(server -> {
+                    System.out.println("Unregistering service " + serverId);
+                    ProxyPlugin.getInstance()
+                            .getServer()
+                            .unregisterServer(server.getServerInfo());
+                });
+    }
+
+    /**
+     * Register the specified server in the proxy's server registry.
+     *
+     * @param serverInfo the ServerInfo containing the server id and network address
+     */
     private void registerServer(final ServerInfo serverInfo) {
         ProxyPlugin.getInstance()
                 .getServer()
