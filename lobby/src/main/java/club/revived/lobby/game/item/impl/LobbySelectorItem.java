@@ -1,5 +1,7 @@
 package club.revived.lobby.game.item.impl;
 
+import club.revived.commons.inventories.util.HeadBuilder;
+import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.game.inventory.LobbySelectorMenu;
 import club.revived.lobby.game.item.ExecutableItem;
@@ -23,7 +25,7 @@ public final class LobbySelectorItem implements ExecutableItem {
 
     @Override
     public ItemStack toBukkitItem() {
-        return ItemBuilder.item(Material.COMPASS)
+        return ItemBuilder.item(HeadBuilder.customHead(Heads.COMPASS))
                 .name("Lobby Selector")
                 .addContainerValue("executable_item", this.id())
                 .build();
