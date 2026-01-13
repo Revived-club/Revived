@@ -27,23 +27,14 @@ public final class HeadBuilder {
 
     @NotNull
     public static ItemStack customHead(final String url) {
-        try {
-            final UUID uuid = UUID.randomUUID();
-            final PlayerProfile profile = Bukkit.createProfile(uuid);
+        final var head = ItemStack.of(Material.PLAYER_HEAD);
+        final var json = "{\"textures\":{\"SKIN\":{\"url\":\"%s\"}}}".formatted(url);
+        final var base64 = Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
+        final var profile = ResolvableProfile.resolvableProfile()
+                .uuid(UUID.randomUUID())
+                .addProperty(new ProfileProperty("textures", base64));
 
-            PlayerTextures textures = profile.getTextures();
-            profile.setTextures(textures);
-
-            final ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-            final SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-            skullMeta.setPlayerProfile(profile);
-            textures.setSkin(URI.create(url).toURL());
-
-            head.setItemMeta(skullMeta);
-
-            return head;
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        head.setData(DataComponentTypes.PROFILE, profile.build());
+        return head;
     }
 }
