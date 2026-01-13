@@ -4,11 +4,12 @@ import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * This is an interesting Class
@@ -21,6 +22,9 @@ public final class RedisCacheService implements GlobalCache {
     private final JedisPool jedisPool;
     private final ExecutorService subServer = Executors.newVirtualThreadPerTaskExecutor();
     private final Gson gson = new Gson();
+
+    private static final String LIST_PREFIX = "list:";
+    private static final String ID_PREFIX   = "obj:";
 
     public RedisCacheService(
             final String host,
@@ -132,56 +136,6 @@ public final class RedisCacheService implements GlobalCache {
     }
 
     /**
-     * Appends the JSON-serialized form of the given object to the end of the Redis list stored at the specified key.
-     *
-     * @param key the Redis list key
-     * @param t   the object to serialize and append to the list
-     * @throws RuntimeException if serialization or the Redis operation fails
-     */
-    @Override
-    public <T> void push(
-            final String key,
-            final T t
-    ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.rpush(key, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Retrieve and deserialize all elements of the Redis list at the given key.
-     *
-     * @param key   the Redis list key to read
-     * @param clazz the target class to deserialize each list element into
-     * @return a list of deserialized elements in list order (head to tail); empty if the key does not exist or has no elements
-     * @throws RuntimeException if a Redis access or JSON deserialization error occurs
-     */
-    @Override
-    public <T> CompletableFuture<List<T>> getAll(
-            final String key,
-            final Class<T> clazz
-    ) {
-        return CompletableFuture.supplyAsync(() -> {
-            final var list = new ArrayList<T>();
-
-            try (final var jedis = this.jedisPool.getResource()) {
-                final var jsonList = jedis.lrange(key, 0, -1);
-
-                for (final var json : jsonList) {
-                    list.add(this.gson.fromJson(json, clazz));
-                }
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            return list;
-        }, this.subServer);
-    }
-
-    /**
      * Deletes the value stored at the given Redis key from the cache.
      *
      * @param key the cache key to delete
@@ -200,27 +154,109 @@ public final class RedisCacheService implements GlobalCache {
         }, this.subServer);
     }
 
-    /**
-     * Removes occurrences of the JSON-serialized value from the Redis list stored at the given key.
-     *
-     * The `count` parameter controls removal:
-     * - `count > 0`: remove up to `count` occurrences from head to tail.
-     * - `count < 0`: remove up to `|count|` occurrences from tail to head.
-     * - `count == 0`: remove all occurrences.
-     *
-     * @param key   the Redis list key
-     * @param t     the value to serialize and remove from the list
-     * @param count the number and direction of occurrences to remove (see description)
-     */
     @Override
-    public <T> void removeFromList(
-            final String key,
+    public <T> void push(
+            final String listKey,
+            final String id,
+            final T t
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final String objectKey = ID_PREFIX + id;
+            final String listRedisKey = LIST_PREFIX + listKey;
+
+            jedis.set(objectKey, this.gson.toJson(t));
+            jedis.rpush(listRedisKey, id);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <T> void pushEx(
+            final String listKey,
+            final String id,
             final T t,
+            final long ttlSeconds
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            final String objectKey = ID_PREFIX + id;
+            final String listRedisKey = LIST_PREFIX + listKey;
+
+            jedis.setex(objectKey, ttlSeconds, this.gson.toJson(t));
+            jedis.rpush(listRedisKey, id);
+            jedis.expire(listRedisKey, ttlSeconds);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <T> CompletableFuture<List<T>> getAll(
+            final String listKey,
+            final Class<T> clazz
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final String listRedisKey = LIST_PREFIX + listKey;
+
+                final List<String> ids = jedis.lrange(listRedisKey, 0, -1);
+                if (ids.isEmpty()) {
+                    return List.of();
+                }
+
+                try (final var pipeline = jedis.pipelined()) {
+                    ids.forEach(id -> pipeline.get(ID_PREFIX + id));
+                    final List<Object> results = pipeline.syncAndReturnAll();
+
+                    return results.stream()
+                            .filter(Objects::nonNull)
+                            .map(obj -> gson.fromJson(obj.toString(), clazz))
+                            .collect(Collectors.toList());
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+
+
+    @Override
+    public <T> CompletableFuture<T> getById(
+            final Class<T> clazz,
+            final String id
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final String json = jedis.get(ID_PREFIX + id);
+                return json == null ? null : gson.fromJson(json, clazz);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    @Override
+    public <T> void update(
+            final String id,
+            final T t
+    ) {
+        try (final var jedis = this.jedisPool.getResource()) {
+            jedis.set(ID_PREFIX + id, gson.toJson(t));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeFromList(
+            final String listKey,
+            final String id,
             final long count
     ) {
         try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.lrem(key, count, json);
+            jedis.lrem(LIST_PREFIX + listKey, count, id);
+            jedis.del(ID_PREFIX + id);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }

@@ -45,26 +45,21 @@ public interface GlobalCache {
             final long seconds
     );
 
-    /**
-     * Adds the given value to the cache entry identified by the specified key, preserving any existing entries (for example, appending to a collection stored at that key).
-     *
-     * @param key the cache key under which the value will be added
-     * @param t   the value to add to the cache entry
-     */
     <T> void push(
-            final String key,
+            final String listKey,
+            final String id,
             final T t
     );
 
-    /**
-     * Retrieve all values stored under the given cache key as a list of the specified type.
-     *
-     * @param key   the cache key whose associated values should be returned
-     * @param clazz the class of elements to decode or cast the stored values to
-     * @return a list of values of type T; an empty list if no values are associated with the key
-     */
+    <T> void pushEx(
+            final String listKey,
+            final String id,
+            final T t,
+            final long ttlSeconds
+    );
+
     <T> CompletableFuture<List<T>> getAll(
-            final String key,
+            final String listKey,
             final Class<T> clazz
     );
 
@@ -93,16 +88,19 @@ public interface GlobalCache {
             final String key
     );
 
-    /**
-     * Removes occurrences of a value from the list stored at the specified key.
-     *
-     * @param key   the list key
-     * @param t     the value to remove
-     * @param count the number of occurrences to remove; 0 removes all occurrences
-     */
-    <T> void removeFromList(
-            final String key,
-            final T t,
+    void removeFromList(
+            final String listKey,
+            final String id,
             final long count
+    );
+
+    <T> CompletableFuture<T> getById(
+            final Class<T> clazz,
+            final String id
+    );
+
+    <T> void update(
+            final String id,
+            final T t
     );
 }

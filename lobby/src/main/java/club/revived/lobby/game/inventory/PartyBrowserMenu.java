@@ -41,6 +41,7 @@ public final class PartyBrowserMenu {
                             "Unknown"
                     ))
                     .lore(
+                            ColorUtils.parse("<dark_grey>" + party.getId()),
                             ColorUtils.parse(String.format("Members %d", party.getMembers().size()))
                     )
             );

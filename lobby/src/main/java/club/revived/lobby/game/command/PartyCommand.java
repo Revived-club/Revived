@@ -72,7 +72,6 @@ public final class PartyCommand {
                                         }
 
                                         party.setOpen(bool);
-                                        party.update();
                                     });
                                 })))
                 .then(new LiteralArgument("kick")

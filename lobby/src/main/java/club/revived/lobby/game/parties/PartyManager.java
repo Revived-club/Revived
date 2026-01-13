@@ -7,7 +7,7 @@ import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -54,66 +54,93 @@ public final class PartyManager {
     }
 
     public void make(final NetworkPlayer player) {
-        player.getCachedValue(Party.class).thenAccept(p -> {
-            if (p != null) {
+        player.getCachedValue(String.class).thenAccept(existingPartyId -> {
+            if (existingPartyId != null) {
                 player.sendMessage("<red>You are already in a party!");
                 return;
             }
 
-            final var party = new Party(
+            final Party party = new Party(
                     player.getUuid(),
-                    new ArrayList<>(Collections.singleton(player.getUuid())),
+                    new ArrayList<>(List.of(player.getUuid())),
                     new ArrayList<>()
             );
 
-            Cluster.getInstance().getGlobalCache().push("parties", party);
-
-            player.sendMessage("<green>Successfully created a new party");
             player.cacheValue(Party.class, party);
+            player.sendMessage("<green>Party created");
         });
     }
 
+
     public void disband(final Party party) {
+        final var cache = Cluster.getInstance().getGlobalCache();
+
         for (final UUID member : party.getMembers()) {
-            final NetworkPlayer networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
-            networkPlayer.cacheValue(Party.class, null);
-            networkPlayer.sendMessage("The party you are in got disbanded");
+            final NetworkPlayer player = PlayerManager.getInstance().fromBukkitPlayer(member);
+            player.cacheValue(Party.class, null);
+            player.sendMessage("<red>Your party was disbanded");
         }
 
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", party, -1);
-        party.setDisbanded(true);
+        cache.removeFromList("parties", party.getId(), 1);
+        cache.remove("party:" + party.getId());
+        party.disband();
     }
 
-    public void changeOwnership(final Party party, final UUID oldOwner) {
-        final var random = ThreadLocalRandom.current();
-        final var uuids = party.getMembers();
+    public void changeOwnership(
+            final Party party,
+            final UUID oldOwner
+    ) {
+        final List<UUID> members = new ArrayList<>(party.getMembers());
+        members.remove(oldOwner);
 
-        uuids.remove(oldOwner);
+        if (members.isEmpty()) {
+            disband(party);
+            return;
+        }
 
-        final UUID uuid = uuids.get(random.nextInt(uuids.size()));
-        party.setOwner(uuid);
+        final UUID newOwner = members.get(
+                ThreadLocalRandom.current().nextInt(members.size())
+        );
 
-        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
-        networkPlayer.sendMessage("<green>You are the new owner of the party!");
-        party.update();
+        party.setOwner(newOwner);
+        party.save();
+
+        final NetworkPlayer player = PlayerManager.getInstance().fromBukkitPlayer(newOwner);
+        player.sendMessage("<green>You are the new owner of the party!");
     }
 
     public void transferOwnership(final Party party, final UUID newOwner) {
+        if (!party.getMembers().contains(newOwner)) {
+            return;
+        }
+
         party.setOwner(newOwner);
 
-        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(newOwner);
-        networkPlayer.sendMessage("<green>You are the new owner of the party!");
-        party.update();
+        final NetworkPlayer player = PlayerManager.getInstance().fromBukkitPlayer(newOwner);
+        player.sendMessage("<green>You are now the party owner");
     }
+
 
     public void kick(final Party party, final UUID uuid) {
-        party.getMembers().remove(uuid);
-        party.update();
+        if (party.getOwner().equals(uuid)) {
+            return;
+        }
 
-        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
-        networkPlayer.cacheValue(Party.class, null);
-        networkPlayer.sendMessage("<red>You have been kicked from the party");
+        if (!party.getMembers().contains(uuid)) {
+            return;
+        }
+
+        party.getMembers().remove(uuid);
+        party.save();
+
+        final var cache = Cluster.getInstance().getGlobalCache();
+        cache.remove("player:" + uuid + ":party");
+
+        final NetworkPlayer player = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+        player.cacheValue(Party.class, null);
+        player.sendMessage("<red>You have been kicked from the party");
     }
+
 
     public void acceptRequest(final NetworkPlayer networkPlayer) {
         networkPlayer.getCachedValue(PartyRequest.class).thenAccept(partyRequest -> {

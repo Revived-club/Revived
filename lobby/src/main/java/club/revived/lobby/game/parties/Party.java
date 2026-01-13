@@ -1,5 +1,6 @@
 package club.revived.lobby.game.parties;
 
+import club.revived.commons.generic.StringUtils;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
@@ -16,16 +17,26 @@ import java.util.UUID;
  */
 public final class Party {
 
+    private final String id;
     private UUID owner;
     private final List<UUID> members;
     private final List<UUID> bannedUsers;
-    private boolean open = false;
-    private boolean disbanded = false;
+    private boolean open;
+    private boolean disbanded;
 
-    public Party(UUID owner, List<UUID> members, List<UUID> bannedUsers) {
+    public Party(
+            final UUID owner,
+            final List<UUID> members,
+            final List<UUID> bannedUsers
+    ) {
+        this.id = StringUtils.generateId("#party-");
         this.owner = owner;
         this.members = members;
         this.bannedUsers = bannedUsers;
+
+        final var cache = Cluster.getInstance().getGlobalCache();
+
+        cache.push("parties", this.id, this);
     }
 
     @NotNull
@@ -38,40 +49,8 @@ public final class Party {
                 .toList();
     }
 
-    public void addMember(final UUID uuid) {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
-        this.members.add(uuid);
-        this.update();
-        Cluster.getInstance().getGlobalCache().push("parties", this);
-    }
-
-    public void update() {
-        for (final UUID member : this.members)  {
-            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
-                continue;
-            }
-
-            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
-            networkPlayer.cacheValue(Party.class, this);
-        }
-    }
-
-    public void setOwner(UUID owner) {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
-        this.owner = owner;
-        Cluster.getInstance().getGlobalCache().push("parties", this);
-    }
-
-    public void setOpen(boolean open) {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
-        this.open = open;
-        Cluster.getInstance().getGlobalCache().push("parties", this);
-    }
-
-    public void setDisbanded(boolean disbanded) {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
-        this.disbanded = disbanded;
-        Cluster.getInstance().getGlobalCache().push("parties", this);
+    public String getId() {
+        return id;
     }
 
     public UUID getOwner() {
@@ -82,15 +61,64 @@ public final class Party {
         return members;
     }
 
-    public List<UUID> getBannedUsers() {
-        return bannedUsers;
-    }
-
     public boolean isOpen() {
         return open;
     }
 
     public boolean isDisbanded() {
         return disbanded;
+    }
+
+    public void save() {
+        Cluster.getInstance()
+                .getGlobalCache()
+                .update("party:" + id, this);
+
+        this.update();
+    }
+
+    public void disband() {
+        this.disbanded = true;
+        this.save();
+    }
+
+    public void addMember(final UUID uuid) {
+        if (members.contains(uuid)) {
+            return;
+        }
+
+        members.add(uuid);
+        this.save();
+
+        Cluster.getInstance().getGlobalCache()
+                .set("player:" + uuid + ":party", id);
+    }
+
+    public void removeMember(final UUID uuid) {
+        members.remove(uuid);
+        this.save();
+
+        Cluster.getInstance().getGlobalCache()
+                .remove("player:" + uuid + ":party");
+    }
+
+    public void setOpen(final boolean open) {
+        this.open = open;
+        this.save();
+    }
+
+    public void setOwner(final UUID owner) {
+        this.owner = owner;
+        this.save();
+    }
+
+    public void update() {
+        for (final UUID member : this.members) {
+            if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
+                continue;
+            }
+            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
+            networkPlayer.cacheValue(Party.class, this);
+        }
     }
 }
