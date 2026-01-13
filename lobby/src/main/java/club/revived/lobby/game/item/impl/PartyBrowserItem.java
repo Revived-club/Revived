@@ -24,10 +24,13 @@ public final class PartyBrowserItem implements ExecutableItem {
     public void execute(final Player player) {
         Cluster.getInstance().getGlobalCache()
                 .getAll("parties", Party.class)
-                .thenAccept(parties -> new PartyBrowserMenu(
-                        parties.stream().filter(party -> party.isOpen() && !party.isDisbanded()).toList(),
-                        player
-                ));
+                .thenAccept(parties -> {
+                    player.sendMessage(parties.toString());
+                    new PartyBrowserMenu(
+                            parties.stream().filter(party -> party.isOpen() && !party.isDisbanded()).toList(),
+                            player
+                    );
+                });
     }
 
     @Override
