@@ -1,5 +1,7 @@
 package club.revived.lobby.game.item.impl;
 
+import club.revived.commons.inventories.util.HeadBuilder;
+import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.game.duel.Game;
 import club.revived.lobby.game.inventory.MatchBrowserMenu;
@@ -39,7 +41,7 @@ public final class MatchBrowserItem implements ExecutableItem {
      */
     @Override
     public ItemStack toBukkitItem() {
-        return ItemBuilder.item(Material.SLIME_BALL)
+        return ItemBuilder.item(HeadBuilder.customHead(Heads.COMPASS))
                 .name("Match Browser")
                 .addContainerValue("executable_item", this.id())
                 .build();

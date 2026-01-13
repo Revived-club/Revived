@@ -25,7 +25,7 @@ public final class LobbySelectorItem implements ExecutableItem {
 
     @Override
     public ItemStack toBukkitItem() {
-        return ItemBuilder.item(HeadBuilder.customHead(Heads.COMPASS))
+        return ItemBuilder.item(HeadBuilder.customHead(Heads.GLOBE))
                 .name("Lobby Selector")
                 .addContainerValue("executable_item", this.id())
                 .build();
