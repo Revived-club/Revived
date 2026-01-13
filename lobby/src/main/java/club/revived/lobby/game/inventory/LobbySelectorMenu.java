@@ -3,12 +3,12 @@ package club.revived.lobby.game.inventory;
 import club.revived.commons.inventories.inv.ListMenu;
 import club.revived.commons.inventories.inv.button.AbstractButton;
 import club.revived.commons.inventories.util.ColorUtils;
+import club.revived.commons.inventories.util.HeadBuilder;
 import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
-import club.revived.lobby.util.HeadBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -46,12 +46,12 @@ public final class LobbySelectorMenu {
             }
 
             itemBuilders.add(new AbstractButton(-1,
-                    HeadBuilder.setSkullTexture(ItemBuilder.item(Material.PLAYER_HEAD)
+                    ItemBuilder.item(HeadBuilder.customHead(Heads.GLOBE))
                             .name(String.format("<green>● %s", service.getId()))
                             .amount(Math.max(service.getOnlinePlayers().size(), 1))
                             .lore(
                                     ColorUtils.parse("<gray>Click to connect")
-                            ).build(), Heads.GLOBE, ""), event -> {
+                            ).build(), event -> {
                 event.setCancelled(true);
 
                 final var player = PlayerManager.getInstance().fromBukkitPlayer(this.player);

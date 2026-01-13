@@ -8,5 +8,5 @@ package club.revived.commons.inventories.util;
  */
 public final class Heads {
 
-    public static String GLOBE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWY1MjQ5ZmQxZDdmZjI5YmFmYzZjMzdlMDNjNmU5NDE1ODU1OGZkNmNlZDdiMjk2ZGEyMDEwNmE2MjFjNTkwNSJ9fX0=";
+    public static String GLOBE = "http://textures.minecraft.net/texture/5f5249fd1d7ff29bafc6c37e03c6e94158558fd6ced7b296da20106a621c5905";
 }
