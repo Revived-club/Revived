@@ -80,6 +80,7 @@ public final class PartyManager {
             networkPlayer.sendMessage("The party you are in got disbanded");
         }
 
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", party, -1);
         party.setDisbanded(true);
     }
 

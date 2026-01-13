@@ -44,7 +44,7 @@ public final class Party {
     }
 
     public void update() {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, 1);
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         for (final UUID member : this.members)  {
             if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
                 continue;
