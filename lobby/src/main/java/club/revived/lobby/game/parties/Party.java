@@ -72,7 +72,7 @@ public final class Party {
     public void save() {
         Cluster.getInstance()
                 .getGlobalCache()
-                .update("party:" + id, this);
+                .update(this.id, this);
 
         this.update();
     }

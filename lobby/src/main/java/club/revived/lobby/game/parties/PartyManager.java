@@ -75,15 +75,13 @@ public final class PartyManager {
     public void disband(final Party party) {
         final var cache = Cluster.getInstance().getGlobalCache();
 
-        for (final UUID member : party.getMembers()) {
+        for (UUID member : List.copyOf(party.getMembers())) {
             final NetworkPlayer player = PlayerManager.getInstance().fromBukkitPlayer(member);
             player.cacheValue(Party.class, null);
             player.sendMessage("<red>Your party was disbanded");
         }
 
         cache.removeFromList("parties", party.getId(), 1);
-        cache.remove("party:" + party.getId());
-        party.disband();
     }
 
     public void changeOwnership(
