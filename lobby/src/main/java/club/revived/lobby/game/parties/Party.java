@@ -39,12 +39,13 @@ public final class Party {
     }
 
     public void addMember(final UUID uuid) {
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         this.members.add(uuid);
         this.update();
+        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public void update() {
-        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         for (final UUID member : this.members)  {
             if (!PlayerManager.getInstance().getNetworkPlayers().containsKey(member)) {
                 continue;
@@ -53,20 +54,24 @@ public final class Party {
             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(member);
             networkPlayer.cacheValue(Party.class, this);
         }
-
-        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public void setOwner(UUID owner) {
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         this.owner = owner;
+        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public void setOpen(boolean open) {
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         this.open = open;
+        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public void setDisbanded(boolean disbanded) {
+        Cluster.getInstance().getGlobalCache().removeFromList("parties", this, -1);
         this.disbanded = disbanded;
+        Cluster.getInstance().getGlobalCache().push("parties", this);
     }
 
     public UUID getOwner() {
