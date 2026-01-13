@@ -79,6 +79,11 @@ public final class Party {
 
     public void disband() {
         this.disbanded = true;
+
+        for (final var member : this.members) {
+            this.removeMember(member);
+        }
+
         this.save();
     }
 
@@ -97,9 +102,6 @@ public final class Party {
     public void removeMember(final UUID uuid) {
         members.remove(uuid);
         this.save();
-
-        Cluster.getInstance().getGlobalCache()
-                .remove("player:" + uuid + ":party");
     }
 
     public void setOpen(final boolean open) {
