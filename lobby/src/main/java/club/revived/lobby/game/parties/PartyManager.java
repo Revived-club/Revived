@@ -29,8 +29,6 @@ public final class PartyManager {
     private void initializeMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(QuitNetwork.class, quitNetwork -> {
-                    System.out.println("test " + quitNetwork);
-
                     Cluster.getInstance().getGlobalCache()
                             .get(
                                     Party.class,
@@ -49,6 +47,9 @@ public final class PartyManager {
                                         quitNetwork.uuid() + ":" + Party.class.getSimpleName().toLowerCase(),
                                         null
                                 );
+
+                                party.removeMember(quitNetwork.uuid());
+                                party.save();
                             });
                 });
     }
