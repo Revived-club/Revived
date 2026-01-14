@@ -79,7 +79,18 @@ public final class ClickableBillboard {
         action.accept(entity, player);
 
         Bukkit.getScheduler().runTaskLater(Lobby.getInstance(), () -> {
-            update(player);
+            for (final KitType kitType : KitType.values()) {
+                if (!BillboardManager.getInstance().getQueueBillboards().containsKey(kitType)) {
+                    continue;
+                }
+
+                final var billboards = BillboardManager.getInstance().getQueueBillboards().values();
+
+                for (final var billboard : billboards) {
+                    billboard.update(player);
+                }
+            }
+
         }, 20L);
     }
 
