@@ -18,6 +18,7 @@ import club.revived.lobby.service.status.StatusResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -63,11 +64,11 @@ public final class PartyManager {
                 });
     }
 
-    public void make(final NetworkPlayer player) {
-        player.getCachedValue(String.class).thenAccept(existingPartyId -> {
+    public CompletableFuture<Party> make(final NetworkPlayer player) {
+        return player.getCachedValue(String.class).thenApply(existingPartyId -> {
             if (existingPartyId != null) {
                 player.sendMessage("<red>You are already in a party!");
-                return;
+                return null;
             }
 
             final Party party = new Party(
@@ -78,6 +79,8 @@ public final class PartyManager {
 
             player.cacheValue(Party.class, party);
             player.sendMessage("<green>Party created");
+
+            return party;
         });
     }
 

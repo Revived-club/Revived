@@ -236,7 +236,10 @@ public final class PartyCommand {
 
                                     networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
                                         if (party == null) {
-                                            player.sendRichMessage("<red>You are not in a party!");
+                                            this.createAndInvite(
+                                                    networkPlayer,
+                                                    target
+                                            );
                                             return;
                                         }
 
@@ -263,5 +266,22 @@ public final class PartyCommand {
                             PartyManager.getInstance().acceptRequest(networkPlayer);
                         }))
                 .register("revived");
+    }
+
+    private void createAndInvite(
+            final NetworkPlayer networkPlayer,
+            final NetworkPlayer target
+    ) {
+        PartyManager.getInstance().make(networkPlayer).thenAccept(party -> {
+            if (party == null) {
+                return;
+            }
+
+            PartyManager.getInstance().request(
+                    networkPlayer,
+                    target,
+                    party
+            );
+        });
     }
 }

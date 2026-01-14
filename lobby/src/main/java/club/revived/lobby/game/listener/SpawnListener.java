@@ -102,6 +102,20 @@ public final class SpawnListener implements Listener {
      * @param event the entity damage event; will be cancelled if the damager's world is protected
      */
     @EventHandler
+    public void onEntityDamage(final EntityDamageEvent event) {
+        final var world = event.getEntity().getWorld();
+
+        if (PROTECTED_WORLDS.contains(world.getName())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Cancels any damage caused by an entity when the damage occurs in a protected world.
+     *
+     * @param event the entity damage event; will be cancelled if the damager's world is protected
+     */
+    @EventHandler
     public void onEntityDamage(final EntityDamageByEntityEvent event) {
         final var world = event.getDamager().getWorld();
 

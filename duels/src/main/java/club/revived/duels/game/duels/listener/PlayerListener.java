@@ -204,7 +204,7 @@ public final class PlayerListener implements Listener {
                     .toList();
 
             if (survivors.size() <= 1) {
-                final Player winner = survivors.isEmpty() ? player : survivors.get(0);
+                final Player winner = survivors.isEmpty() ? player : survivors.getFirst();
 
                 this.showResult(winner, ffa.getPlayers()
                         .stream()
