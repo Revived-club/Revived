@@ -1,6 +1,7 @@
 package club.revived.lobby.game.command;
 
 import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
+import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.game.inventory.PartyDuelMenu;
 import club.revived.lobby.game.parties.Party;
 import club.revived.lobby.game.parties.PartyManager;
@@ -21,6 +22,25 @@ public final class PartyCommand {
 
     public PartyCommand() {
         new CommandTree("party")
+                .then(new LiteralArgument("ffa")
+                        .executesPlayer((player, _) -> {
+                            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                            networkPlayer.getCachedValue(Party.class).thenAccept(party -> {
+                                if (party == null) {
+                                    player.sendRichMessage("<red>You are not in a party!");
+                                    return;
+                                }
+
+                                if (!party.getOwner().equals(player.getUniqueId())) {
+                                    player.sendRichMessage("<red>You are not owner of the party!");
+                                    return;
+                                }
+
+                                PartyManager.getInstance().startFFA(party, KitType.SWORD);
+                            });
+                        })
+                )
                 .then(new LiteralArgument("duel")
                         .executesPlayer((player, _) -> {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);

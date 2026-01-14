@@ -51,6 +51,7 @@ public final class DuelManager {
 
         this.cluster.getMessagingService().registerMessageHandler(DuelStart.class, this::startDuel);
         this.cluster.getMessagingService().registerMessageHandler(MigrateGame.class, this::migrateGame);
+        this.cluster.getMessagingService().registerMessageHandler(FFAStart.class, this::startFFA);
     }
 
     /**
@@ -439,8 +440,8 @@ public final class DuelManager {
      * @param player the player to check
      * @return `true` if the player is currently in an active duel, `false` otherwise
      */
-    public boolean isDueling(final Player player) {
-        return this.isDueling(player.getUniqueId());
+    public boolean isPlaying(final Player player) {
+        return this.isPlaying(player.getUniqueId());
     }
 
     /**
@@ -449,8 +450,8 @@ public final class DuelManager {
      * @param uuid the player's UUID to check
      * @return `true` if the player with the given UUID is in an active duel, `false` otherwise
      */
-    public boolean isDueling(final UUID uuid) {
-        return this.runningGames.containsKey(uuid) || this.runningGames.containsKey(uuid);
+    public boolean isPlaying(final UUID uuid) {
+        return this.runningGames.containsKey(uuid);
     }
 
     /**

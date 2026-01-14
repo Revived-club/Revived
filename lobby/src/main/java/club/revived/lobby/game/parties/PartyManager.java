@@ -7,6 +7,7 @@ import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.messaging.impl.DuelStart;
+import club.revived.lobby.service.messaging.impl.FFAStart;
 import club.revived.lobby.service.messaging.impl.QuitNetwork;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
@@ -203,6 +204,29 @@ public final class PartyManager {
                     request,
                     120
             );
+        });
+    }
+
+    public void startFFA(
+            final Party party,
+            final KitType kitType
+    ) {
+        final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.DUEL);
+
+        service.sendRequest(new StatusRequest(), StatusResponse.class).thenAccept(statusResponse -> {
+            if (statusResponse.status() != ServiceStatus.AVAILABLE) {
+                party.broadcast("<red>There has been an error with the service you were trying to connect to!");
+                throw new ServiceUnavailableException("requested service is not available");
+            }
+
+            final var teams = ListUtils.splitInHalf(party.getMembers());
+
+            party.broadcast("<green>Starting fight...");
+
+            service.sendMessage(new FFAStart(
+                    party.getMembers(),
+                    kitType
+            ));
         });
     }
 

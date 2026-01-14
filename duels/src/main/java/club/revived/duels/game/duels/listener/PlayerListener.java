@@ -54,7 +54,7 @@ public final class PlayerListener implements Listener {
         final Entity entity = event.getEntity();
 
         if (entity instanceof final Player player) {
-            if (!duelManager.isDueling(player)) return;
+            if (!duelManager.isPlaying(player)) return;
 
             final Game duel = duelManager.getDuel(player);
 
@@ -133,7 +133,7 @@ public final class PlayerListener implements Listener {
             return;
         }
 
-        if (!duelManager.isDueling(victim) && !duelManager.isDueling(attacker)) {
+        if (!duelManager.isPlaying(victim) && !duelManager.isPlaying(attacker)) {
             return;
         }
 
@@ -167,7 +167,7 @@ public final class PlayerListener implements Listener {
         final Player player = event.getPlayer();
         event.quitMessage(null);
 
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
 
@@ -262,7 +262,7 @@ public final class PlayerListener implements Listener {
     public void onDeath(@NotNull PlayerDeathEvent event) {
         final Player player = event.getPlayer();
 
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null || game.getGameState() != GameState.RUNNING) return;
@@ -365,7 +365,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onEntityHit(final EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof final Player player)) return;
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null || game.getGameState() != GameState.RUNNING) return;
@@ -391,7 +391,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onFallDamage(final EntityDamageEvent event) {
         if (!(event.getEntity() instanceof final Player player)) return;
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null) return;
@@ -417,7 +417,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onInteract(final PlayerInteractEvent event) {
         final Player player = event.getPlayer();
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null) return;
@@ -438,7 +438,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onGenericDamage(final EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null) return;
@@ -458,7 +458,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onDrop(final PlayerDropItemEvent event) {
         final Player player = event.getPlayer();
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null) return;
@@ -476,7 +476,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onPickUp(final PlayerAttemptPickupItemEvent event) {
         final Player player = event.getPlayer();
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
         if (game == null) return;
@@ -497,7 +497,7 @@ public final class PlayerListener implements Listener {
     public void onBlockPlace(final BlockPlaceEvent event) {
         final var player = event.getPlayer();
 
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final var game = duelManager.getDuel(player);
 
@@ -536,7 +536,7 @@ public final class PlayerListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         final Player player = event.getPlayer();
 
-        if (!duelManager.isDueling(player)) return;
+        if (!duelManager.isPlaying(player)) return;
 
         final Game game = duelManager.getDuel(player);
 
