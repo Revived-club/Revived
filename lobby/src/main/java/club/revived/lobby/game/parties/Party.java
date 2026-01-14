@@ -49,6 +49,12 @@ public final class Party {
                 .toList();
     }
 
+    public void broadcast(final String message) {
+        for (final var player : this.players()) {
+            player.sendMessage(message);
+        }
+    }
+
     public String getId() {
         return id;
     }

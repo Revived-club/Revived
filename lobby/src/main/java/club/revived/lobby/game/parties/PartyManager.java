@@ -1,10 +1,18 @@
 package club.revived.lobby.game.parties;
 
+import club.revived.commons.generic.ListUtils;
+import club.revived.lobby.game.duel.DuelManager;
+import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
+import club.revived.lobby.service.exception.ServiceUnavailableException;
+import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.messaging.impl.QuitNetwork;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
+import club.revived.lobby.service.status.ServiceStatus;
+import club.revived.lobby.service.status.StatusRequest;
+import club.revived.lobby.service.status.StatusResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -195,6 +203,34 @@ public final class PartyManager {
                     request,
                     120
             );
+        });
+    }
+
+    public void startGame(
+            final Party party,
+            final int rounds,
+            final KitType kitType
+    ) {
+        final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.DUEL);
+
+        service.sendRequest(new StatusRequest(), StatusResponse.class).thenAccept(statusResponse -> {
+            if (statusResponse.status() != ServiceStatus.AVAILABLE) {
+                party.broadcast("<red>There has been an error with the service you were trying to connect to!");
+                throw new ServiceUnavailableException("requested service is not available");
+            }
+
+            final var teams = ListUtils.splitInHalf(party.getMembers());
+            final var redTeam = teams.getFirst();
+            final var blueTeam = teams.getFirst();
+
+            party.broadcast("<green>Starting message...");
+
+            service.sendMessage(new DuelStart(
+                    blueTeam,
+                    redTeam,
+                    rounds,
+                    kitType
+            ));
         });
     }
 
