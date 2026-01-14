@@ -221,7 +221,7 @@ public final class PartyManager {
 
             final var teams = ListUtils.splitInHalf(party.getMembers());
             final var redTeam = teams.getFirst();
-            final var blueTeam = teams.getFirst();
+            final var blueTeam = teams.get(1);
 
             party.broadcast("<green>Starting message...");
 
