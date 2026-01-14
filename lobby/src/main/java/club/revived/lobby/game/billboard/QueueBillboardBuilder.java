@@ -3,6 +3,10 @@ package club.revived.lobby.game.billboard;
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.lobby.Lobby;
 import club.revived.lobby.game.duel.KitType;
+import club.revived.lobby.game.duel.QueueType;
+import club.revived.lobby.service.cluster.Cluster;
+import club.revived.lobby.service.messaging.impl.QueuedAmountRequest;
+import club.revived.lobby.service.messaging.impl.QueuedAmountResponse;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.tofaa.entitylib.meta.display.AbstractDisplayMeta;
@@ -58,7 +62,7 @@ public final class QueueBillboardBuilder {
 
     /**
      * Builds and displays a queue billboard for the configured kit type at the configured location.
-     *
+     * <p>
      * Constructs and spawns the main text display that shows the current solo queue count, creates and spawns
      * an interactive button associated with that display, stores the provided callback for interaction events,
      * and schedules a repeating task to refresh the displayed queue count.
@@ -104,33 +108,42 @@ public final class QueueBillboardBuilder {
 
     /**
      * Periodically updates the given billboard's displayed text to show the current solo queue count for this builder's KitType.
-     *
+     * <p>
      * The task runs every 20 ticks and replaces the billboard's text with a formatted string containing the kit name and current queued players.
      *
      * @param billboard the wrapper entity whose TextDisplayMeta will be updated on each interval
      */
     private void queueUpdateTask(final WrapperEntity billboard) {
         Bukkit.getScheduler().runTaskTimer(Lobby.getInstance(), () -> {
-            final TextDisplayMeta textMeta = (TextDisplayMeta) billboard.getEntityMeta();
+            Cluster.getInstance().getMessagingService()
+                    .sendRequest(
+                            "queue-service",
+                            new QueuedAmountRequest(kitType, QueueType.SOLO),
+                            QueuedAmountResponse.class
+                    )
+                    .thenAccept(queuedAmountResponse -> {
+                        final TextDisplayMeta textMeta = (TextDisplayMeta) billboard.getEntityMeta();
 
-            textMeta.setText(ColorUtils.parse("""
-                    <#3B82F6><bold><type> Queue<reset>
-                    <gray><queue>/2
-                    
-                    """
-                    .replace("<type>", this.kitType.getBeautifiedName())
-                    .replace("<queue>", "Test")
-            ));
+                        textMeta.setText(ColorUtils.parse("""
+                                <#3B82F6><bold><type> Queue<reset>
+                                <gray><queue>/2
+                                
+                                """
+                                .replace("<type>", this.kitType.getBeautifiedName())
+                                .replace("<queue>", String.valueOf(queuedAmountResponse.amount()))
+                        ));
+                    });
+
         }, 0, 20L);
     }
 
     /**
      * Creates and registers an interactive "Click Me" button at the given location and associates it with the provided billboard.
-     *
+     * <p>
      * The method spawns a styled text display and an interaction hitbox, registers a ClickableBillboard with the BillboardManager
      * (both by kit type and by interaction entity id), and makes the entities visible to all currently online players.
      *
-     * @param location the Bukkit location where the button and its interaction area should be spawned
+     * @param location  the Bukkit location where the button and its interaction area should be spawned
      * @param billboard the main billboard entity to associate with the created interactive button
      */
     private void createButton(final Location location, final WrapperEntity billboard) {

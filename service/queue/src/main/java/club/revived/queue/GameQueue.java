@@ -2,10 +2,7 @@ package club.revived.queue;
 
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ServiceType;
-import club.revived.queue.cluster.messaging.impl.AddToQueue;
-import club.revived.queue.cluster.messaging.impl.DuelStart;
-import club.revived.queue.cluster.messaging.impl.IsQueuedRequest;
-import club.revived.queue.cluster.messaging.impl.IsQueuedResponse;
+import club.revived.queue.cluster.messaging.impl.*;
 import club.revived.queue.cluster.player.PlayerManager;
 import club.revived.queue.cluster.status.ServiceStatus;
 import club.revived.queue.cluster.status.StatusRequest;
@@ -65,6 +62,25 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
      * Registers message handlers for the queue
      */
     private void registerMessageHandlers() {
+        Cluster.getInstance().getMessagingService()
+                .registerHandler(QueuedAmountRequest.class, queuedAmountRequest -> {
+                    final var kitType = queuedAmountRequest.kitType();
+
+                    if (!this.queue.containsKey(kitType)) {
+                        return new QueuedAmountResponse(0);
+                    }
+
+                    final var allQueues = this.queue.get(kitType);
+
+                    if (allQueues.containsKey(queuedAmountRequest.queueType())) {
+                        return new QueuedAmountResponse(0);
+                    }
+
+                    final var queued = allQueues.get(queuedAmountRequest.queueType());
+
+                    return new QueuedAmountResponse(queued.size());
+                });
+
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(AddToQueue.class, addToQueue -> {
                     final UUID uuid = addToQueue.uuid();
