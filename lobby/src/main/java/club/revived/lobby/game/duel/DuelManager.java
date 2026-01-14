@@ -6,6 +6,7 @@ import club.revived.lobby.service.exception.ServiceUnavailableException;
 import club.revived.lobby.service.messaging.impl.DuelEnd;
 import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.messaging.impl.AddToQueue;
+import club.revived.lobby.service.messaging.impl.FFAEnd;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
@@ -44,6 +45,14 @@ public final class DuelManager {
                     uuids.addAll(duelEnd.loser());
 
                     for (final var uuid : uuids) {
+                        final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
+                        networkPlayer.connectHere();
+                    }
+                });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(FFAEnd.class, ffaEnd -> {
+                    for (final var uuid : ffaEnd.participants()) {
                         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
                         networkPlayer.connectHere();
                     }
