@@ -72,6 +72,11 @@ public final class DuelBiome implements IArena {
 
     }
 
+    @Override
+    public @NotNull Location getCenter() {
+        return null;
+    }
+
     /**
      * Provides the ArenaType that identifies this arena implementation.
      *
