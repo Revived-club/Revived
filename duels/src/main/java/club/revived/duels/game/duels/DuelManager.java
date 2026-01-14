@@ -5,12 +5,16 @@ import club.revived.commons.player.PlayerJoinTracker;
 import club.revived.duels.Duels;
 import club.revived.duels.game.arena.IArena;
 import club.revived.duels.game.arena.pooling.ArenaPoolManager;
+import club.revived.duels.game.duels.ffa.FFA;
 import club.revived.duels.game.kit.EditedDuelKit;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.messaging.impl.DuelEnd;
 import club.revived.duels.service.messaging.impl.DuelStart;
+import club.revived.duels.service.messaging.impl.FFAEnd;
+import club.revived.duels.service.messaging.impl.FFAStart;
 import club.revived.duels.service.messaging.impl.MigrateGame;
+import club.revived.duels.service.player.NetworkPlayer;
 import club.revived.duels.service.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -20,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +35,8 @@ import java.util.stream.Collectors;
  */
 public final class DuelManager {
 
-    private final Map<UUID, Duel> runningDuels = new HashMap<>();
+    private final Map<UUID, Game> runningGames = new ConcurrentHashMap<>();
+
     private final Cluster cluster = Cluster.getInstance();
 
     private static DuelManager instance;
@@ -88,7 +94,7 @@ public final class DuelManager {
             networkPlayers.forEach(networkPlayer -> {
                 networkPlayer.sendMessage("<red>There has been an issue with " + game.gameServerId());
                 networkPlayer.connectHere();
-                this.runningDuels.put(networkPlayer.getUuid(), duel);
+                this.runningGames.put(networkPlayer.getUuid(), duel);
             });
 
             PlayerJoinTracker.of(Duels.getInstance(), duel.getUUIDs(), players -> {
@@ -117,7 +123,7 @@ public final class DuelManager {
                             player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]))
                     );
 
-                    this.runningDuels.put(player.getUniqueId(), duel);
+                    this.runningGames.put(player.getUniqueId(), duel);
                 }
 
                 for (final Player redPlayer : duel.getRedPlayers()) {
@@ -128,7 +134,61 @@ public final class DuelManager {
                     bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
                 }
 
-                new DuelStartTask(3, duel);
+                new GameStartTask(3, duel);
+            });
+        });
+    }
+
+    public void startFFA(
+            final FFAStart ffaStart
+            ) {
+        final KitType kitType = ffaStart.kitType();
+
+        ArenaPoolManager.getInstance().getArena(kitType).thenAccept(arena -> {
+            final var ffa = new FFA(
+                    ffaStart.players(),
+                    ffaStart.kitType(),
+                    arena
+            );
+
+            final var networkPlayers = ffa.getUUIDs().stream()
+                    .map(uuid -> PlayerManager.getInstance().fromBukkitPlayer(uuid))
+                    .toList();
+
+            networkPlayers.forEach(NetworkPlayer::connectHere);
+
+            PlayerJoinTracker.of(Duels.getInstance(), ffa.getUUIDs(), players -> {
+                for (final var player : players) {
+                    player.sendRichMessage("""
+                            
+                            <#3B82F6><bold>FFA Info<reset>
+                            <white>Duel Kit: <#3B82F6><kit>
+                            <white>Players: <#3B82F6><players>
+                            
+                            """
+                            .replace("<kit>", kitType.getBeautifiedName())
+                            .replace("<players>", String.join(", ", players
+                                    .stream()
+                                    .map(Player::getName)
+                                    .toArray(String[]::new)))
+                    );
+
+                    this.healPlayer(player);
+
+                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+
+                    networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit ->
+                            player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0]))
+                    );
+
+                    this.runningGames.put(networkPlayer.getUuid(), ffa);
+                }
+
+                for (final Player player : ffa.getPlayers()) {
+                    player.teleportAsync(arena.getCenter());
+                }
+
+                new GameStartTask(3, ffa);
             });
         });
     }
@@ -143,19 +203,13 @@ public final class DuelManager {
      *                  and the kit type to use for the duel
      */
     private void startDuel(final DuelStart duelStart) {
-        System.out.println("duel start");
         final List<UUID> blueTeam = duelStart.blueTeam();
         final List<UUID> redTeam = duelStart.redTeam();
-
-        System.out.println(duelStart.blueTeam());
-        System.out.println(duelStart.redTeam());
 
         final int rounds = duelStart.rounds();
         final KitType kitType = duelStart.kitType();
 
         ArenaPoolManager.getInstance().getArena(kitType).thenAccept(arena -> {
-            System.out.println("arena");
-
             final var duel = new Duel(
                     blueTeam,
                     redTeam,
@@ -176,7 +230,7 @@ public final class DuelManager {
 
             networkPlayers.forEach(networkPlayer -> {
                 networkPlayer.connectHere();
-                this.runningDuels.put(networkPlayer.getUuid(), duel);
+                this.runningGames.put(networkPlayer.getUuid(), duel);
             });
 
             PlayerJoinTracker.of(Duels.getInstance(), uuids, players -> {
@@ -202,7 +256,7 @@ public final class DuelManager {
 
                     networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0])));
 
-                    this.runningDuels.put(player.getUniqueId(), duel);
+                    this.runningGames.put(player.getUniqueId(), duel);
                 }
 
                 for (final Player redPlayer : duel.getRedPlayers()) {
@@ -213,7 +267,7 @@ public final class DuelManager {
                     bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
                 }
 
-                new DuelStartTask(3, duel);
+                new GameStartTask(3, duel);
             });
         });
     }
@@ -245,7 +299,7 @@ public final class DuelManager {
                 .collect(Collectors.joining(", "));
 
         for (final var player : duel.getPlayers()) {
-            this.runningDuels.remove(player.getUniqueId());
+            this.runningGames.remove(player.getUniqueId());
             this.healPlayer(player);
 
             player.sendRichMessage("""
@@ -281,6 +335,42 @@ public final class DuelManager {
                             loser.getScore(),
                             duel.getKitType(),
                             0L // TODO: Impl
+                    ));
+        }, 60L);
+    }
+
+    public void endFFA(
+            final FFA ffa,
+            final Player winner
+    ) {
+        ffa.setGameState(GameState.ENDING);
+
+        for (final var player : ffa.getPlayers()) {
+            this.runningGames.remove(player.getUniqueId());
+            this.healPlayer(player);
+
+            player.sendRichMessage("""
+                        
+                        <#3B82F6><bold>FFA Summary</bold><reset>
+                        
+                        <white>Kit:</white> <#3B82F6>%s
+                        <white>Duration:</white> <#3B82F6>%s
+                        <white>Winner: <#3B82F6>%s
+                        """.formatted(
+                    ffa.getKitType().getBeautifiedName(),
+                    ffa.getElapsedTimeFormatter().getElapsedTime(),
+                    winner.getName()
+            ));
+        }
+
+        Bukkit.getScheduler().runTaskLater(Duels.getInstance(), () -> {
+            ffa.discard();
+            this.cluster.getLeastLoadedService(ServiceType.LOBBY)
+                    .sendMessage(new FFAEnd(
+                            winner.getUniqueId(),
+                            ffa.getUUIDs(),
+                            ffa.getKitType(),
+                            0L
                     ));
         }, 60L);
     }
@@ -323,7 +413,7 @@ public final class DuelManager {
             networkPlayer.getCachedOrLoad(EditedDuelKit.class).thenAccept(editedDuelKit -> player.getInventory().setContents(editedDuelKit.content().values().toArray(new ItemStack[0])));
         }
 
-        new DuelStartTask(3, duel);
+        new GameStartTask(3, duel);
     }
 
     /**
@@ -360,7 +450,7 @@ public final class DuelManager {
      * @return `true` if the player with the given UUID is in an active duel, `false` otherwise
      */
     public boolean isDueling(final UUID uuid) {
-        return this.runningDuels.containsKey(uuid);
+        return this.runningGames.containsKey(uuid) || this.runningGames.containsKey(uuid);
     }
 
     /**
@@ -370,8 +460,8 @@ public final class DuelManager {
      * @return the player's active {@link Duel}, or `null` if the player is not in a duel
      */
     @Nullable
-    public Duel getDuel(final Player player) {
-        return this.getDuel(player.getUniqueId());
+    public Game getDuel(final Player player) {
+        return this.getGame(player.getUniqueId());
     }
 
     /**
@@ -381,20 +471,12 @@ public final class DuelManager {
      * @return the Duel the participant is currently in, or {@code null} if none
      */
     @Nullable
-    public Duel getDuel(final UUID uuid) {
-        return this.runningDuels.get(uuid);
+    public Game getGame(final UUID uuid) {
+        return this.runningGames.get(uuid);
     }
 
-    /**
-     * Get the live registry of active duels keyed by participant UUID.
-     * <p>
-     * The returned map associates each participant's UUID with the Duel they are currently in.
-     * Modifying this map will modify the manager's internal state.
-     *
-     * @return the map from player UUID to their active Duel
-     */
-    public Map<UUID, Duel> getRunningDuels() {
-        return runningDuels;
+    public Map<UUID, Game> getRunningGames() {
+        return runningGames;
     }
 
     /**

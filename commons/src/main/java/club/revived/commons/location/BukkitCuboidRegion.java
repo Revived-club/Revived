@@ -281,4 +281,25 @@ public final class BukkitCuboidRegion {
             }
         };
     }
+
+    /**
+     * Gets the geometric center of this cuboid region.
+     *
+     * <p>
+     * The returned location represents the midpoint between the region's minimum
+     * and maximum block coordinates. The coordinates are offset by 0.5 so that the
+     * center lies in the middle of blocks rather than on block edges.
+     * </p>
+     *
+     * @return a {@link Location} representing the center of this region
+     */
+    @NotNull
+    public Location getCenter() {
+        final double centerX = (minX + maxX) / 2.0 + 0.5;
+        final double centerY = (minY + maxY) / 2.0 + 0.5;
+        final double centerZ = (minZ + maxZ) / 2.0 + 0.5;
+
+        return new Location(world, centerX, centerY, centerZ);
+    }
+
 }

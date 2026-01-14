@@ -15,11 +15,11 @@ import java.util.List;
  * @author yyuh
  * @since 04.01.26
  */
-public final class DuelStartTask extends BukkitRunnable {
+public final class GameStartTask extends BukkitRunnable {
 
     private int cooldown;
     private final List<Player> players;
-    private final Duel duel;
+    private final Game duel;
 
     /**
      * Initializes and schedules a countdown task that prepares and starts the given duel.
@@ -30,9 +30,9 @@ public final class DuelStartTask extends BukkitRunnable {
      * @param cooldown the starting countdown value in seconds before the duel begins
      * @param duel the Duel instance this task will manage
      */
-    public DuelStartTask(
+    public GameStartTask(
             final int cooldown,
-            final Duel duel
+            final Game duel
     ) {
         this.cooldown = cooldown;
         this.players = duel.getPlayers();

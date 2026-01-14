@@ -19,7 +19,7 @@ import java.util.UUID;
  * @author yyuh
  * @since 03.01.26
  */
-public final class Duel {
+public final class Duel implements Game {
 
     private final DuelTeam blueTeam;
     private final DuelTeam redTeam;
@@ -32,7 +32,7 @@ public final class Duel {
 
     private GameState gameState = GameState.PREPARING;
 
-    private Game game;
+    private GameData game;
 
     /**
      * Creates a Duel for the given blue and red team members using the specified rounds, kit, and arena.
@@ -210,7 +210,7 @@ public final class Duel {
     private void updateGame() {
         this.deleteGame();
 
-        this.game = new Game(
+        this.game = new GameData(
                 this.blueTeam.getUuids(),
                 this.redTeam.getUuids(),
                 this.rounds,
@@ -257,6 +257,7 @@ public final class Duel {
      *
      * @return the KitType for this duel
      */
+    @Override
     public KitType getKitType() {
         return kitType;
     }
@@ -275,6 +276,7 @@ public final class Duel {
      *
      * @return the current {@link GameState} representing the duel's state
      */
+    @Override
     public GameState getGameState() {
         return gameState;
     }
@@ -284,6 +286,7 @@ public final class Duel {
      *
      * @param gameState the new GameState for this duel
      */
+    @Override
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
 
@@ -295,7 +298,8 @@ public final class Duel {
      *
      * @return the current Game backing this Duel
      */
-    public Game getGame() {
+    @Override
+    public GameData getData() {
         return game;
     }
 
@@ -304,6 +308,7 @@ public final class Duel {
      *
      * @return the {@link IArena} where the duel takes place
      */
+    @Override
     public IArena getArena() {
         return arena;
     }

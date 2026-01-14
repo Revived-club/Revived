@@ -1,6 +1,7 @@
 package club.revived.duels.game.arena.impl;
 
 import club.revived.commons.generic.StringUtils;
+import club.revived.commons.location.BukkitCuboidRegion;
 import club.revived.commons.worldedit.SchematicPaster;
 import club.revived.duels.game.arena.ArenaType;
 import club.revived.duels.game.arena.IArena;
@@ -26,6 +27,7 @@ public final class DuelArena implements IArena {
     private final Location corner1;
     private final Location corner2;
     private final ArenaType arenaType;
+    private final BukkitCuboidRegion region;
     private Location spawn1;
     private Location spawn2;
 
@@ -77,6 +79,10 @@ public final class DuelArena implements IArena {
         this.id = id;
         this.arenaType = arenaType;
         this.schematic = schematic;
+        this.region = new BukkitCuboidRegion(
+                corner1,
+                corner2
+        );
     }
 
     /**
@@ -90,6 +96,11 @@ public final class DuelArena implements IArena {
     public void generate(final Location location) {
         log.info("Pasting schematic for arena {}", this.id);
         SchematicPaster.paste(this.schematic, this.corner1);
+    }
+
+    @Override
+    public @NotNull Location getCenter() {
+        return this.region.getCenter();
     }
 
     /**

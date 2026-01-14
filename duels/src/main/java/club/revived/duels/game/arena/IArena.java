@@ -52,11 +52,11 @@ public interface IArena {
     String getId();
 
     /**
- * Generate and place this arena at the specified location.
- *
- * @param location the world location that serves as the anchor or reference point for generation
- */
-void generate(final Location location);
+     * Generate and place this arena at the specified location.
+     *
+     * @param location the world location that serves as the anchor or reference point for generation
+     */
+    void generate(final Location location);
 
     /**
      * Gets the arena's type.
@@ -65,5 +65,8 @@ void generate(final Location location);
      */
     @NotNull
     ArenaType getArenaType();
+
+    @NotNull
+    Location getCenter();
 
 }

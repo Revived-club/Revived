@@ -223,7 +223,7 @@ public final class PartyManager {
             final var redTeam = teams.getFirst();
             final var blueTeam = teams.get(1);
 
-            party.broadcast("<green>Starting message...");
+            party.broadcast("<green>Starting fight...");
 
             service.sendMessage(new DuelStart(
                     blueTeam,

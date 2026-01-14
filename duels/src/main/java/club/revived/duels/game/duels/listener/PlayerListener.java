@@ -7,6 +7,7 @@ import club.revived.duels.game.arena.ArenaType;
 import club.revived.duels.game.arena.IArena;
 import club.revived.duels.game.arena.impl.DuelArena;
 import club.revived.duels.game.duels.*;
+import club.revived.duels.game.duels.ffa.FFA;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -55,7 +56,7 @@ public final class PlayerListener implements Listener {
         if (entity instanceof final Player player) {
             if (!duelManager.isDueling(player)) return;
 
-            final Duel duel = duelManager.getDuel(player);
+            final Game duel = duelManager.getDuel(player);
 
             if (duel == null) {
                 return;
@@ -136,17 +137,19 @@ public final class PlayerListener implements Listener {
             return;
         }
 
-        final Duel duel = duelManager.getDuel(victim);
+        final Game game = duelManager.getDuel(victim);
 
-        if (duel == null) {
+        if (game == null) {
             return;
         }
 
-        final var victimTeam = duel.getTeam(victim);
+        if (game instanceof final Duel duel) {
+            final var victimTeam = duel.getTeam(victim);
 
-        if (victimTeam.hasPlayer(attacker)) {
-            attacker.sendRichMessage("<red>You can't attack your Team Mates!");
-            event.setCancelled(true);
+            if (victimTeam.hasPlayer(attacker)) {
+                attacker.sendRichMessage("<red>You can't attack your Team Mates!");
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -166,30 +169,47 @@ public final class PlayerListener implements Listener {
 
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
+        final Game game = duelManager.getDuel(player);
 
-        if (duel == null || duel.getGameState() == GameState.ENDING) return;
+        if (game == null || game.getGameState() == GameState.ENDING) return;
 
-        final var playerTeam = duel.getTeam(player);
-        final var winnerTeam = duel.getOpposing(playerTeam);
+        if (game instanceof final Duel duel) {
+            final var playerTeam = duel.getTeam(player);
+            final var winnerTeam = duel.getOpposing(playerTeam);
 
-        if (isWholeTeamDead(playerTeam)) {
-            winnerTeam.addScore(1);
-            duel.setGameState(GameState.ENDING);
+            if (isWholeTeamDead(playerTeam)) {
+                winnerTeam.addScore(1);
+                duel.setGameState(GameState.ENDING);
 
-            showResults(playerTeam, winnerTeam);
+                showResults(playerTeam, winnerTeam);
 
-            duelManager.endDuel(
-                    duel,
-                    winnerTeam,
-                    playerTeam
-            );
+                duelManager.endDuel(
+                        duel,
+                        winnerTeam,
+                        playerTeam
+                );
 
-        } else {
-            for (Player duelPlayer : duel.getPlayers()) {
-                duelPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <gray><player> quit the game and got kicked from the duel.".replace("<player>", player.getName()));
+            } else {
+                for (Player duelPlayer : duel.getPlayers()) {
+                    duelPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <gray><player> quit the game and got kicked from the duel.".replace("<player>", player.getName()));
+                }
+            }
+        } else if (game instanceof final FFA ffa) {
+            for (final Player ffaPlayer : ffa.getPlayers()) {
+                ffaPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <gray><player> quit the game and got kicked from the FFA.".replace("<player>", player.getName()));
+            }
+
+            final List<Player> survivors = ffa.getPlayers().stream()
+                    .filter(p -> p.getGameMode() != GameMode.SPECTATOR && !p.getUniqueId().equals(player.getUniqueId()))
+                    .toList();
+
+            if (survivors.size() <= 1) {
+                final Player winner = survivors.isEmpty() ? player : survivors.get(0);
+                duelManager.endFFA(ffa, winner);
             }
         }
+
+
     }
 
     /**
@@ -244,33 +264,49 @@ public final class PlayerListener implements Listener {
 
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null || duel.getGameState() != GameState.RUNNING) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null || game.getGameState() != GameState.RUNNING) return;
 
         event.deathMessage(null);
         event.setCancelled(true);
 
         player.setGameMode(GameMode.SPECTATOR);
 
-        final DuelTeam victimTeam = duel.getTeam(player);
+        if (game instanceof final Duel duel) {
+            final DuelTeam victimTeam = duel.getTeam(player);
 
-        for (final Player duelPlayer : duel.getPlayers()) {
-            duelPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <victim> died"
-                    .replace("<victim>", player.getName()));
-        }
+            for (final Player duelPlayer : duel.getPlayers()) {
+                duelPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <victim> died"
+                        .replace("<victim>", player.getName()));
+            }
 
-        if (!isWholeTeamDead(victimTeam)) return;
+            if (!isWholeTeamDead(victimTeam)) return;
 
-        final DuelTeam winnerTeam = duel.getOpposing(victimTeam);
-        winnerTeam.addScore(1);
-        duel.setGameState(GameState.ENDING);
+            final DuelTeam winnerTeam = duel.getOpposing(victimTeam);
+            winnerTeam.addScore(1);
+            duel.setGameState(GameState.ENDING);
 
-        showResults(victimTeam, winnerTeam);
+            showResults(victimTeam, winnerTeam);
 
-        if (duel.isOver()) {
-            duelManager.endDuel(duel, winnerTeam, victimTeam);
-        } else {
-            Bukkit.getScheduler().runTaskLater(instance, () -> duelManager.startNewRound(duel), 40L);
+            if (duel.isOver()) {
+                duelManager.endDuel(duel, winnerTeam, victimTeam);
+            } else {
+                Bukkit.getScheduler().runTaskLater(instance, () -> duelManager.startNewRound(duel), 40L);
+            }
+        } else if (game instanceof final FFA ffa) {
+            for (final Player ffaPlayer : ffa.getPlayers()) {
+                ffaPlayer.sendRichMessage("<gray>\uD83D\uDDE1 <victim> died"
+                        .replace("<victim>", player.getName()));
+            }
+
+            final List<Player> survivors = ffa.getPlayers().stream()
+                    .filter(p -> p.getGameMode() != GameMode.SPECTATOR)
+                    .toList();
+
+            if (survivors.size() <= 1) {
+                final Player winner = survivors.isEmpty() ? player : survivors.get(0);
+                duelManager.endFFA(ffa, winner);
+            }
         }
     }
 
@@ -331,10 +367,10 @@ public final class PlayerListener implements Listener {
         if (!(event.getEntity() instanceof final Player player)) return;
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null || duel.getGameState() != GameState.RUNNING) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null || game.getGameState() != GameState.RUNNING) return;
 
-        if (duel.getKitType() != KitType.SPLEEF) return;
+        if (game.getKitType() != KitType.SPLEEF) return;
 
         if (event.getDamager() instanceof org.bukkit.entity.Snowball) {
             event.setDamage(0.1);
@@ -357,16 +393,16 @@ public final class PlayerListener implements Listener {
         if (!(event.getEntity() instanceof final Player player)) return;
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null) return;
 
-        if (duel.getGameState() != GameState.RUNNING) {
+        if (game.getGameState() != GameState.RUNNING) {
             event.setCancelled(true);
             return;
         }
 
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL
-                && duel.getKitType() == KitType.SPLEEF) {
+                && game.getKitType() == KitType.SPLEEF) {
             event.setCancelled(true);
         }
     }
@@ -383,10 +419,10 @@ public final class PlayerListener implements Listener {
         final Player player = event.getPlayer();
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null) return;
 
-        if (duel.getGameState() != GameState.RUNNING) {
+        if (game.getGameState() != GameState.RUNNING) {
             event.setCancelled(true);
         }
     }
@@ -404,10 +440,10 @@ public final class PlayerListener implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null) return;
 
-        if (duel.getGameState() != GameState.RUNNING) {
+        if (game.getGameState() != GameState.RUNNING) {
             event.setCancelled(true);
         }
     }
@@ -424,10 +460,10 @@ public final class PlayerListener implements Listener {
         final Player player = event.getPlayer();
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null) return;
 
-        if (duel.getGameState() != GameState.RUNNING) {
+        if (game.getGameState() != GameState.RUNNING) {
             event.setCancelled(true);
         }
     }
@@ -442,10 +478,10 @@ public final class PlayerListener implements Listener {
         final Player player = event.getPlayer();
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
-        if (duel == null) return;
+        final Game game = duelManager.getDuel(player);
+        if (game == null) return;
 
-        if (duel.getGameState() == GameState.ENDING) {
+        if (game.getGameState() == GameState.ENDING) {
             event.setCancelled(true);
         }
     }
@@ -463,19 +499,19 @@ public final class PlayerListener implements Listener {
 
         if (!duelManager.isDueling(player)) return;
 
-        final var duel = duelManager.getDuel(player);
+        final var game = duelManager.getDuel(player);
 
-        if (duel == null) {
+        if (game == null) {
             return;
         }
 
-        if (duel.getGameState() == GameState.ENDING ||
-                duel.getGameState() == GameState.STARTING) {
+        if (game.getGameState() == GameState.ENDING ||
+                game.getGameState() == GameState.STARTING) {
             event.setCancelled(true);
             return;
         }
 
-        final IArena arena = duel.getArena();
+        final IArena arena = game.getArena();
 
         if (arena.getArenaType() == ArenaType.INTERACTIVE) {
             return;
@@ -502,19 +538,19 @@ public final class PlayerListener implements Listener {
 
         if (!duelManager.isDueling(player)) return;
 
-        final Duel duel = duelManager.getDuel(player);
+        final Game game = duelManager.getDuel(player);
 
-        if (duel == null) {
+        if (game == null) {
             return;
         }
 
-        if (duel.getGameState() == GameState.ENDING ||
-                duel.getGameState() == GameState.STARTING) {
+        if (game.getGameState() == GameState.ENDING ||
+                game.getGameState() == GameState.STARTING) {
             event.setCancelled(true);
             return;
         }
 
-        final IArena arena = duel.getArena();
+        final IArena arena = game.getArena();
 
         if (arena instanceof final DuelArena duelArena) {
             final Location location = event.getBlock().getLocation();
@@ -603,11 +639,11 @@ public final class PlayerListener implements Listener {
      */
     @EventHandler
     public void onFireSpawn(final BlockIgniteEvent event) {
-        for (final Duel duel : duelManager.getRunningDuels().values()) {
-            if (duel.getGameState() == GameState.ENDING ||
-                    duel.getGameState() == GameState.STARTING) continue;
+        for (final Game game : duelManager.getRunningGames().values()) {
+            if (game.getGameState() == GameState.ENDING ||
+                    game.getGameState() == GameState.STARTING) continue;
 
-            final IArena arena = duel.getArena();
+            final IArena arena = game.getArena();
 
             final BukkitCuboidRegion region = new BukkitCuboidRegion(
                     arena.getCorner1(),
@@ -631,12 +667,12 @@ public final class PlayerListener implements Listener {
      * @param location the world location to record (evaluated at block precision)
      */
     private void trackModifiedBlockInArena(final Location location) {
-        for (final Duel duel : duelManager.getRunningDuels().values()) {
-            if (duel.getGameState() == GameState.STARTING ||
-                    duel.getGameState() == GameState.ENDING
+        for (final Game game : duelManager.getRunningGames().values()) {
+            if (game.getGameState() == GameState.STARTING ||
+                    game.getGameState() == GameState.ENDING
             ) continue;
 
-            final IArena arena = duel.getArena();
+            final IArena arena = game.getArena();
 
             if (arena instanceof final DuelArena duelArena) {
                 final BukkitCuboidRegion region = new BukkitCuboidRegion(
