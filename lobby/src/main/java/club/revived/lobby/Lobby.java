@@ -22,6 +22,7 @@ import club.revived.lobby.game.listener.SpawnListener;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
+import club.revived.lobby.service.cluster.ClusterService;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
@@ -30,9 +31,11 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.tofaa.entitylib.APIConfig;
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -100,6 +103,19 @@ public final class Lobby extends JavaPlugin {
     @Override
     public void onDisable() {
         Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+
+        final List<ClusterService> limboServers = Cluster.getInstance().getServices().values()
+                .stream()
+                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+                .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+                .toList();
+
+        for (final var player : Bukkit.getOnlinePlayers()) {
+            final var networkPlayer = PlayerManager.getInstance()
+                    .fromBukkitPlayer(player);
+
+            networkPlayer.connect(limboServers.getFirst());
+        }
     }
 
     /**
