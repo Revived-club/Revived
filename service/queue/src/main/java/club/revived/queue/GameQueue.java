@@ -72,7 +72,7 @@ public final class GameQueue implements IQueue<UUID, QueueEntry> {
 
                     final var allQueues = this.queue.get(kitType);
 
-                    if (allQueues.containsKey(queuedAmountRequest.queueType())) {
+                    if (!allQueues.containsKey(queuedAmountRequest.queueType())) {
                         return new QueuedAmountResponse(0);
                     }
 
