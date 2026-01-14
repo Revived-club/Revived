@@ -205,6 +205,13 @@ public final class PlayerListener implements Listener {
 
             if (survivors.size() <= 1) {
                 final Player winner = survivors.isEmpty() ? player : survivors.get(0);
+
+                this.showResult(winner, ffa.getPlayers()
+                        .stream()
+                        .filter(p -> !p.getUniqueId().equals(winner.getUniqueId()))
+                        .toList()
+                );
+
                 duelManager.endFFA(ffa, winner);
             }
         }
@@ -708,16 +715,27 @@ public final class PlayerListener implements Listener {
         }
     }
 
+    private void showResult(
+            final Player winner,
+            final List<Player> losers
+    ) {
+        winner.showTitle(Title.title(ColorUtils.parse("<#3B82F6><bold>VICTORY!"), ColorUtils.parse("<white>You are the last man standing!")));
+
+        for (final Player loser : losers) {
+            loser.showTitle(Title.title(ColorUtils.parse("<#fa1140><bold>DEFEAT!!"), ColorUtils.empty()));
+        }
+    }
+
 
     /**
      * Check whether a duel team has no active participants remaining.
-     *
+     * <p>
      * A team is treated as having no active participants if it contains exactly one player
      * or every member is `null`, dead, offline, or in `SPECTATOR` game mode.
      *
      * @param team the team to evaluate
      * @return `true` if the team has no active participants (team size is one or every member is
-     *         `null`, dead, offline, or in `SPECTATOR` mode), `false` otherwise
+     * `null`, dead, offline, or in `SPECTATOR` mode), `false` otherwise
      */
     private boolean isWholeTeamDead(final DuelTeam team) {
         if (team.getUuids().size() == 1) {
