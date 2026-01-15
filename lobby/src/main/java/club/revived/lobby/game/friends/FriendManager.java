@@ -32,6 +32,8 @@ public final class FriendManager {
 
             this.addFriend(networkPlayer.getUuid(), sender);
             this.addFriend(sender, networkPlayer.getUuid());
+
+            networkPlayer.sendMessage("<green>Scuessfully accepted friend reqst");
         });
 
     }
