@@ -1,6 +1,7 @@
 package club.revived.lobby.game.command;
 
 import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
+import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.friends.FriendManager;
 import club.revived.lobby.game.parties.PartyManager;
 import club.revived.lobby.service.player.NetworkPlayer;
@@ -26,6 +27,18 @@ public final class FriendCommand {
 
                                     FriendManager.getInstance().requestFriend(networkPlayer, target);
                                 })))
+                .then(new LiteralArgument("list")
+                        .executesPlayer((player, _) -> {
+                            final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+                            networkPlayer.getCachedOrLoad(FriendHolder.class).thenAccept(friendHolder -> {
+                                if (friendHolder == null) {
+                                    networkPlayer.sendMessage("<red>You don't have any friends... ahhwww :(");
+                                    return;
+                                }
+
+                                networkPlayer.sendMessage(friendHolder.friends().toString());
+                            });
+                        }))
                 .then(new LiteralArgument("accept")
                         .executesPlayer((player, args) -> {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
