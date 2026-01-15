@@ -5,6 +5,7 @@ import club.revived.lobby.database.provider.*;
 import club.revived.lobby.game.billboard.QueueBillboardLocation;
 import club.revived.lobby.game.duel.schematic.DuelArenaSchematic;
 import club.revived.lobby.game.duel.schematic.WorldeditSchematic;
+import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
 import club.revived.lobby.game.kit.KitTemplate;
@@ -152,6 +153,7 @@ public final class DatabaseManager {
         this.providers.put(DuelArenaSchematic.class, new DuelArenaSchematicProvider(this.database));
         this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
         this.providers.put(KitTemplate.class, new KitTemplateDatabaseProvider(this.database));
+        this.providers.put(FriendHolder.class, new FriendDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

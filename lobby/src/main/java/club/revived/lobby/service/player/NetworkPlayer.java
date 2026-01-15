@@ -1,5 +1,6 @@
 package club.revived.lobby.service.player;
 
+import club.revived.lobby.database.DatabaseManager;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ClusterService;
 import club.revived.lobby.service.cluster.ServiceType;
@@ -76,7 +77,7 @@ public final class NetworkPlayer {
 
     /**
      * Store an object in the cluster-wide global cache for this player with a time-to-live.
-     *
+     * <p>
      * The value is stored under the key "<playerUuid>:<clazzSimpleNameLowercased>".
      *
      * @param clazz   the class whose simple name (lowercased) is used as the cache key suffix
@@ -99,7 +100,7 @@ public final class NetworkPlayer {
 
     /**
      * Store an object in the cluster-wide global cache for this player.
-     *
+     * <p>
      * The value is stored under the key "{playerUuid}:{clazzSimpleNameLowercased}".
      *
      * @param clazz the class whose simple name (lowercased) is appended to the player's UUID to form the cache key
@@ -115,17 +116,43 @@ public final class NetworkPlayer {
     }
 
     /**
-         * Retrieves the cached value for this player for the specified class.
-         *
-         * @param clazz the class used as part of the cache key and to type the returned value
-         * @return the cached value for this player and class, or `null` if no value is present
-         */
+     * Retrieves the cached value for this player for the specified class.
+     *
+     * @param clazz the class used as part of the cache key and to type the returned value
+     * @return the cached value for this player and class, or `null` if no value is present
+     */
     @NotNull
     public <T> CompletableFuture<T> getCachedValue(final Class<T> clazz) {
         return Cluster.getInstance()
                 .getGlobalCache()
                 .get(clazz, this.uuid + ":" + clazz.getSimpleName().toLowerCase());
     }
+
+    /**
+     * Retrieves a cached value for this player by type or loads it from the database and caches it if absent.
+     *
+     * @param <T>   the type of the value
+     * @param clazz the class used to identify and load the value
+     * @return the cached or database-loaded instance for this player, or `null` if not found
+     */
+    @NotNull
+    public <T> CompletableFuture<T> getCachedOrLoad(final Class<T> clazz) {
+        return this.getCachedValue(clazz).thenCompose(t -> {
+            if (t != null) {
+                return CompletableFuture.completedFuture(t);
+            }
+
+            return DatabaseManager.getInstance().get(clazz, this.uuid.toString())
+                    .thenApply(opt -> {
+                        final T val = opt.orElse(null);
+                        if (val != null) {
+                            this.cacheValue(clazz, val);
+                        }
+                        return val;
+                    });
+        });
+    }
+
 
     /**
      * Sends a chat message to the player's current proxy service.
@@ -165,7 +192,7 @@ public final class NetworkPlayer {
 
     /**
      * Initiates a connection request for this player to the specified cluster service through the player's proxy.
-     *
+     * <p>
      * Sends a StatusRequest to the target service and, if the service reports AVAILABLE, forwards a Connect payload
      * containing this player's UUID and the target service ID to the player's current proxy.
      *
