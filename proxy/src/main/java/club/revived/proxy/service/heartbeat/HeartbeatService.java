@@ -76,17 +76,13 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
             ));
 
             services.forEach(service -> {
-                System.out.println("[Heartbeat] Checking service: " + service.getId());
                 this.cluster.getMessagingService().sendRequest(
                                 service.getId(),
                                 new StatusRequest(),
                                 StatusResponse.class
                         )
                         .thenAccept(statusResponse -> {
-                            System.out.println("response");
-
                             if (statusResponse.status() != ServiceStatus.AVAILABLE) {
-                                System.out.println("service is not available");
                                 return;
                             }
 
@@ -130,7 +126,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
             final long lastSeenTime = entry.getValue();
 
             if (currentTime - lastSeenTime > timeout) {
-                System.out.println("[Heartbeat] Service " + serviceId + " timed out. Removing...");
 
                 cluster.getServices().remove(serviceId);
 
@@ -187,8 +182,6 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
      */
     @Override
     public void handle(final Heartbeat message) {
-        System.out.println("Received heartbeat");
-
         final var service = new ClusterService(
                 message.id(),
                 message.serverIp(),
