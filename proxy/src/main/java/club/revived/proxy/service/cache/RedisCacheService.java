@@ -255,7 +255,7 @@ public final class RedisCacheService implements GlobalCache {
             System.out.println("invalidate all");
             final var params = new ScanParams()
                     .match(param + ":*")
-                    .count(-1);
+                    .count(1000);
 
             try (final var jedis = this.jedisPool.getResource()) {
                 do {
@@ -263,10 +263,7 @@ public final class RedisCacheService implements GlobalCache {
                     final var keys = result.getResult();
 
                     if (!keys.isEmpty()) {
-                        System.out.println("del");
-                        for (final var key : keys) {
-                            jedis.del(key);
-                        }
+                        jedis.del(keys.toArray(new String[0]));
                     }
 
                     cursor = result.getCursor();
