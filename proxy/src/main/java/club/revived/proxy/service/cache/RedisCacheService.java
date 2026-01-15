@@ -262,7 +262,10 @@ public final class RedisCacheService implements GlobalCache {
                     final var keys = result.getResult();
 
                     if (!keys.isEmpty()) {
-                        jedis.del(keys.toArray(new String[0]));
+                        System.out.println("del");
+                        for (final var key : keys) {
+                            jedis.del(key);
+                        }
                     }
 
                     cursor = result.getCursor();
