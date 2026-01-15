@@ -53,6 +53,8 @@ public final class FriendDatabaseProvider implements DatabaseProvider<FriendHold
     @Override
     public void save(final FriendHolder friendHolder) {
         try {
+            System.out.println("Saving " + friendHolder.uuid());
+
             final var json = this.gson.toJson(friendHolder);
 
             final var doc = new Document("uuid", friendHolder.uuid())

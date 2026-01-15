@@ -3,7 +3,6 @@ package club.revived.lobby.game.command;
 import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
 import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.friends.FriendManager;
-import club.revived.lobby.game.parties.PartyManager;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
@@ -40,7 +39,7 @@ public final class FriendCommand {
                             });
                         }))
                 .then(new LiteralArgument("accept")
-                        .executesPlayer((player, args) -> {
+                        .executesPlayer((player, _) -> {
                             final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
                             FriendManager.getInstance().acceptFriendRequest(networkPlayer);
                         }))
