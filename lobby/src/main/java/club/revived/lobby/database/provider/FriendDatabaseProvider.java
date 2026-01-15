@@ -55,11 +55,11 @@ public final class FriendDatabaseProvider implements DatabaseProvider<FriendHold
         try {
             final var json = this.gson.toJson(friendHolder);
 
-            final var doc = new Document("uuid", friendHolder.uuid())
+            final var doc = new Document("uuid", friendHolder.uuid().toString())
                     .append("data", json);
 
             collection.replaceOne(
-                    Filters.eq("uuid", friendHolder.uuid()),
+                    Filters.eq("uuid", friendHolder.uuid().toString()),
                     doc,
                     new ReplaceOptions().upsert(true)
             );
