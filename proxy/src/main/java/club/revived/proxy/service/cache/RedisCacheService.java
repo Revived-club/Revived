@@ -252,8 +252,9 @@ public final class RedisCacheService implements GlobalCache {
     public void invalidateAll(final String param) {
         CompletableFuture.runAsync(() -> {
             var cursor = ScanParams.SCAN_POINTER_START;
+            System.out.println("invalidate all");
             final var params = new ScanParams()
-                    .match(param)
+                    .match(param + "*")
                     .count(-1);
 
             try (final var jedis = this.jedisPool.getResource()) {
