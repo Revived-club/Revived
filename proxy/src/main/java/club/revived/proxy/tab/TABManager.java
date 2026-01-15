@@ -80,7 +80,7 @@ public final class TABManager {
                                             .build());
                                 });
 
-                        tabEntries.forEach((uuid, tabListEntry) -> {
+                        tabEntries.forEach((_, tabListEntry) -> {
                             for (final var entry : tabEntries.keySet()) {
 
                                 if (tabList.containsEntry(entry)) continue;
@@ -95,16 +95,13 @@ public final class TABManager {
                             .stream().map(NetworkPlayer::getUuid)
                             .toList();
 
-                    tabEntries.forEach((uuid, tabListEntry) -> {
+                    tabEntries.forEach((uuid, _) -> {
 
-                        for (final var entry : tabEntries.keySet()) {
-
-                            if (uuids.contains(entry)) {
-                                continue;
-                            }
-
-                            tabEntries.remove(entry);
+                        if (uuids.contains(uuid)) {
+                            return;
                         }
+
+                        tabEntries.remove(uuid);
                     });
                 })
                 .repeat(Duration.ofMillis(750L))
