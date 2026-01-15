@@ -96,14 +96,12 @@ public final class HeartbeatService implements MessageHandler<Heartbeat> {
                                     .getServer()
                                     .getServer(service.getId())
                                     .ifPresentOrElse(server -> {
-                                        System.out.println("Registering service " + info.getName());
                                         final var serverInfo = server.getServerInfo();
 
                                         if (!serverInfo.equals(info)) {
                                             this.registerServer(info);
                                         }
                                     }, () -> {
-                                        System.out.println("Registering service " + info.getName());
                                         this.registerServer(info);
                                     });
                         });
