@@ -131,12 +131,6 @@ public final class PlayerManager {
                             ));
         });
 
-        Cluster.getInstance().getMessagingService()
-                .registerMessageHandler(QuitNetwork.class, quitNetwork -> Cluster.getInstance()
-                        .getGlobalCache()
-                        .invalidateAll(quitNetwork.uuid().toString())
-                );
-
         System.out.println("Registered player message handlers...");
     }
 

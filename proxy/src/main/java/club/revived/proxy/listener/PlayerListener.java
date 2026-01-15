@@ -188,6 +188,10 @@ public final class PlayerListener {
         TABManager.getInstance().getTabEntries().remove(player.getUniqueId());
 
         Cluster.getInstance().getMessagingService().sendGlobalMessage(new QuitNetwork(player.getUniqueId()));
+
+        Cluster.getInstance()
+                .getGlobalCache()
+                .invalidateAll(player.getUniqueId().toString());
     }
 
     /**
