@@ -33,7 +33,7 @@ public final class FriendManager {
             this.addFriend(networkPlayer.getUuid(), sender);
             this.addFriend(sender, networkPlayer.getUuid());
 
-            networkPlayer.sendMessage("You accepted the friend request!");
+            networkPlayer.sendMessage("<green>You accepted the friend request!");
 
             if (PlayerManager.getInstance().isRegistered(sender)) {
                 final var senderNetworkPlayer = PlayerManager.getInstance()
