@@ -63,6 +63,8 @@ public final class FriendManager {
         final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(uuid);
 
         networkPlayer.getCachedOrLoad(FriendHolder.class).thenAccept(friendHolder -> {
+            System.out.println("aeeWEEAWEAEAEaewaaewweew4raweqrwwawaaweaweaewaweaewaeweaw");
+
             if (friendHolder == null) {
                 friendHolder = new FriendHolder(uuid, new ArrayList<>());
             }
