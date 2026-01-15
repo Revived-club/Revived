@@ -33,7 +33,14 @@ public final class FriendManager {
             this.addFriend(networkPlayer.getUuid(), sender);
             this.addFriend(sender, networkPlayer.getUuid());
 
-            networkPlayer.sendMessage("<green>Scuessfully accepted friend reqst");
+            networkPlayer.sendMessage("You accepted the friend request!");
+
+            if (PlayerManager.getInstance().isRegistered(sender)) {
+                final var senderNetworkPlayer = PlayerManager.getInstance()
+                        .fromBukkitPlayer(sender);
+
+                senderNetworkPlayer.sendMessage(String.format("<green>%s accepted your friend request!", networkPlayer.getUsername()));
+            }
         });
 
     }
@@ -42,7 +49,11 @@ public final class FriendManager {
             final NetworkPlayer sender,
             final NetworkPlayer receiver
     ) {
-        receiver.sendMessage("You got a  Friend request mate");
+        sender.sendMessage("<green>Successfully sent the friend request!");
+
+        receiver.sendMessage("<#3B82F6><player> <white>sent you a friend request! Accept the request by <click:run_command:'/friend accept'><hover:show_text:'<#3B82F6>Click to Accept'><#3B82F6>[Clicking Here]</hover></click>."
+                .replace("<player>", sender.getUsername())
+        );
 
         final var request = new FriendRequest(
                 sender.getUuid(),
