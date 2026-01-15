@@ -252,7 +252,6 @@ public final class RedisCacheService implements GlobalCache {
     public void invalidateAll(final String param) {
         CompletableFuture.runAsync(() -> {
             var cursor = ScanParams.SCAN_POINTER_START;
-            System.out.println("invalidate all");
             final var params = new ScanParams()
                     .match(param + ":*")
                     .count(1000);
@@ -263,11 +262,7 @@ public final class RedisCacheService implements GlobalCache {
                     final var keys = result.getResult();
 
                     if (!keys.isEmpty()) {
-                        System.out.println("Found " + keys.size() + " keys to delete: " + keys);
                         jedis.del(keys.toArray(new String[0]));
-                        System.out.println("Deleted " + keys.size() + " keys");
-                    } else {
-                        System.out.println("sigma?");
                     }
 
                     cursor = result.getCursor();

@@ -280,8 +280,8 @@ public final class RedisCacheService implements GlobalCache {
         CompletableFuture.runAsync(() -> {
             var cursor = ScanParams.SCAN_POINTER_START;
             final var params = new ScanParams()
-                    .match(param)
-                    .count(-1);
+                    .match(param + ":*")
+                    .count(1000);
 
             try (final var jedis = this.jedisPool.getResource()) {
                 do {
@@ -295,7 +295,7 @@ public final class RedisCacheService implements GlobalCache {
                     cursor = result.getCursor();
                 } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
             } catch (final Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }, this.subServer);
     }

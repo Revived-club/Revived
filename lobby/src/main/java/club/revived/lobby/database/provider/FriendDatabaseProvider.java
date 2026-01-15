@@ -43,7 +43,7 @@ public final class FriendDatabaseProvider implements DatabaseProvider<FriendHold
     }
 
     /**
-     * Ensures the schematics collection has an ascending index on the `id` field to optimize lookups.
+     * Ensures the schematics collection has an ascending index o   n the `id` field to optimize lookups.
      */
     @Override
     public void start() {
@@ -53,8 +53,6 @@ public final class FriendDatabaseProvider implements DatabaseProvider<FriendHold
     @Override
     public void save(final FriendHolder friendHolder) {
         try {
-            System.out.println("Saving " + friendHolder.uuid());
-
             final var json = this.gson.toJson(friendHolder);
 
             final var doc = new Document("uuid", friendHolder.uuid())
@@ -66,6 +64,7 @@ public final class FriendDatabaseProvider implements DatabaseProvider<FriendHold
                     new ReplaceOptions().upsert(true)
             );
         } catch (final Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
