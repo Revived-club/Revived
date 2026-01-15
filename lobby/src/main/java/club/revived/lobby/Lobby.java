@@ -156,6 +156,7 @@ public final class Lobby extends JavaPlugin {
         new WhereIsProxyCommand();
         new PartyCommand();
         new MessageCommand();
+        new FriendCommand();
     }
 
     private void createDataFolder() {
