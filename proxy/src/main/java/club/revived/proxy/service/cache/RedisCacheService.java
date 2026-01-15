@@ -263,13 +263,17 @@ public final class RedisCacheService implements GlobalCache {
                     final var keys = result.getResult();
 
                     if (!keys.isEmpty()) {
+                        System.out.println("Found " + keys.size() + " keys to delete: " + keys);
                         jedis.del(keys.toArray(new String[0]));
+                        System.out.println("Deleted " + keys.size() + " keys");
+                    } else {
+                        System.out.println("sigma?");
                     }
 
                     cursor = result.getCursor();
                 } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
             } catch (final Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }, this.subServer);
     }
