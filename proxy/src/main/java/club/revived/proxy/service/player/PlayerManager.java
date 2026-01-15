@@ -88,11 +88,6 @@ public final class PlayerManager {
      * @param networkPlayer the NetworkPlayer to register; its UUID is used as the map key
      */
     public void registerPlayer(final NetworkPlayer networkPlayer) {
-        log.info("Registered player {} - {}",
-                networkPlayer.getUsername(),
-                networkPlayer.getUuid()
-        );
-
         this.networkPlayers.put(
                 networkPlayer.getUuid(),
                 networkPlayer
