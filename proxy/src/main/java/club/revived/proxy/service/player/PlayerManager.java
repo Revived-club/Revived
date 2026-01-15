@@ -4,6 +4,7 @@ import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.exception.UnregisteredPlayerException;
 import club.revived.proxy.service.messaging.impl.Connect;
+import club.revived.proxy.service.messaging.impl.QuitNetwork;
 import club.revived.proxy.service.messaging.impl.SendMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -134,6 +135,12 @@ public final class PlayerManager {
                                     }, () -> player.sendRichMessage("<red>Failed to connect to: " + connect.server())
                             ));
         });
+
+        Cluster.getInstance().getMessagingService()
+                .registerMessageHandler(QuitNetwork.class, quitNetwork -> Cluster.getInstance()
+                        .getGlobalCache()
+                        .invalidateAll(quitNetwork.uuid().toString())
+                );
 
         System.out.println("Registered player message handlers...");
     }

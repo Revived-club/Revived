@@ -6,6 +6,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -104,12 +105,14 @@ public final class RedisBroker implements MessageBroker {
             final String topic,
             final T message
     ) {
-        try (final var jedis = jedisPool.getResource()) {
-            final String json = this.gson.toJson(message);
-            jedis.publish(topic, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+         CompletableFuture.runAsync(() -> {
+             try (final var jedis = jedisPool.getResource()) {
+                 final String json = this.gson.toJson(message);
+                 jedis.publish(topic, json);
+             } catch (final Exception e) {
+                 throw new RuntimeException(e);
+             }
+         }, this.subServer);
      }
 
     /**

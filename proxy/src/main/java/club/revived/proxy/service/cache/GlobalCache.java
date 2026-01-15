@@ -12,14 +12,14 @@ import java.util.concurrent.CompletableFuture;
 public interface GlobalCache {
 
     /**
- * Retrieves a cached value by key for the specified target type.
- *
- * @param <T>   the expected type of the cached value
- * @param clazz the Class object representing the target type for decoding or casting
- * @param key   the cache key
- * @return      the cached value of type T, or {@code null} if no value is associated with the key
- */
-<T> CompletableFuture<T> get(Class<T> clazz, String key);
+     * Retrieves a cached value by key for the specified target type.
+     *
+     * @param <T>   the expected type of the cached value
+     * @param clazz the Class object representing the target type for decoding or casting
+     * @param key   the cache key
+     * @return the cached value of type T, or {@code null} if no value is associated with the key
+     */
+    <T> CompletableFuture<T> get(Class<T> clazz, String key);
 
     /**
      * Stores a value in the global cache under the specified key.
@@ -48,7 +48,7 @@ public interface GlobalCache {
      *
      * @param key   the cache key whose associated values should be returned
      * @param clazz the target element class for decoding or casting stored entries
-     * @return      a List of values of type T; empty if no values are associated with the key
+     * @return a List of values of type T; empty if no values are associated with the key
      */
     <T> CompletableFuture<List<T>> getAll(
             final String key,
@@ -75,7 +75,7 @@ public interface GlobalCache {
      * @param port     the TCP port of the cache service
      * @param password the authentication password for the connection
      * @param <P>      the type of the returned connection or client
-     * @return         a connection or client instance of type P representing the established connection
+     * @return a connection or client instance of type P representing the established connection
      */
     <P> P connect(
             final String host,
@@ -96,9 +96,9 @@ public interface GlobalCache {
     /**
      * Remove occurrences of a value from the list stored under the specified key.
      *
-     * @param <T>  the element type stored in the list
-     * @param key  the key identifying the list
-     * @param t    the value to remove from the list
+     * @param <T>   the element type stored in the list
+     * @param key   the key identifying the list
+     * @param t     the value to remove from the list
      * @param count the number of occurrences to remove; 0 removes all occurrences
      */
     <T> void removeFromList(
@@ -106,4 +106,6 @@ public interface GlobalCache {
             final T t,
             final long count
     );
+
+    void invalidateAll(final String param);
 }

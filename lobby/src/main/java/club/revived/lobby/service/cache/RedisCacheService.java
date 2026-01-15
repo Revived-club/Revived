@@ -3,6 +3,7 @@ package club.revived.lobby.service.cache;
 import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.params.ScanParams;
 
 import java.util.List;
 import java.util.Objects;
@@ -105,12 +106,14 @@ public final class RedisCacheService implements GlobalCache {
             final String key,
             final T t
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.set(key, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.set(key, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**
@@ -127,12 +130,14 @@ public final class RedisCacheService implements GlobalCache {
             final T t,
             final long seconds
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.setex(key, seconds, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.setex(key, seconds, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**
@@ -160,15 +165,17 @@ public final class RedisCacheService implements GlobalCache {
             final String id,
             final T t
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final String objectKey = ID_PREFIX + id;
-            final String listRedisKey = LIST_PREFIX + listKey;
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final String objectKey = ID_PREFIX + id;
+                final String listRedisKey = LIST_PREFIX + listKey;
 
-            jedis.set(objectKey, this.gson.toJson(t));
-            jedis.rpush(listRedisKey, id);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+                jedis.set(objectKey, this.gson.toJson(t));
+                jedis.rpush(listRedisKey, id);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
@@ -178,16 +185,18 @@ public final class RedisCacheService implements GlobalCache {
             final T t,
             final long ttlSeconds
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final String objectKey = ID_PREFIX + id;
-            final String listRedisKey = LIST_PREFIX + listKey;
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final String objectKey = ID_PREFIX + id;
+                final String listRedisKey = LIST_PREFIX + listKey;
 
-            jedis.setex(objectKey, ttlSeconds, this.gson.toJson(t));
-            jedis.rpush(listRedisKey, id);
-            jedis.expire(listRedisKey, ttlSeconds);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+                jedis.setex(objectKey, ttlSeconds, this.gson.toJson(t));
+                jedis.rpush(listRedisKey, id);
+                jedis.expire(listRedisKey, ttlSeconds);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
@@ -241,11 +250,13 @@ public final class RedisCacheService implements GlobalCache {
             final String id,
             final T t
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            jedis.set(ID_PREFIX + id, gson.toJson(t));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                jedis.set(ID_PREFIX + id, gson.toJson(t));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 
     @Override
@@ -254,11 +265,38 @@ public final class RedisCacheService implements GlobalCache {
             final String id,
             final long count
     ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            jedis.lrem(LIST_PREFIX + listKey, count, id);
-            jedis.del(ID_PREFIX + id);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                jedis.lrem(LIST_PREFIX + listKey, count, id);
+                jedis.del(ID_PREFIX + id);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    @Override
+    public void invalidateAll(final String param) {
+        CompletableFuture.runAsync(() -> {
+            var cursor = ScanParams.SCAN_POINTER_START;
+            final var params = new ScanParams()
+                    .match(param)
+                    .count(-1);
+
+            try (final var jedis = this.jedisPool.getResource()) {
+                do {
+                    final var result = jedis.scan(cursor, params);
+                    final var keys = result.getResult();
+
+                    if (!keys.isEmpty()) {
+                        jedis.del(keys.toArray(new String[0]));
+                    }
+
+                    cursor = result.getCursor();
+                } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 }

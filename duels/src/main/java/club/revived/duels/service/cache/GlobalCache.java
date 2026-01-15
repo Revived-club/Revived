@@ -110,4 +110,6 @@ public interface GlobalCache {
             final int port,
             final String password
     );
+
+    void invalidateAll(final String param);
 }

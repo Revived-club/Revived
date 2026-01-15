@@ -103,4 +103,6 @@ public interface GlobalCache {
             final String id,
             final T t
     );
+
+    void invalidateAll(final String param);
 }

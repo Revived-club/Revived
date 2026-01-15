@@ -3,6 +3,7 @@ package club.revived.duels.service.cache;
 import com.google.gson.Gson;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.params.ScanParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,15 +26,11 @@ public final class RedisCacheService implements GlobalCache {
     /**
      * Creates a RedisCacheService configured to connect to a Redis instance at the given host and port using the provided password.
      *
-     * @param host the Redis server hostname or IP
-     * @param port the Redis server port
+     * @param host     the Redis server hostname or IP
+     * @param port     the Redis server port
      * @param password the authentication password for the Redis server (empty string if none)
      */
-    public RedisCacheService(
-            final String host,
-            final int port,
-            final String password
-    ) {
+    public RedisCacheService(final String host, final int port, final String password) {
         this.jedisPool = this.connect(host, port, password);
     }
 
@@ -43,10 +40,7 @@ public final class RedisCacheService implements GlobalCache {
      * @param host the Redis server hostname or IP address
      * @param port the Redis server port
      */
-    public RedisCacheService(
-            final String host,
-            final int port
-    ) {
+    public RedisCacheService(final String host, final int port) {
         this(host, port, "");
     }
 
@@ -59,11 +53,7 @@ public final class RedisCacheService implements GlobalCache {
      * @return a configured JedisPool instance connected to the given host and port using the provided password
      */
     @Override
-    public JedisPool connect(
-            final String host,
-            final int port,
-            final String password
-    ) {
+    public JedisPool connect(final String host, final int port, final String password) {
         final JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxIdle(20);
         config.setMaxTotal(50);
@@ -87,10 +77,7 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if an error occurs while accessing Redis or deserializing the value
      */
     @Override
-    public <T> CompletableFuture<T> get(
-            final Class<T> clazz,
-            final String key
-    ) {
+    public <T> CompletableFuture<T> get(final Class<T> clazz, final String key) {
         return CompletableFuture.supplyAsync(() -> {
             try (final var jedis = this.jedisPool.getResource()) {
                 final var string = jedis.get(key);
@@ -110,16 +97,15 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if serialization or the Redis operation fails
      */
     @Override
-    public <T> void set(
-            final String key,
-            final T t
-    ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.set(key, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    public <T> void set(final String key, final T t) {
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.set(key, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 
     /**
@@ -131,17 +117,15 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if serialization or the Redis operation fails
      */
     @Override
-    public <T> void setEx(
-            final String key,
-            final T t,
-            final long seconds
-    ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.setex(key, seconds, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    public <T> void setEx(final String key, final T t, final long seconds) {
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.setex(key, seconds, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 
     /**
@@ -152,16 +136,16 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if serialization or the Redis operation fails
      */
     @Override
-    public <T> void push(
-            final String key,
-            final T t
-    ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.rpush(key, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    public <T> void push(final String key, final T t) {
+
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.rpush(key, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 
     /**
@@ -173,10 +157,7 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if a Redis access or JSON deserialization error occurs
      */
     @Override
-    public <T> CompletableFuture<List<T>> getAll(
-            final String key,
-            final Class<T> clazz
-    ) {
+    public <T> CompletableFuture<List<T>> getAll(final String key, final Class<T> clazz) {
         return CompletableFuture.supplyAsync(() -> {
             final var list = new ArrayList<T>();
 
@@ -200,9 +181,7 @@ public final class RedisCacheService implements GlobalCache {
      * @return {@code true} if the key was removed, {@code false} otherwise.
      */
     @Override
-    public CompletableFuture<Boolean> remove(
-            final String key
-    ) {
+    public CompletableFuture<Boolean> remove(final String key) {
         return CompletableFuture.supplyAsync(() -> {
             try (final var jedis = this.jedisPool.getResource()) {
                 return jedis.del(key) > 0;
@@ -214,7 +193,7 @@ public final class RedisCacheService implements GlobalCache {
 
     /**
      * Removes occurrences of the given object from a Redis list stored under the specified key.
-     *
+     * <p>
      * The object is serialized to JSON before comparison; matching list entries equal to that JSON
      * representation are removed according to Redis `LREM` semantics.
      *
@@ -225,16 +204,40 @@ public final class RedisCacheService implements GlobalCache {
      * @throws RuntimeException if serialization or Redis access fails
      */
     @Override
-    public <T> void removeFromList(
-            final String key,
-            final T t,
-            final long count
-    ) {
-        try (final var jedis = this.jedisPool.getResource()) {
-            final var json = this.gson.toJson(t);
-            jedis.lrem(key, count, json);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    public <T> void removeFromList(final String key, final T t, final long count) {
+        CompletableFuture.runAsync(() -> {
+
+            try (final var jedis = this.jedisPool.getResource()) {
+                final var json = this.gson.toJson(t);
+                jedis.lrem(key, count, json);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
+    }
+
+    @Override
+    public void invalidateAll(final String param) {
+        CompletableFuture.runAsync(() -> {
+            var cursor = ScanParams.SCAN_POINTER_START;
+            final var params = new ScanParams()
+                    .match(param)
+                    .count(-1);
+
+            try (final var jedis = this.jedisPool.getResource()) {
+                do {
+                    final var result = jedis.scan(cursor, params);
+                    final var keys = result.getResult();
+
+                    if (!keys.isEmpty()) {
+                        jedis.del(keys.toArray(new String[0]));
+                    }
+
+                    cursor = result.getCursor();
+                } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, this.subServer);
     }
 }

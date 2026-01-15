@@ -5,6 +5,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +23,7 @@ public final class RedisBroker implements MessageBroker {
 
     /**
      * Create a RedisBroker connected to the specified Redis instance.
-     *
+     * <p>
      * Initializes the broker's internal JedisPool using the provided connection parameters.
      *
      * @param host     the Redis server hostname or IP address
@@ -56,7 +57,7 @@ public final class RedisBroker implements MessageBroker {
      * @param host     the Redis server host
      * @param port     the Redis server port
      * @param password the password for authentication; provide an empty string for no password
-     * @return         a configured {@link JedisPool} connected to the given host and port
+     * @return a configured {@link JedisPool} connected to the given host and port
      */
     @Override
     public JedisPool connect(
@@ -78,27 +79,29 @@ public final class RedisBroker implements MessageBroker {
     }
 
     /**
-      * Publishes a message to a Redis topic after serializing it to JSON.
-      *
-      * @param topic   the Redis channel name to publish to
-      * @param message the message object to serialize as JSON and publish
-      */
-     @Override
+     * Publishes a message to a Redis topic after serializing it to JSON.
+     *
+     * @param topic   the Redis channel name to publish to
+     * @param message the message object to serialize as JSON and publish
+     */
+    @Override
     public <T> void publish(
             final String topic,
             final T message
     ) {
-        try (final var jedis = jedisPool.getResource()) {
-            final String json = this.gson.toJson(message);
-            jedis.publish(topic, json);
-        } catch (final Exception e) {
-            // TODO: Log
-        }
-     }
+        CompletableFuture.runAsync(() -> {
+            try (final var jedis = jedisPool.getResource()) {
+                final String json = this.gson.toJson(message);
+                jedis.publish(topic, json);
+            } catch (final Exception e) {
+                // TODO: Log
+            }
+        }, this.subServer);
+    }
 
     /**
      * Subscribes to a Redis topic and dispatches each received JSON message (deserialized to the given type) to the provided handler.
-     *
+     * <p>
      * Messages are deserialized using the broker's Gson instance; any exception thrown while handling a message is caught and suppressed.
      *
      * @param topic   the Redis channel to subscribe to

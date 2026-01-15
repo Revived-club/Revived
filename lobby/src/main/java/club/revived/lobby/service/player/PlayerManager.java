@@ -70,8 +70,6 @@ public final class PlayerManager {
     private void registerMessageHandlers() {
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendMessage.class, message -> {
-                    System.out.println("[HANDLER] Sending chat message to " + message.uuid());
-
                     final var uuid = message.uuid();
                     final var player = Bukkit.getPlayer(uuid);
 
@@ -91,7 +89,6 @@ public final class PlayerManager {
 
         Cluster.getInstance().getMessagingService()
                 .registerMessageHandler(SendActionbar.class, sendActionbar -> {
-
                     final var uuid = sendActionbar.uuid();
                     final var player = Bukkit.getPlayer(uuid);
 
