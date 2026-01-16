@@ -1,6 +1,9 @@
 # revived-duels
 Our duel system. Monorepo including minecraft plugins & microservices.
 
+## Why are we open source now?
+We decided to take this big step because we want to give back to the community by sharing some of our features and functionality. We also welcome and encourage contributions.
+
 ## Our Infrastrucure
 ![infra](img/network-infra.png)
 
@@ -155,3 +158,15 @@ To deploy our server, you need a MongoDB & Redis. You can find charts for these 
 
 Once you apply the yml files, you are all set!
 
+## Contribution
+
+Contributions are welcome! Please feel free to submit a **Pull Request**.
+
+1. Fork the repository
+2. Create your feature branch (git checkout -b feature/amazing-feature)
+3. Commit your changes (git commit -m 'Add some amazing feature')
+4. Push to the branch (git push origin feature/amazing-feature)
+5. Open a Pull Request
+
+## License
+This project is licensed under the GNU Affero General Public License v3.0 - see the LICENSE file for details.
