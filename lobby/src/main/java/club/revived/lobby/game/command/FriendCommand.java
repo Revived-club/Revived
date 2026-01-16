@@ -49,7 +49,7 @@ public final class FriendCommand {
                                         DatabaseManager.getInstance().save(FriendHolder.class, friendHolder);
                                         networkPlayer.cacheValue(FriendHolder.class, friendHolder);
                                     });
-                                })))
+                                }))))
                         .then(new LiteralArgument("add")
                                 .then(NetworkPlayerArgument.networkPlayer("target")
                                         .executesPlayer((player, args) -> {
@@ -70,7 +70,7 @@ public final class FriendCommand {
                                                 FriendManager.getInstance().requestFriend(networkPlayer, target);
                                             });
 
-                                        }))))
+                                        })))
                         .then(new LiteralArgument("list")
                                 .executesPlayer((player, _) -> {
                                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);

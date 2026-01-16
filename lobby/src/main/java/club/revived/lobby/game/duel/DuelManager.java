@@ -63,7 +63,7 @@ public final class DuelManager {
      * Accepts a pending duel request for the given player and initiates the duel on an available duel service.
      * <p></p>
      * If the player has no pending request, the player is notified and no further action is taken. If the resolved
-     * duel service reports a status other than AVAILABLE, the player is notified and a {@link ServiceUnavailableException}
+     * duel service reports a status other than AVAILABLE, the player is notified and a {@link ServiceUnavailabException}
      * is thrown.
      *
      * @param networkPlayer the player attempting to accept a duel request
