@@ -3,6 +3,7 @@ package club.revived.lobby.game.command;
 import club.revived.lobby.game.command.argument.NetworkPlayerArgument;
 import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.friends.FriendManager;
+import club.revived.lobby.game.inventory.FriendBrowserMenu;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
@@ -36,7 +37,7 @@ FriendCommand {
                                     return;
                                 }
 
-                                networkPlayer.sendMessage(friendHolder.friends().toString());
+                                new FriendBrowserMenu(player, friendHolder);
                             });
                         }))
                 .then(new LiteralArgument("accept")
