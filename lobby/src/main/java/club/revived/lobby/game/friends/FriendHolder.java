@@ -9,5 +9,9 @@ import java.util.UUID;
  * @author yyuh
  * @since 15.01.26
  */
-public record FriendHolder(UUID uuid, List<Friend> friends) {
+public record FriendHolder(
+        UUID uuid,
+        List<Friend> friends,
+        List<UUID> blockList
+) {
 }

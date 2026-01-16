@@ -76,7 +76,7 @@ public final class FriendManager {
         networkPlayer.getCachedOrLoad(FriendHolder.class).thenAccept(friendHolder -> {
 
             if (friendHolder == null) {
-                friendHolder = new FriendHolder(uuid, new ArrayList<>());
+                friendHolder = new FriendHolder(uuid, new ArrayList<>(), new ArrayList<>());
             }
 
             final var friends = friendHolder.friends();
