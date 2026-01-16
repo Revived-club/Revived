@@ -100,7 +100,7 @@ public final class FriendManager {
                 return;
             }
 
-            boolean isFriend = holder.friends()
+            final boolean isFriend = holder.friends()
                     .stream()
                     .anyMatch(friend -> friend.uuid().equals(target));
 
