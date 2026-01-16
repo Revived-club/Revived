@@ -70,7 +70,7 @@ public final class FriendCommand {
                                                 FriendManager.getInstance().requestFriend(networkPlayer, target);
                                             });
 
-                                        })))
+                                        }))))
                         .then(new LiteralArgument("list")
                                 .executesPlayer((player, _) -> {
                                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
@@ -87,7 +87,7 @@ public final class FriendCommand {
                                 .executesPlayer((player, _) -> {
                                     final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
                                     FriendManager.getInstance().acceptFriendRequest(networkPlayer);
-                                })))
+                                }))
                 .register("revived");
     }
 }
