@@ -1,7 +1,5 @@
 package club.revived.lobby.game.friends;
 
-import club.revived.lobby.game.duel.KitType;
-
 import java.util.UUID;
 
 /**

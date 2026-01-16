@@ -1,6 +1,5 @@
 package club.revived.lobby.game.duel.schematic;
 
-import club.revived.lobby.game.WarpLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;

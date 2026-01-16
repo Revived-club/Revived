@@ -3,7 +3,6 @@ package club.revived.lobby.game.command;
 import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.game.duel.QueueType;
-import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
 

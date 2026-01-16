@@ -1,24 +1,20 @@
 package club.revived.lobby.game.inventory;
 
 import club.revived.commons.inventories.inv.ListMenu;
-import club.revived.commons.inventories.inv.button.AbstractButton;
 import club.revived.commons.inventories.util.ColorUtils;
-import club.revived.commons.inventories.util.HeadBuilder;
-import club.revived.commons.inventories.util.Heads;
 import club.revived.commons.inventories.util.ItemBuilder;
-import club.revived.lobby.game.duel.Game;
 import club.revived.lobby.game.friends.Friend;
 import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.player.PlayerProfile;
 import club.revived.lobby.game.player.PlayerProfileManager;
-import club.revived.lobby.service.cluster.Cluster;
-import club.revived.lobby.service.cluster.ServiceType;
-import club.revived.lobby.service.player.PlayerManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 

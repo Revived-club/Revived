@@ -6,7 +6,6 @@ import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.game.inventory.LobbySelectorMenu;
 import club.revived.lobby.game.item.ExecutableItem;
 import club.revived.lobby.game.item.ExecutableItemType;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

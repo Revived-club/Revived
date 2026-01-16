@@ -2,7 +2,6 @@ package club.revived.queue.cluster.status;
 
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.messaging.MessagingService;
-import club.revived.queue.cluster.status.StatusResponse;
 
 /**
  * This is an interesting Class

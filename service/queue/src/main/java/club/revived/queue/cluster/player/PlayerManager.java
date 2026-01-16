@@ -1,14 +1,9 @@
 package club.revived.queue.cluster.player;
 
-import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.exception.UnregisteredPlayerException;
-import club.revived.queue.cluster.messaging.impl.Connect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

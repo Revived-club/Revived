@@ -8,10 +8,7 @@ import club.revived.lobby.game.inventory.MatchBrowserMenu;
 import club.revived.lobby.game.item.ExecutableItem;
 import club.revived.lobby.game.item.ExecutableItemType;
 import club.revived.lobby.service.cluster.Cluster;
-import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 /**

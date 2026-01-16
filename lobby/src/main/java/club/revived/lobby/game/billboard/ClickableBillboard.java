@@ -2,13 +2,10 @@ package club.revived.lobby.game.billboard;
 
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.lobby.Lobby;
-import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
-import club.revived.lobby.game.duel.QueueType;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.messaging.impl.IsQueuedRequest;
 import club.revived.lobby.service.messaging.impl.IsQueuedResponse;
-import club.revived.lobby.service.player.PlayerManager;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;

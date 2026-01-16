@@ -1,6 +1,5 @@
 package club.revived.lobby.game.duel;
 
-import club.revived.lobby.game.WarpLocation;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 

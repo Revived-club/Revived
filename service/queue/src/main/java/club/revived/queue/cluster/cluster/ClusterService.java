@@ -1,8 +1,5 @@
 package club.revived.queue.cluster.cluster;
 
-import club.revived.queue.cluster.cluster.Cluster;
-import club.revived.queue.cluster.cluster.OnlinePlayer;
-import club.revived.queue.cluster.cluster.ServiceType;
 import club.revived.queue.cluster.messaging.Message;
 import club.revived.queue.cluster.messaging.Request;
 import club.revived.queue.cluster.messaging.Response;

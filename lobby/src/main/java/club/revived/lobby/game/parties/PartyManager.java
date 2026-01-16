@@ -1,7 +1,6 @@
 package club.revived.lobby.game.parties;
 
 import club.revived.commons.generic.ListUtils;
-import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;

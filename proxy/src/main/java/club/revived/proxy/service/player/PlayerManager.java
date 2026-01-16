@@ -4,7 +4,6 @@ import club.revived.proxy.ProxyPlugin;
 import club.revived.proxy.service.cluster.Cluster;
 import club.revived.proxy.service.exception.UnregisteredPlayerException;
 import club.revived.proxy.service.messaging.impl.Connect;
-import club.revived.proxy.service.messaging.impl.QuitNetwork;
 import club.revived.proxy.service.messaging.impl.SendMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

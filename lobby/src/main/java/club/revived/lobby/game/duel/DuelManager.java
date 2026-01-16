@@ -3,9 +3,9 @@ package club.revived.lobby.game.duel;
 import club.revived.lobby.service.cluster.Cluster;
 import club.revived.lobby.service.cluster.ServiceType;
 import club.revived.lobby.service.exception.ServiceUnavailableException;
+import club.revived.lobby.service.messaging.impl.AddToQueue;
 import club.revived.lobby.service.messaging.impl.DuelEnd;
 import club.revived.lobby.service.messaging.impl.DuelStart;
-import club.revived.lobby.service.messaging.impl.AddToQueue;
 import club.revived.lobby.service.messaging.impl.FFAEnd;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
@@ -16,7 +16,6 @@ import club.revived.lobby.service.status.StatusResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Handles duels-related things on lobby servers e.g. accepting & sending duel requests.

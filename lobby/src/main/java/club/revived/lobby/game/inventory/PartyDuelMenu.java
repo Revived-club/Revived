@@ -8,7 +8,6 @@ import club.revived.commons.inventories.inv.button.AbstractButton;
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.commons.inventories.util.ItemBuilder;
 import club.revived.lobby.Lobby;
-import club.revived.lobby.game.duel.DuelManager;
 import club.revived.lobby.game.duel.KitType;
 import club.revived.lobby.game.parties.Party;
 import club.revived.lobby.game.parties.PartyManager;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Menu for sending starting party duels. Let's you change the kit & the amount of rounds

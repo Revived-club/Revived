@@ -1,6 +1,5 @@
 package club.revived.lobby.database.provider;
 
-import club.revived.commons.adapter.ItemStackTypeAdapter;
 import club.revived.commons.adapter.LocationTypeAdapter;
 import club.revived.commons.serialization.LocationSerializer;
 import club.revived.lobby.database.DatabaseProvider;
@@ -14,7 +13,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

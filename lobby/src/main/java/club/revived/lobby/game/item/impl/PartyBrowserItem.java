@@ -1,8 +1,6 @@
 package club.revived.lobby.game.item.impl;
 
 import club.revived.commons.inventories.util.ItemBuilder;
-import club.revived.lobby.game.duel.Game;
-import club.revived.lobby.game.inventory.MatchBrowserMenu;
 import club.revived.lobby.game.inventory.PartyBrowserMenu;
 import club.revived.lobby.game.item.ExecutableItem;
 import club.revived.lobby.game.item.ExecutableItemType;

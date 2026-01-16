@@ -4,7 +4,6 @@ import club.revived.queue.cluster.broker.MessageBroker;
 import club.revived.queue.cluster.broker.MessageHandler;
 import club.revived.queue.cluster.cluster.Cluster;
 import club.revived.queue.cluster.cluster.ClusterService;
-import club.revived.queue.cluster.cluster.OnlinePlayer;
 import club.revived.queue.cluster.player.PlayerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

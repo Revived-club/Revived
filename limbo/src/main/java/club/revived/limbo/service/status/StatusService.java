@@ -2,7 +2,6 @@ package club.revived.limbo.service.status;
 
 import club.revived.limbo.service.cluster.Cluster;
 import club.revived.limbo.service.messaging.MessagingService;
-import club.revived.limbo.service.status.StatusRequest;
 
 /**
  * This is an interesting Class

@@ -2,7 +2,6 @@ package club.revived.proxy.tab;
 
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.proxy.ProxyPlugin;
-import club.revived.proxy.service.cluster.ServiceType;
 import club.revived.proxy.service.player.NetworkPlayer;
 import club.revived.proxy.service.player.PlayerManager;
 import com.velocitypowered.api.proxy.Player;

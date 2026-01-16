@@ -1,6 +1,5 @@
 package club.revived.queue.cluster.messaging.impl;
 
-import club.revived.queue.cluster.messaging.Request;
 import club.revived.queue.cluster.messaging.Response;
 
 import java.util.UUID;
