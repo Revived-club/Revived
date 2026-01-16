@@ -4,7 +4,7 @@ Our duel system. Monorepo including minecraft plugins & microservices.
 ## Why are we open source now?
 We decided to take this big step because we want to give back to the community by sharing some of our features and functionality. We also welcome and encourage contributions.
 
-## Our Infrastrucure
+## Our Architecture
 ![infra](img/network-infra.png)
 
 ## Development Setup
