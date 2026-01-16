@@ -7,9 +7,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/") // Paper
     maven("https://jitpack.io")
-    maven("https://maven.enginehub.org/repo/")
+    maven("https://maven.enginehub.org/repo/") // Worldguard
 }
 
 dependencies {

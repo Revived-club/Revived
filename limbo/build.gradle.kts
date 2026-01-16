@@ -8,7 +8,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://repo.loohpjames.com/repository")
+    maven("https://repo.loohpjames.com/repository") // Limbo Plugin API
 }
 
 dependencies {
