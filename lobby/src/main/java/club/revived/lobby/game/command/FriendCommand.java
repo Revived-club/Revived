@@ -33,6 +33,7 @@ public final class FriendCommand {
                                     networkPlayer.getCachedOrLoad(FriendHolder.class).thenAccept(friendHolder -> {
                                         friendHolder.blockList().add(target.getUuid());
 
+                                        FriendManager.getInstance().removeFriend(networkPlayer, target.getUuid());
                                         DatabaseManager.getInstance().save(FriendHolder.class, friendHolder);
                                         networkPlayer.cacheValue(FriendHolder.class, friendHolder);
                                     });

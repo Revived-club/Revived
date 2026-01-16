@@ -114,7 +114,8 @@ public final class FriendManager {
                     holder.friends()
                             .stream()
                             .filter(friend -> !friend.uuid().equals(target))
-                            .toList()
+                            .toList(),
+                    holder.blockList()
             );
 
             player.cacheValue(FriendHolder.class, updatedSelf);
@@ -137,7 +138,8 @@ public final class FriendManager {
                         targetHolder.friends()
                                 .stream()
                                 .filter(friend -> !friend.uuid().equals(player.getUuid()))
-                                .toList()
+                                .toList(),
+                        holder.blockList()
                 );
 
                 targetPlayer.cacheValue(FriendHolder.class, updatedTarget);
