@@ -20,6 +20,18 @@ public final class FriendCommand {
 
     public FriendCommand() {
         new CommandTree("friend")
+                .then(new LiteralArgument("remove")
+                        .then(NetworkPlayerArgument.networkPlayer("target")
+                                .executesPlayer(((player, args) -> {
+                                    final var networkPlayer = PlayerManager.getInstance().fromBukkitPlayer(player);
+                                    final var target = (NetworkPlayer) args.get("target");
+
+                                    if (target == null) {
+                                        return;
+                                    }
+
+                                    FriendManager.getInstance().removeFriend(networkPlayer, target.getUuid());
+                                }))))
                 .then(new LiteralArgument("block")
                         .then(NetworkPlayerArgument.networkPlayer("target")
                                 .executesPlayer(((player, args) -> {
