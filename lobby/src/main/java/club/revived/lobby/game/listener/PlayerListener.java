@@ -5,6 +5,8 @@ import club.revived.lobby.game.WarpLocation;
 import club.revived.lobby.game.item.ExecutableItemRegistry;
 import club.revived.lobby.game.item.ExecutableItemType;
 import club.revived.lobby.game.parties.PartyManager;
+import club.revived.lobby.game.player.PlayerProfileManager;
+import club.revived.lobby.util.SkinUtils;
 import com.github.retrooper.packetevents.util.ExceptionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -59,5 +61,12 @@ public final class PlayerListener implements Listener {
 
         final var lobbySelector = ExecutableItemRegistry.byType(ExecutableItemType.LOBBY_SELECTOR).toBukkitItem();
         player.getInventory().setItem(8, lobbySelector);
+
+        PlayerProfileManager.getInstance().update(
+                player.getUniqueId(),
+                player.getName(),
+                SkinUtils.getSkin(player),
+                System.currentTimeMillis()
+        );
     }
 }

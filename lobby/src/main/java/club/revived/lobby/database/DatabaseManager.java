@@ -9,6 +9,7 @@ import club.revived.lobby.game.friends.FriendHolder;
 import club.revived.lobby.game.kit.KitHolder;
 import club.revived.lobby.game.kit.KitRoomPage;
 import club.revived.lobby.game.kit.KitTemplate;
+import club.revived.lobby.game.player.PlayerProfile;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -154,6 +155,7 @@ public final class DatabaseManager {
         this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
         this.providers.put(KitTemplate.class, new KitTemplateDatabaseProvider(this.database));
         this.providers.put(FriendHolder.class, new FriendDatabaseProvider(this.database));
+        this.providers.put(PlayerProfile.class, new PlayerProfileDatabaseProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
             provider.start();

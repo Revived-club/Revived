@@ -19,6 +19,7 @@ import club.revived.lobby.game.item.impl.PartyBrowserItem;
 import club.revived.lobby.game.listener.ItemPlayerListener;
 import club.revived.lobby.game.listener.PlayerListener;
 import club.revived.lobby.game.listener.SpawnListener;
+import club.revived.lobby.game.player.PlayerProfileManager;
 import club.revived.lobby.service.broker.RedisBroker;
 import club.revived.lobby.service.cache.RedisCacheService;
 import club.revived.lobby.service.cluster.Cluster;
@@ -71,6 +72,8 @@ public final class Lobby extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        PlayerProfileManager.getInstance();
 
         InventoryManager.register(this);
         this.createDataFolder();
