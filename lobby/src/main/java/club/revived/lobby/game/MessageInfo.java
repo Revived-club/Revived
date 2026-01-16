@@ -1,4 +1,4 @@
-package club.revived.lobby.game.chat;
+package club.revived.lobby.game;
 
 import java.util.UUID;
 

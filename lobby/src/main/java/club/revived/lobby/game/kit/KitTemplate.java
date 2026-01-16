@@ -4,7 +4,6 @@ import club.revived.lobby.game.duel.KitType;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * KitHolderTemplate
@@ -15,5 +14,4 @@ import java.util.UUID;
 public record KitTemplate(
         KitType kitType,
         Map<Integer, ItemStack> content
-) {
-}
+) {}

@@ -1,6 +1,6 @@
-package club.revived.lobby.game.chat.command;
+package club.revived.lobby.game.command;
 
-import club.revived.lobby.game.chat.MessageInfo;
+import club.revived.lobby.game.MessageInfo;
 import club.revived.lobby.service.player.PlayerManager;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;

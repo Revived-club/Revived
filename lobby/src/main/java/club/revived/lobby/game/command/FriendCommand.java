@@ -14,7 +14,8 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
  * @author yyuh
  * @since 15.01.26
  */
-public final class FriendCommand {
+public final class
+FriendCommand {
 
     public FriendCommand() {
         new CommandTree("friend")

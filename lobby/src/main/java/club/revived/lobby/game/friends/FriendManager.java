@@ -90,6 +90,62 @@ public final class FriendManager {
         });
     }
 
+    public void removeFriend(
+            final NetworkPlayer player,
+            final UUID target
+    ) {
+        player.getCachedOrLoad(FriendHolder.class).thenAccept(holder -> {
+            if (holder == null || holder.friends().isEmpty()) {
+                player.sendMessage("<red>You don't have any friends... ahhwww :(");
+                return;
+            }
+
+            boolean isFriend = holder.friends()
+                    .stream()
+                    .anyMatch(friend -> friend.uuid().equals(target));
+
+            if (!isFriend) {
+                player.sendMessage("<red>You are not friends with that player!");
+                return;
+            }
+
+            final FriendHolder updatedSelf = new FriendHolder(
+                    holder.uuid(),
+                    holder.friends()
+                            .stream()
+                            .filter(friend -> !friend.uuid().equals(target))
+                            .toList()
+            );
+
+            player.cacheValue(FriendHolder.class, updatedSelf);
+            player.sendMessage("<green>Friend removed");
+
+            if (!PlayerManager.getInstance().isRegistered(target)) {
+                return;
+            }
+
+            final NetworkPlayer targetPlayer = PlayerManager.getInstance()
+                    .fromBukkitPlayer(target);
+
+            targetPlayer.getCachedOrLoad(FriendHolder.class).thenAccept(targetHolder -> {
+                if (targetHolder == null) {
+                    return;
+                }
+
+                final FriendHolder updatedTarget = new FriendHolder(
+                        targetHolder.uuid(),
+                        targetHolder.friends()
+                                .stream()
+                                .filter(friend -> !friend.uuid().equals(player.getUuid()))
+                                .toList()
+                );
+
+                targetPlayer.cacheValue(FriendHolder.class, updatedTarget);
+                targetPlayer.sendMessage(String.format("<red>You are no longer friends with %s", player.getUsername()));
+            });
+        });
+    }
+
     public static FriendManager getInstance() {
         if (instance == null) {
             return new FriendManager();

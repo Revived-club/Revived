@@ -1,4 +1,4 @@
-package club.revived.lobby.game.chat.listener;
+package club.revived.lobby.game.listener;
 
 import club.revived.lobby.Lobby;
 import club.revived.lobby.service.cluster.Cluster;
