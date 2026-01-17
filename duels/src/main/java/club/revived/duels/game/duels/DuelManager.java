@@ -356,8 +356,10 @@ public final class DuelManager {
 
     for (final var spectator : duel.getSpectatingPlayers()) {
       spectator.showTitle(Title.title(
-          ColorUtils.parse("<gold>Duel Ended!"),
+          ColorUtils.parse("<gold><bold>Duel Ended!"),
           ColorUtils.empty()));
+
+      spectator.sendRichMessage(String.format("<green>%s won the duel", winners));
     }
 
     for (final var player : duel.getPlayers()) {
