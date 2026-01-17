@@ -77,5 +77,7 @@ public final class KitTemplateEditorMenu {
                 DatabaseManager.getInstance().save(EditedKitHolder.class, editedKitHolder);
             });
         });
+
+        menu.open(player);
     }
 }
