@@ -23,6 +23,10 @@ public final class ArenaScanTask extends BukkitRunnable {
 
   @Override
   public void run() {
+    if (game.getGameState() != GameState.RUNNING) {
+      return;
+    }
+
     for (final var player : this.game.getSpectatingPlayers()) {
       if (!this.cuboidRegion.contains(player.getLocation())) {
         player.showTitle(Title.title(
