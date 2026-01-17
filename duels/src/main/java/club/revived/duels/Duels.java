@@ -4,6 +4,7 @@ import club.revived.commons.inventories.impl.InventoryManager;
 import club.revived.duels.database.DatabaseManager;
 import club.revived.duels.game.arena.pooling.ArenaPoolManager;
 import club.revived.duels.game.chat.listener.PlayerChatListener;
+import club.revived.duels.game.command.ExitSpectatingCommand;
 import club.revived.duels.game.duels.listener.PlayerListener;
 import club.revived.duels.service.broker.RedisBroker;
 import club.revived.duels.service.cache.RedisCacheService;
@@ -21,97 +22,106 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public final class Duels extends JavaPlugin {
 
-    private static Duels instance;
+  private static Duels instance;
 
+  /**
+   * Initialize plugin components when the plugin is enabled.
+   * <p>
+   * </p>
+   * Sets the singleton instance, registers the inventory manager, sets up cluster
+   * and database
+   * connections, instantiates player listener/manager/chat listener components,
+   * and marks the
+   * cluster status as available.
+   */
+  @Override
+  public void onEnable() {
+    instance = this;
 
-    /**
-     * Initialize plugin components when the plugin is enabled.
-     * <p></p>
-     * Sets the singleton instance, registers the inventory manager, sets up cluster and database
-     * connections, instantiates player listener/manager/chat listener components, and marks the
-     * cluster status as available.
-     */
-    @Override
-    public void onEnable() {
-        instance = this;
+    InventoryManager.register(this);
 
-        InventoryManager.register(this);
+    this.setupCluster();
+    this.connectDatabase();
 
-        this.setupCluster();
-        this.connectDatabase();
+    ArenaPoolManager.getInstance().initialize();
 
-        ArenaPoolManager.getInstance().initialize();
+    new PlayerListener();
+    new PlayerManager();
+    new PlayerChatListener();
+    new ExitSpectatingCommand();
 
-        new PlayerListener();
-        new PlayerManager();
-        new PlayerChatListener();
+    Cluster.STATUS = ServiceStatus.AVAILABLE;
+  }
 
-        Cluster.STATUS = ServiceStatus.AVAILABLE;
-    }
+  /**
+   * Performs plugin load-time initialization.
+   */
+  @Override
+  public void onLoad() {
+    super.onLoad();
+  }
 
-    /**
-     * Performs plugin load-time initialization.
-     */
-    @Override
-    public void onLoad() {
-        super.onLoad();
-    }
+  /**
+   * Marks the cluster as shutting down when the plugin is disabled.
+   *
+   * <p>
+   * Sets Cluster.STATUS to ServiceStatus.SHUTTING_DOWN.
+   * </p>
+   */
+  @Override
+  public void onDisable() {
+    Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+  }
 
-    /**
-     * Marks the cluster as shutting down when the plugin is disabled.
-     *
-     * <p>Sets Cluster.STATUS to ServiceStatus.SHUTTING_DOWN.</p>
-     */
-    @Override
-    public void onDisable() {
-        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
-    }
+  /**
+   * Initializes the application's Cluster integration using Redis and environment
+   * configuration.
+   *
+   * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT`
+   * and constructs a
+   * Cluster configured with a Redis broker and Redis cache service for
+   * ServiceType.LOBBY.
+   */
+  private void setupCluster() {
+    final String hostName = System.getenv("HOSTNAME");
+    final String host = System.getenv("REDIS_HOST");
+    final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
 
-    /**
-     * Initializes the application's Cluster integration using Redis and environment configuration.
-     *
-     * Reads the environment variables `HOSTNAME`, `REDIS_HOST`, and `REDIS_PORT` and constructs a
-     * Cluster configured with a Redis broker and Redis cache service for ServiceType.LOBBY.
-     */
-    private void setupCluster() {
-        final String hostName = System.getenv("HOSTNAME");
-        final String host = System.getenv("REDIS_HOST");
-        final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
+    new Cluster(
+        new RedisBroker(host, port, ""),
+        new RedisCacheService(host, port, ""),
+        ServiceType.DUEL,
+        hostName);
+  }
 
-        new Cluster(
-                new RedisBroker(host, port, ""),
-                new RedisCacheService(host, port, ""),
-                ServiceType.DUEL,
-                hostName
-        );
-    }
+  /**
+   * Establishes a connection to the configured MongoDB instance using environment
+   * variables.
+   *
+   * Reads MONGODB_HOST, MONGODB_USERNAME, MONGODB_PASSWORD, and MONGODB_DATABASE
+   * to configure the connection and connects on port 27017.
+   */
+  private void connectDatabase() {
+    final String host = System.getenv("MONGODB_HOST");
+    final String password = System.getenv("MONGODB_PASSWORD");
+    final String username = System.getenv("MONGODB_USERNAME");
+    final String database = System.getenv("MONGODB_DATABASE");
 
-    /**
-     * Establishes a connection to the configured MongoDB instance using environment variables.
-     *
-     * Reads MONGODB_HOST, MONGODB_USERNAME, MONGODB_PASSWORD, and MONGODB_DATABASE to configure the connection and connects on port 27017.
-     */
-    private void connectDatabase() {
-        final String host = System.getenv("MONGODB_HOST");
-        final String password = System.getenv("MONGODB_PASSWORD");
-        final String username = System.getenv("MONGODB_USERNAME");
-        final String database = System.getenv("MONGODB_DATABASE");
+    DatabaseManager.getInstance().connect(
+        host,
+        27017,
+        username,
+        password,
+        database);
+  }
 
-        DatabaseManager.getInstance().connect(
-                host,
-                27017,
-                username,
-                password,
-                database
-        );
-    }
-
-    /**
-     * Accesses the singleton Duels instance.
-     *
-     * @return the shared Duels instance, or null if the plugin has not been enabled.
-     */
-    public static Duels getInstance() {
-        return instance;
-    }
+  /**
+   * Accesses the singleton Duels instance.
+   *
+   * @return the shared Duels instance, or null if the plugin has not been
+   *         enabled.
+   */
+  public static Duels getInstance() {
+    return instance;
+  }
 }
