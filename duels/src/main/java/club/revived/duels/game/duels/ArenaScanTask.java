@@ -39,7 +39,6 @@ public final class ArenaScanTask extends BukkitRunnable {
       }
 
       if (!this.cuboidRegion.contains(player.getLocation())) {
-        player.setHealth(0.0);
         player.showTitle(Title.title(
             ColorUtils.parse("<red>You can't leave!"),
             ColorUtils.empty()));
