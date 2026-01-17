@@ -129,7 +129,6 @@ public final class DuelManager {
     final int blueScore = game.blueScore();
     final int redScore = game.redScore();
 
-    // TODO: Implement pasting from arena Id
     ArenaPoolManager.getInstance().getArena(kitType).thenAccept(arena -> {
       final var duel = new Duel(
           blueTeam,

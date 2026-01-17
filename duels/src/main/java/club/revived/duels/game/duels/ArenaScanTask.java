@@ -1,5 +1,6 @@
 package club.revived.duels.game.duels;
 
+import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
 import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.commons.location.BukkitCuboidRegion;
@@ -25,7 +26,7 @@ public final class ArenaScanTask extends BukkitRunnable {
     for (final var player : this.game.getSpectatingPlayers()) {
       if (!this.cuboidRegion.contains(player.getLocation())) {
         player.showTitle(Title.title(
-            ColorUtils.parse("<red>You can't leave the Arena!"),
+            ColorUtils.parse("<red>You can't leave!"),
             ColorUtils.empty()));
       }
 
@@ -33,10 +34,14 @@ public final class ArenaScanTask extends BukkitRunnable {
     }
 
     for (final var player : game.getPlayers()) {
+      if (player.getGameMode() == GameMode.SPECTATOR) {
+        continue;
+      }
+
       if (!this.cuboidRegion.contains(player.getLocation())) {
         player.setHealth(0.0);
         player.showTitle(Title.title(
-            ColorUtils.parse("<red>You can't leave the Arena!"),
+            ColorUtils.parse("<red>You can't leave!"),
             ColorUtils.empty()));
       }
     }
