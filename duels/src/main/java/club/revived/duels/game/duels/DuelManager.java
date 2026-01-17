@@ -1,5 +1,6 @@
 package club.revived.duels.game.duels;
 
+import club.revived.commons.inventories.util.ColorUtils;
 import club.revived.commons.location.BukkitCuboidRegion;
 import club.revived.commons.player.PlayerJoinTracker;
 import club.revived.duels.Duels;
@@ -12,6 +13,8 @@ import club.revived.duels.service.cluster.ServiceType;
 import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.player.NetworkPlayer;
 import club.revived.duels.service.player.PlayerManager;
+import net.kyori.adventure.title.Title;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
@@ -350,6 +353,12 @@ public final class DuelManager {
     final String losers = loser.getPlayers().stream()
         .map(Player::getName)
         .collect(Collectors.joining(", "));
+
+    for (final var spectator : duel.getSpectatingPlayers()) {
+      spectator.showTitle(Title.title(
+          ColorUtils.parse("<gold>Duel Ended!"),
+          ColorUtils.empty()));
+    }
 
     for (final var player : duel.getPlayers()) {
       this.runningGames.remove(player.getUniqueId());
