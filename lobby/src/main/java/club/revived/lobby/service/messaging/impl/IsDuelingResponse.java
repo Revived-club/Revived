@@ -6,6 +6,7 @@ import club.revived.lobby.service.messaging.Response;
 
 public record IsDuelingResponse(
     UUID uuid,
+    String gameId,
     boolean dueling) implements Response {
 
 }

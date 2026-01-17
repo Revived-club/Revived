@@ -8,6 +8,8 @@ import club.revived.lobby.service.messaging.impl.DuelEnd;
 import club.revived.lobby.service.messaging.impl.DuelStart;
 import club.revived.lobby.service.messaging.impl.FFAEnd;
 import club.revived.lobby.service.messaging.impl.IsDuelingRequest;
+import club.revived.lobby.service.messaging.impl.IsDuelingResponse;
+import club.revived.lobby.service.messaging.impl.StartSpectating;
 import club.revived.lobby.service.player.NetworkPlayer;
 import club.revived.lobby.service.player.PlayerManager;
 import club.revived.lobby.service.status.ServiceStatus;
@@ -17,6 +19,8 @@ import club.revived.lobby.service.status.StatusResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.checkerframework.checker.units.qual.t;
 
 /**
  * Handles duels-related things on lobby servers e.g. accepting & sending duel
@@ -151,11 +155,19 @@ public final class DuelManager {
   }
 
   public void startSpectating(
-      final UUID uuid,
+      final NetworkPlayer networkPlayer,
       final NetworkPlayer target) {
     final var serviceId = target.getCurrentServer();
     final var service = Cluster.getInstance().getServices().get(serviceId);
-    service.sendRequest(new IsDuelingRequest(target.getUuid()), responseType)
+
+    service.sendRequest(new IsDuelingRequest(target.getUuid()), IsDuelingResponse.class).thenAccept(response -> {
+      if (!response.dueling()) {
+        networkPlayer.sendMessage(String.format("<red>%s is not in duel!", target.getUsername()));
+        return;
+      }
+
+      service.sendMessage(new StartSpectating(networkPlayer.getUuid(), response.gameId()));
+    });
   }
 
   /**

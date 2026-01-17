@@ -17,7 +17,6 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.g;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -59,8 +58,11 @@ public final class DuelManager {
     this.cluster.getMessagingService().registerHandler(IsDuelingRequest.class, request -> {
       final var uuid = request.uuid();
       final var isDueling = this.runningGames.containsKey(uuid);
-      return new IsDuelingResponse(uuid, isDueling);
 
+      return new IsDuelingResponse(
+          uuid,
+          isDueling ? this.runningGames.get(uuid).getData().id() : "",
+          isDueling);
     });
   }
 
@@ -474,6 +476,14 @@ public final class DuelManager {
       player.clearActivePotionEffects();
       player.setFireTicks(0);
     });
+  }
+
+  public boolean isSpectating(final Player player) {
+    return this.isSpectating(player.getUniqueId());
+  }
+
+  public boolean isSpectating(final UUID uuid) {
+    return this.spectating.containsKey(uuid);
   }
 
   /**
