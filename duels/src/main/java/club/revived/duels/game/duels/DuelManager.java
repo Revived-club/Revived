@@ -81,8 +81,10 @@ public final class DuelManager {
       player.teleportAsync(arena.getCenter());
 
       for (final var gaming : game.getPlayers()) {
-        gaming.sendRichMessage(String.format("<dark_gray>%s starting spectating your Game!", player.getName()));
+        gaming.sendRichMessage(String.format("<gray>» %s started spectating your Game!", player.getName()));
       }
+
+      game.addSpectator(player.getUniqueId());
 
       this.spectating.put(player.getUniqueId(), game);
       player.sendRichMessage(String.format("<green>Successfully started spectating duel %s", startSpectating.uuid()));
@@ -135,6 +137,8 @@ public final class DuelManager {
           maxRounds,
           kitType,
           arena);
+
+      new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
 
       duel.getBlueTeam().setScore(blueScore);
       duel.getRedTeam().setScore(redScore);
@@ -265,6 +269,8 @@ public final class DuelManager {
           rounds,
           kitType,
           arena);
+
+      new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
 
       // TODO: Replace? Cant think of a better solution rn :3 :§ :§ § :3
       final var uuids = new HashSet<>(redTeam);

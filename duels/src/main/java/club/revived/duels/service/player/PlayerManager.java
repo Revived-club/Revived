@@ -25,7 +25,6 @@ import java.util.UUID;
  */
 public final class PlayerManager {
 
-  private static final Logger log = LoggerFactory.getLogger(PlayerManager.class);
   private final Map<UUID, NetworkPlayer> networkPlayers = new HashMap<>();
 
   private static PlayerManager instance;
