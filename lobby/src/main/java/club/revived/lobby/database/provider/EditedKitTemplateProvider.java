@@ -68,6 +68,7 @@ public final class EditedKitTemplateProvider implements DatabaseProvider<EditedK
                     new ReplaceOptions().upsert(true)
             );
         } catch (final Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
