@@ -28,9 +28,9 @@ public final class ArenaScanTask extends BukkitRunnable {
         player.showTitle(Title.title(
             ColorUtils.parse("<red>You can't leave!"),
             ColorUtils.empty()));
-      }
 
-      player.teleportAsync(arena.getCenter());
+        player.teleportAsync(arena.getCenter());
+      }
     }
 
     for (final var player : game.getPlayers()) {
