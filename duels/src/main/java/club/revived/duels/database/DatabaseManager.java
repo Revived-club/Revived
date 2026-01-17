@@ -2,11 +2,9 @@ package club.revived.duels.database;
 
 import club.revived.duels.database.provider.ArenaSchematicProvider;
 import club.revived.duels.database.provider.DuelArenaSchematicProvider;
-import club.revived.duels.database.provider.DuelKitProvider;
 import club.revived.duels.database.provider.EditedDuelKitProvider;
 import club.revived.duels.game.arena.schematic.DuelArenaSchematic;
 import club.revived.duels.game.arena.schematic.WorldeditSchematic;
-import club.revived.duels.game.kit.DuelKit;
 import club.revived.duels.game.kit.EditedDuelKit;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -152,7 +150,6 @@ public final class DatabaseManager {
     private void register() {
         this.providers.put(WorldeditSchematic.class, new ArenaSchematicProvider(this.database));
         this.providers.put(DuelArenaSchematic.class, new DuelArenaSchematicProvider(this.database));
-        this.providers.put(DuelKit.class, new DuelKitProvider(this.database));
         this.providers.put(EditedDuelKit.class, new EditedDuelKitProvider(this.database));
 
         for (final DatabaseProvider<?> provider : providers.values()) {
