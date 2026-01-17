@@ -185,7 +185,7 @@ public final class DuelManager {
           bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
         }
 
-        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
+        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 20L, 20L);
         new GameStartTask(3, duel);
       });
     });
@@ -236,7 +236,7 @@ public final class DuelManager {
           player.teleportAsync(arena.getCenter());
         }
 
-        new ArenaScanTask(ffa).runTaskTimer(Duels.getInstance(), 0L, 20L);
+        new ArenaScanTask(ffa).runTaskTimer(Duels.getInstance(), 20L, 20L);
         new GameStartTask(3, ffa);
       });
     });
@@ -318,7 +318,7 @@ public final class DuelManager {
           bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
         }
 
-        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
+        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 20L, 20L);
         new GameStartTask(3, duel);
       });
     });
