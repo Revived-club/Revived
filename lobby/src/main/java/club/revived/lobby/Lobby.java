@@ -30,6 +30,8 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.tofaa.entitylib.APIConfig;
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
+import net.minecraft.server.commands.SpectateCommand;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,187 +47,190 @@ import java.util.List;
  */
 public final class Lobby extends JavaPlugin {
 
-    private static Lobby instance;
+  private static Lobby instance;
 
-    /**
-     * Performs plugin load-time initialization.
-     */
-    @Override
-    public void onLoad() {
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().load();
+  /**
+   * Performs plugin load-time initialization.
+   */
+  @Override
+  public void onLoad() {
+    PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+    PacketEvents.getAPI().load();
 
-        final SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(this);
-        final APIConfig settings = new APIConfig(PacketEvents.getAPI())
-                .tickTickables()
-                .usePlatformLogger();
+    final SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(this);
+    final APIConfig settings = new APIConfig(PacketEvents.getAPI())
+        .tickTickables()
+        .usePlatformLogger();
 
-        EntityLib.init(platform, settings);
+    EntityLib.init(platform, settings);
+  }
+
+  /**
+   * Initialize the plugin: set the singleton instance, register inventory and
+   * runtime components,
+   * connect to the database, register commands and cluster services, and mark the
+   * cluster as available.
+   */
+  @Override
+  public void onEnable() {
+    instance = this;
+
+    PlayerProfileManager.getInstance();
+
+    InventoryManager.register(this);
+    this.createDataFolder();
+    this.createDirs();
+    this.connectDatabase();
+    this.setupCluster();
+    this.setLocations();
+
+    new PlayerManager();
+    new DuelManager();
+
+    this.setupCommands();
+    this.registerListeners();
+
+    BillboardManager.getInstance().setup();
+    ExecutableItemRegistry.register(
+        new MatchBrowserItem(),
+        new PartyBrowserItem(),
+        new LobbySelectorItem());
+
+    Cluster.STATUS = ServiceStatus.AVAILABLE;
+  }
+
+  /**
+   * Perform shutdown tasks for the plugin.
+   * <p>
+   * Updates the cluster status to ServiceStatus.SHUTTING_DOWN so other services
+   * are informed that this plugin is stopping.
+   */
+  @Override
+  public void onDisable() {
+    Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+
+    final List<ClusterService> limboServers = Cluster.getInstance().getServices().values()
+        .stream()
+        .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
+        .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+        .toList();
+
+    for (final var player : Bukkit.getOnlinePlayers()) {
+      final var networkPlayer = PlayerManager.getInstance()
+          .fromBukkitPlayer(player);
+
+      networkPlayer.connect(limboServers.getFirst());
     }
+  }
 
-    /**
-     * Initialize the plugin: set the singleton instance, register inventory and runtime components,
-     * connect to the database, register commands and cluster services, and mark the cluster as available.
-     */
-    @Override
-    public void onEnable() {
-        instance = this;
-
-        PlayerProfileManager.getInstance();
-
-        InventoryManager.register(this);
-        this.createDataFolder();
-        this.createDirs();
-        this.connectDatabase();
-        this.setupCluster();
-        this.setLocations();
-
-        new PlayerManager();
-        new DuelManager();
-
-        this.setupCommands();
-        this.registerListeners();
-
-        BillboardManager.getInstance().setup();
-        ExecutableItemRegistry.register(
-                new MatchBrowserItem(),
-                new PartyBrowserItem(),
-                new LobbySelectorItem()
-        );
-
-        Cluster.STATUS = ServiceStatus.AVAILABLE;
+  /**
+   * Initializes and refreshes all configured warp locations.
+   */
+  private void setLocations() {
+    for (final var location : WarpLocation.values()) {
+      location.update();
     }
+  }
 
-    /**
-     * Perform shutdown tasks for the plugin.
-     * <p>
-     * Updates the cluster status to ServiceStatus.SHUTTING_DOWN so other services are informed that this plugin is stopping.
-     */
-    @Override
-    public void onDisable() {
-        Cluster.STATUS = ServiceStatus.SHUTTING_DOWN;
+  /**
+   * Initialize and register bukkit listeners
+   */
+  private void registerListeners() {
+    new PlayerChatListener();
+    new PlayerListener();
+    new ItemPlayerListener();
+    new BillboardListener();
+    new BillboardPacketListener();
+    new ReplyCommand();
+    new SpawnListener();
+    new KitEditorCommand();
+  }
 
-        final List<ClusterService> limboServers = Cluster.getInstance().getServices().values()
-                .stream()
-                .filter(onlineServer -> onlineServer.getType().equals(ServiceType.LOBBY))
-                .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
-                .toList();
+  /**
+   * Initialize and register lobby command handlers.
+   * <p>
+   * Instantiates and registers the DuelCommand, WhereIsCommand, PingCommand, and
+   * QueueCommand handlers.
+   */
+  private void setupCommands() {
+    new SpectateCommand();
+    new DuelCommand();
+    new AdminCommand();
+    new WhereIsCommand();
+    new PingCommand();
+    new QueueCommand();
+    new BillboardCommand();
+    new ArenaCommand();
+    new WhereIsProxyCommand();
+    new PartyCommand();
+    new MessageCommand();
+    new FriendCommand();
+  }
 
-        for (final var player : Bukkit.getOnlinePlayers()) {
-            final var networkPlayer = PlayerManager.getInstance()
-                    .fromBukkitPlayer(player);
-
-            networkPlayer.connect(limboServers.getFirst());
-        }
+  private void createDataFolder() {
+    if (!this.getDataFolder().exists()) {
+      this.getDataFolder().mkdir();
     }
+  }
 
-    /**
-     * Initializes and refreshes all configured warp locations.
-     */
-    private void setLocations() {
-        for (final var location : WarpLocation.values()) {
-            location.update();
-        }
-    }
+  private void createDirs() {
+    List.of(
+        "schem").forEach(s -> {
+          final var file = new File(this.getDataFolder(), s);
 
-    /**
-     * Initialize and register bukkit listeners
-     */
-    private void registerListeners() {
-        new PlayerChatListener();
-        new PlayerListener();
-        new ItemPlayerListener();
-        new BillboardListener();
-        new BillboardPacketListener();
-        new ReplyCommand();
-        new SpawnListener();
-        new KitEditorCommand();
-    }
-
-    /**
-     * Initialize and register lobby command handlers.
-     * <p>
-     * Instantiates and registers the DuelCommand, WhereIsCommand, PingCommand, and QueueCommand handlers.
-     */
-    private void setupCommands() {
-        new DuelCommand();
-        new AdminCommand();
-        new WhereIsCommand();
-        new PingCommand();
-        new QueueCommand();
-        new BillboardCommand();
-        new ArenaCommand();
-        new WhereIsProxyCommand();
-        new PartyCommand();
-        new MessageCommand();
-        new FriendCommand();
-    }
-
-    private void createDataFolder() {
-        if (!this.getDataFolder().exists()) {
-            this.getDataFolder().mkdir();
-        }
-    }
-
-    private void createDirs() {
-        List.of(
-                "schem"
-        ).forEach(s -> {
-            final var file = new File(this.getDataFolder(), s);
-
-            if (!file.exists()) {
-                file.mkdirs();
-            }
+          if (!file.exists()) {
+            file.mkdirs();
+          }
         });
-    }
+  }
 
+  /**
+   * Initializes a MongoDB connection from environment-provided credentials and
+   * registers it with the DatabaseManager.
+   * <p>
+   * Reads the environment variables `MONGODB_HOST`, `MONGODB_USERNAME`,
+   * `MONGODB_PASSWORD`, and `MONGODB_DATABASE`
+   * and connects to the specified host on port 27017.
+   */
+  private void connectDatabase() {
+    final String host = System.getenv("MONGODB_HOST");
+    final String password = System.getenv("MONGODB_PASSWORD");
+    final String username = System.getenv("MONGODB_USERNAME");
+    final String database = System.getenv("MONGODB_DATABASE");
 
-    /**
-     * Initializes a MongoDB connection from environment-provided credentials and registers it with the DatabaseManager.
-     * <p>
-     * Reads the environment variables `MONGODB_HOST`, `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_DATABASE`
-     * and connects to the specified host on port 27017.
-     */
-    private void connectDatabase() {
-        final String host = System.getenv("MONGODB_HOST");
-        final String password = System.getenv("MONGODB_PASSWORD");
-        final String username = System.getenv("MONGODB_USERNAME");
-        final String database = System.getenv("MONGODB_DATABASE");
+    DatabaseManager.getInstance().connect(
+        host,
+        27017,
+        username,
+        password,
+        database);
+  }
 
-        DatabaseManager.getInstance().connect(
-                host,
-                27017,
-                username,
-                password,
-                database
-        );
-    }
+  /**
+   * Configures and instantiates the plugin Cluster from environment variables.
+   * <p>
+   * Reads the following environment variables and uses them to create a Cluster:
+   * HOSTNAME, REDIS_HOST, REDIS_PORT (REDIS_PORT is parsed as a base-10 integer).
+   */
+  private void setupCluster() {
+    final String hostName = System.getenv("HOSTNAME");
+    final String host = System.getenv("REDIS_HOST");
+    final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
 
-    /**
-     * Configures and instantiates the plugin Cluster from environment variables.
-     * <p>
-     * Reads the following environment variables and uses them to create a Cluster:
-     * HOSTNAME, REDIS_HOST, REDIS_PORT (REDIS_PORT is parsed as a base-10 integer).
-     */
-    private void setupCluster() {
-        final String hostName = System.getenv("HOSTNAME");
-        final String host = System.getenv("REDIS_HOST");
-        final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
+    new Cluster(
+        new RedisBroker(host, port, ""),
+        new RedisCacheService(host, port, ""),
+        ServiceType.LOBBY,
+        hostName);
+  }
 
-        new Cluster(
-                new RedisBroker(host, port, ""),
-                new RedisCacheService(host, port, ""),
-                ServiceType.LOBBY,
-                hostName
-        );
-    }
-
-    /**
-     * Accesses the singleton Lobby instance.
-     *
-     * @return the shared Lobby instance, or null if the plugin has not been enabled.
-     */
-    public static Lobby getInstance() {
-        return instance;
-    }
+  /**
+   * Accesses the singleton Lobby instance.
+   *
+   * @return the shared Lobby instance, or null if the plugin has not been
+   *         enabled.
+   */
+  public static Lobby getInstance() {
+    return instance;
+  }
 }
