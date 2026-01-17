@@ -137,8 +137,6 @@ public final class DuelManager {
           kitType,
           arena);
 
-      new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
-
       duel.getBlueTeam().setScore(blueScore);
       duel.getRedTeam().setScore(redScore);
 
@@ -187,6 +185,7 @@ public final class DuelManager {
           bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
         }
 
+        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
         new GameStartTask(3, duel);
       });
     });
@@ -237,6 +236,7 @@ public final class DuelManager {
           player.teleportAsync(arena.getCenter());
         }
 
+        new ArenaScanTask(ffa).runTaskTimer(Duels.getInstance(), 0L, 20L);
         new GameStartTask(3, ffa);
       });
     });
@@ -268,8 +268,6 @@ public final class DuelManager {
           rounds,
           kitType,
           arena);
-
-      new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
 
       // TODO: Replace? Cant think of a better solution rn :3 :§ :§ § :3
       final var uuids = new HashSet<>(redTeam);
@@ -320,6 +318,7 @@ public final class DuelManager {
           bluePlayer.teleportAsync(arena.getSpawn2().add(0, 1, 0));
         }
 
+        new ArenaScanTask(duel).runTaskTimer(Duels.getInstance(), 0, 20L);
         new GameStartTask(3, duel);
       });
     });
