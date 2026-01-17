@@ -9,7 +9,6 @@ import club.revived.duels.game.duels.ffa.FFA;
 import club.revived.duels.game.kit.EditedDuelKit;
 import club.revived.duels.service.cluster.Cluster;
 import club.revived.duels.service.cluster.ServiceType;
-import club.revived.duels.service.messaging.Request;
 import club.revived.duels.service.messaging.impl.*;
 import club.revived.duels.service.player.NetworkPlayer;
 import club.revived.duels.service.player.PlayerManager;
@@ -18,7 +17,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.t;
+import org.checkerframework.checker.units.qual.g;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -37,6 +36,7 @@ import java.util.stream.Collectors;
 public final class DuelManager {
 
   private final Map<UUID, Game> runningGames = new ConcurrentHashMap<>();
+  private final Map<UUID, Game> spectating = new ConcurrentHashMap<>();
 
   private final Cluster cluster = Cluster.getInstance();
 
@@ -65,7 +65,37 @@ public final class DuelManager {
   }
 
   private void startSpectating(final StartSpectating startSpectating) {
+    final var networkPlayer = PlayerManager.getInstance().getNetworkPlayers()
+        .get(startSpectating.uuid());
 
+    final var game = this.byId(startSpectating.duelId());
+    final var arena = game.getArena();
+
+    networkPlayer.connectHere();
+
+    PlayerJoinTracker.of(Duels.getInstance(), List.of(startSpectating.uuid()), online -> {
+      final var player = online.getFirst();
+      player.teleportAsync(arena.getCenter());
+
+      for (final var gaming : game.getPlayers()) {
+        gaming.sendRichMessage(String.format("<dark_gray>%s starting spectating your Game!", player.getName()));
+      }
+
+      this.spectating.put(player.getUniqueId(), game);
+      player.sendRichMessage(String.format("<green>Successfully started spectating duel %s", startSpectating.uuid()));
+    });
+  }
+
+  public void stopSpectating(final UUID uuid) {
+    if (!this.runningGames.containsKey(uuid)) {
+      throw new UnsupportedOperationException("Trying to end non existing spectating session");
+    }
+
+    final var lobby = Cluster.getInstance().getLeastLoadedService(ServiceType.LOBBY);
+    final var networkPlayer = PlayerManager.getInstance().getNetworkPlayers().get(uuid);
+
+    networkPlayer.sendMessage("<red>Successfully stopped spectating!");
+    networkPlayer.connect(lobby.getId());
   }
 
   /**
@@ -494,6 +524,14 @@ public final class DuelManager {
 
   public Map<UUID, Game> getRunningGames() {
     return runningGames;
+  }
+
+  @Nullable
+  public Game byId(final String id) {
+    return this.runningGames.values().stream()
+        .filter(game -> game.getData().id().equals(id))
+        .toList()
+        .getFirst();
   }
 
   /**
