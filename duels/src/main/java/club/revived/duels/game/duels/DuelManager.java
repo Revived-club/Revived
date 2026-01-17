@@ -77,6 +77,7 @@ public final class DuelManager {
 
     PlayerJoinTracker.of(Duels.getInstance(), List.of(startSpectating.uuid()), online -> {
       final var player = online.getFirst();
+      player.setGameMode(GameMode.SPECTATOR);
       player.teleportAsync(arena.getCenter());
 
       for (final var gaming : game.getPlayers()) {
