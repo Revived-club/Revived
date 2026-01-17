@@ -30,7 +30,6 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.tofaa.entitylib.APIConfig;
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
-import net.minecraft.server.commands.SpectateCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
