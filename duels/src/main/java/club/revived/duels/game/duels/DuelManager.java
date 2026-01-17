@@ -421,7 +421,7 @@ public final class DuelManager {
           ColorUtils.parse("<gold><bold>Duel Ended!"),
           ColorUtils.empty()));
 
-      spectator.sendRichMessage(String.format("<green>%s won the FFA", winner.getPlayer()));
+      spectator.sendRichMessage(String.format("<green>%s won the FFA", winner.getPlayer().getName()));
     }
 
     for (final var player : ffa.getPlayers()) {
