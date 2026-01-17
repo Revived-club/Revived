@@ -351,6 +351,16 @@ public final class DuelManager {
         .map(Player::getName)
         .collect(Collectors.joining(", "));
 
+    for (final var player : duel.getSpectatingPlayers()) {
+      this.spectating.remove(player.getUniqueId());
+      final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.LOBBY);
+
+      final var networkPlayer = PlayerManager.getInstance()
+          .fromBukkitPlayer(player);
+
+      networkPlayer.connect(service);
+    }
+
     for (final var player : duel.getPlayers()) {
       this.runningGames.remove(player.getUniqueId());
       this.healPlayer(player);
