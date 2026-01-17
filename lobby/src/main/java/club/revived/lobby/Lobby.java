@@ -139,6 +139,7 @@ public final class Lobby extends JavaPlugin {
         new BillboardPacketListener();
         new ReplyCommand();
         new SpawnListener();
+        new KitEditorCommand();
     }
 
     /**
