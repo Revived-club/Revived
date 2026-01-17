@@ -90,7 +90,7 @@ public final class DuelManager {
       game.addSpectator(player.getUniqueId());
 
       this.spectating.put(player.getUniqueId(), game);
-      player.sendRichMessage(String.format("<green>Successfully started spectating duel %s", startSpectating.uuid()));
+      player.sendRichMessage("<green>Successfully started spectating duel");
     });
   }
 
@@ -416,6 +416,14 @@ public final class DuelManager {
       final Player winner) {
     ffa.setGameState(GameState.ENDING);
 
+    for (final var spectator : ffa.getSpectatingPlayers()) {
+      spectator.showTitle(Title.title(
+          ColorUtils.parse("<gold><bold>Duel Ended!"),
+          ColorUtils.empty()));
+
+      spectator.sendRichMessage(String.format("<green>%s won the FFA", winner.getPlayer()));
+    }
+
     for (final var player : ffa.getPlayers()) {
       this.runningGames.remove(player.getUniqueId());
       this.healPlayer(player);
@@ -435,6 +443,17 @@ public final class DuelManager {
 
     Bukkit.getScheduler().runTaskLater(Duels.getInstance(), () -> {
       ffa.discard();
+
+      for (final var player : ffa.getSpectatingPlayers()) {
+        this.spectating.remove(player.getUniqueId());
+        final var service = Cluster.getInstance().getLeastLoadedService(ServiceType.LOBBY);
+
+        final var networkPlayer = PlayerManager.getInstance()
+            .fromBukkitPlayer(player);
+
+        networkPlayer.connect(service);
+      }
+
       this.cluster.getLeastLoadedService(ServiceType.LOBBY)
           .sendMessage(new FFAEnd(
               winner.getUniqueId(),
