@@ -59,6 +59,8 @@ public final class EditedKitTemplateProvider implements DatabaseProvider<EditedK
         try {
             final var uuid = duelKit.uuid();
 
+            System.out.println("Saving");
+
             final var json = this.gson.toJson(duelKit);
             final var doc = new Document("uuid", uuid.toString()).append("data", json);
 
